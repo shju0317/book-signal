@@ -30,3 +30,6 @@ yarn-error.log*
 *.ntvs*
 *.njsproj
 *.sln
+
+# 환경변수 제외 처리
+.env

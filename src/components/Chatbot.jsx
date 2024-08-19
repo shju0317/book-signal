@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import config from '../../apikey';
+import API_KEYS from '../config/apikey';
 
 const Chatbot = () => {
    const [messages, setMessages] = useState([]);
    const [userInput, setUserInput] = useState('');
    const [loading, setLoading] = useState(false);
 
-   const apiKey = config.REACT_APP_API_KEY;
+   const apiKey = API_KEYS.openai;
    const apiEndpoint = 'https://api.openai.com/v1/chat/completions';
 
    const addMessage = (sender, message) => {
