@@ -21,7 +21,6 @@ const GetReview = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState('');
-  const [userId, setUserId] = useState(''); // 사용자 ID 상태 추가
 
   const openModal = () => {
     setModalIsOpen(true);
@@ -38,7 +37,7 @@ const GetReview = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userId, rating, review }), // userId 추가
+        body: JSON.stringify({ rating, review }), // userId 제거
       });
 
       if (!response.ok) {
@@ -69,15 +68,6 @@ const GetReview = () => {
       >
         <h2>리뷰와 별점을 남겨주세요</h2>
         
-        {/* 사용자 ID 입력 필드 */}
-        <input
-          type="text"
-          value={userId}
-          onChange={(e) => setUserId(e.target.value)}
-          placeholder="사용자 ID"
-          style={{ width: '100%', marginBottom: '10px' }}
-        />
-
         {/* 별점 컴포넌트 */}
         <Rating
           count={5}
