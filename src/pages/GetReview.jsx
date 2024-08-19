@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Modal from 'react-modal';
 import Rating from 'react-rating-stars-component';
+import axios from 'axios';
 
 // 모달 스타일 설정
 const customStyles = {
@@ -14,7 +15,7 @@ const customStyles = {
   },
 };
 
-// 모달의 루트 엘리먼트를 설정 (필수)
+// 모달의 루트 엘리먼트 설정 (필수)
 Modal.setAppElement('#root');
 
 const GetReview = () => {
@@ -30,11 +31,17 @@ const GetReview = () => {
     setModalIsOpen(false);
   };
 
-  const handleSubmit = () => {
-    // 별점과 리뷰 제출 시 처리 로직
-    console.log('Rating:', rating);
-    console.log('Review:', review);
-    closeModal();
+  const handleSubmit = async () => {
+    try {
+      const response = await axios.post('http://localhost:5000/submit-review', {
+        rating,
+        review,
+      });
+      console.log(response.data);
+      closeModal();
+    } catch (error) {
+      console.error('리뷰 제출 오류:', error);
+    }
   };
 
   return (
@@ -50,7 +57,7 @@ const GetReview = () => {
         contentLabel="리뷰와 별점 남기기"
       >
         <h2>리뷰와 별점을 남겨주세요</h2>
-        
+
         {/* 별점 컴포넌트 */}
         <Rating
           count={5}
