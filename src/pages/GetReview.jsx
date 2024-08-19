@@ -21,6 +21,7 @@ const GetReview = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState('');
+  const [userId, setUserId] = useState(''); // 사용자 ID 상태 추가
 
   const openModal = () => {
     setModalIsOpen(true);
@@ -30,10 +31,27 @@ const GetReview = () => {
     setModalIsOpen(false);
   };
 
-  const handleSubmit = () => {
-    // 별점과 리뷰 제출 시 처리 로직
-    console.log('Rating:', rating);
-    console.log('Review:', review);
+  const handleSubmit = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/api/review', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId, rating, review }), // userId 추가
+      });
+
+      if (!response.ok) {
+        throw new Error('서버 오류');
+      }
+
+      const result = await response.json();
+      console.log(result.message);
+    } catch (error) {
+      console.error('리뷰 제출 실패:', error);
+    }
+
+    // 제출 후 모달 닫기
     closeModal();
   };
 
@@ -51,6 +69,15 @@ const GetReview = () => {
       >
         <h2>리뷰와 별점을 남겨주세요</h2>
         
+        {/* 사용자 ID 입력 필드 */}
+        <input
+          type="text"
+          value={userId}
+          onChange={(e) => setUserId(e.target.value)}
+          placeholder="사용자 ID"
+          style={{ width: '100%', marginBottom: '10px' }}
+        />
+
         {/* 별점 컴포넌트 */}
         <Rating
           count={5}
