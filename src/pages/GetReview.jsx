@@ -30,27 +30,10 @@ const GetReview = () => {
     setModalIsOpen(false);
   };
 
-  const handleSubmit = async () => {
-    try {
-      const response = await fetch('http://localhost:3000/api/review', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ rating, review }), // userId 제거
-      });
-
-      if (!response.ok) {
-        throw new Error('서버 오류');
-      }
-
-      const result = await response.json();
-      console.log(result.message);
-    } catch (error) {
-      console.error('리뷰 제출 실패:', error);
-    }
-
-    // 제출 후 모달 닫기
+  const handleSubmit = () => {
+    // 별점과 리뷰 제출 시 처리 로직
+    console.log('Rating:', rating);
+    console.log('Review:', review);
     closeModal();
   };
 
