@@ -1,0 +1,15 @@
+/* 기본 폰트 */
+@font-face {
+  font-family: 'Pretendard-Regular';
+  src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* 로고 폰트 */
+@font-face {
+  font-family: 'Cafe24Moyamoya-Regular-v1.0';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_231029@1.1/Cafe24Moyamoya-Regular-v1.0.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
