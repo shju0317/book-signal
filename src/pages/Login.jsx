@@ -27,7 +27,7 @@ const Login = () => {
               name="memId"
               placeholder="아이디 입력"
               value={memId}
-              onChange={(e) => setMemId(e.target.value)}
+              onChange={() => setMemId()}
             />
           </div>
           <div className="input-group">
@@ -38,7 +38,7 @@ const Login = () => {
               name="memPw"
               placeholder="비밀번호 입력"
               value={memPw}
-              onChange={(e) => setMemPw(e.target.value)}
+              onChange={() => setMemPw()}
             />
           </div>
           <div className="checkbox-group">

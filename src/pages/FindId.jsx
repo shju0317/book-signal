@@ -41,7 +41,7 @@ const FindId = () => {
                 </form>
             </div>
             <div className="findid-footer">
-            <Link to="/Join">비밀번호 찾기</Link> | <Link to="/Join">로그인</Link> | <Link to="/Join">회원가입</Link>
+            <Link to="/FindPw">비밀번호 찾기</Link> | <Link to="/Login">로그인</Link> | <Link to="/Join">회원가입</Link>
             </div>
         </div>
     );
