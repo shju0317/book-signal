@@ -27,6 +27,9 @@ module.exports = {
         '2xl': '1536px', // 매우 큰 화면
         '3xl': '1920px'  // 초대형 화면
       },
+      minWidth: {
+        'xs': '480px',
+      },
     },
   },
   plugins: [],
