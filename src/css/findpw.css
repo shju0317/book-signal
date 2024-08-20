@@ -13,15 +13,6 @@
     font-style: normal;
 }
 
-/* 전체 페이지 배경 설정 */
-body {
-    background-color: #FCF4EF;
-    font-family: 'Pretendard-Regular', sans-serif;
-    height: 100vh; /* Viewport height를 100%로 설정 */
-    margin: 0; /* 기본 마진을 제거 */
-    display: flex;
-    justify-content: center;
-}
 
 /* 컨테이너 설정 */
 .findpw-container {

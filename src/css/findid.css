@@ -13,12 +13,6 @@
     font-style: normal;
 }
 
-/* 전체 페이지 배경 설정 */
-body {
-    background-color: #FCF4EF;
-    font-family: 'Pretendard-Regular', sans-serif;
-}
-
 /* 컨테이너 설정 */
 .findid-container {
     display: flex;
