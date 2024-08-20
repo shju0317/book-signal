@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'; // Link 컴포넌트 추가
 import '../css/login.css';
 
 const Login = () => {
-
   const [memId, setMemId] = useState('');
   const [memPw, setMemPw] = useState('');
   const [autologin, setAutoLogin] = useState(false);
@@ -56,12 +55,13 @@ const Login = () => {
           </p>
           <button type="submit" className="login-button">로그인</button>
         </form>
+      </div>
+      <div className="footer-wrapper">
         <div className="login-footer">
-        <Link to="/FindId">아이디 찾기</Link> | <Link to="/FindPw">비밀번호 찾기</Link> | <Link to="/Join">회원가입</Link>
+          <Link to="/FindId">아이디 찾기</Link> | <Link to="/FindPw">비밀번호 찾기</Link> | <Link to="/Join">회원가입</Link>
         </div>
       </div>
     </div>
-
   );
 }
 

@@ -17,11 +17,22 @@
 body {
     background-color: #FCF4EF;
     font-family: 'Pretendard-Regular', sans-serif;
+    height: 100vh; /* Viewport height를 100%로 설정 */
+    margin: 0; /* 기본 마진을 제거 */
+    display: flex;
+    justify-content: center;
+}
+
+/* 컨테이너 설정 */
+.findpw-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 50px;
 }
 
 /* 타이틀 컨테이너 */
 .title-container {
-    margin-top: 30px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -41,98 +52,51 @@ body {
     font-size: 2.5rem;
 }
 
-/* 로그인 컨테이너 */
-.login-container {
+/* 비밀번호 찾기 폼 컨테이너 */
+.findpw-form-container {
     background-color: white;
-    padding: 20px;
+    padding: 30px;
     width: 400px;
-    margin: 10px auto;
     border-radius: 15px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* 로그인 제목 */
-.login-title {
-    padding-left: 15px;
+/* 폼 제목 */
+.findpw-title {
     text-align: left;
     font-size: 1.5rem;
     margin-bottom: 20px;
+    margin-left: 15px;
 }
 
 /* 폼 레이아웃 */
-.login-form {
+.findpw-form {
     display: flex;
     flex-direction: column;
+    width: 100%; /* 폼 너비를 100%로 설정 */
 }
 
 /* 입력 필드 그룹 */
 .input-group {
-    display: flex;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.input-label {
+    margin-bottom: 5px;
+    font-size: 1rem;
 }
 
 .input-field {
-    width: 96%;
+    width: 100%;
     padding: 15px;
     background-color: #f5f5f5;
     border: none;
     border-radius: 10px;
     font-family: 'Pretendard-Regular', sans-serif;
-    outline: none;
-    font-size: 1rem;
 }
 
-/* 체크박스 그룹 */
-.checkbox-group {
-    display: flex;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.checkbox-group input[type="checkbox"] {
-    appearance: none;
-    -webkit-appearance: none;
-    width: 20px;
-    height: 20px;
-    border: 2px solid #ccc;
-    border-radius: 50%;
-    position: relative;
-    cursor: pointer;
-    outline: none;
-    margin-right: 10px;
-}
-
-.checkbox-group input[type="checkbox"]:checked {
-    background-color: #28a745;
-    border-color: #28a745;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.checkbox-group input[type="checkbox"]:checked::before {
-    content: '✔';
-    font-size: 12px;
-    color: white;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-/* 에러 메시지 */
-.error-message {
-    color: #ff4d4f;
-    font-size: 0.875rem;
-    display: flex;
-    align-items: center;
-    margin-bottom: 15px;
-    text-align: left;
-}
-
-
-/* 로그인 버튼 */
-.login-button {
+/* 제출 버튼 */
+.findpw-button {
     background-color: #ff9b82;
     border: none;
     color: white;
@@ -142,30 +106,25 @@ body {
     border-radius: 10px;
     cursor: pointer;
     font-family: 'Pretendard-Regular', sans-serif;
-    margin-bottom: 20px;
+    margin-top: 20px;
 }
 
-.login-button:hover {
+.findpw-button:hover {
     background-color: #ff7e63;
 }
 
-/* 하단 링크 */
-.login-footer {
+/* 푸터 링크 */
+.findpw-footer {
     text-align: center;
-    font-size: 0.875rem;
-    margin-top: 20px; /* 위쪽 여백 추가 */
+    margin-top: 20px;
 }
 
-.login-footer a {
+.findpw-footer a {
     color: black;
     text-decoration: none;
-    margin: 0 5px;
+    margin: 0 10px;
 }
 
-.login-footer a:hover {
+.findpw-footer a:hover {
     text-decoration: underline;
-}
-
-.footer-wrapper {
-    text-align: center;
 }

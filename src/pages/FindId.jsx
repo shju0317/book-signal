@@ -25,7 +25,7 @@ const FindId = () => {
                             name='memEmail'
                             placeholder='example@gmail.com'
                             value={memEmail}
-                            onChange={(e) => setMemEmail(e.target.value)} />
+                            onChange={() => setMemEmail()} />
                     </div>
                     <div className="input-group">
                         <input 
@@ -35,7 +35,7 @@ const FindId = () => {
                             name='memName'
                             placeholder='홍길동'
                             value={memName}
-                            onChange={(e) => setMemName(e.target.value)} />
+                            onChange={() => setMemName()} />
                     </div>
                     <button type="submit" className="findid-button">다음</button>
                 </form>

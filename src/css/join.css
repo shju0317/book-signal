@@ -24,7 +24,6 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 30px;
 }
 
 /* 타이틀 컨테이너 */
@@ -53,7 +52,7 @@ body {
 .join-container {
     background-color: white;
     padding: 20px;
-    width: 600px;
+    width: 400px;
     border-radius: 15px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     font-family: 'Pretendard-Regular', sans-serif;

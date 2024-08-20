@@ -1,38 +1,50 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import '../css/findpw.css';
 
-const FindPw = () => {
-
+const FindPassword = () => {
     const [memEmail, setMemEmail] = useState('');
     const [memId, setMemId] = useState('');
 
     return (
-        <div>
-            <h4>비밀번호 찾기</h4>
-            <form action="">
-                <div>
-                    <label htmlFor="memEmail" className=''>이메일</label>
-                    <input type="text"
-                        className=''
-                        id='memEmail'
-                        name='memEmail'
-                        placeholder='이메일을 입력하세요'
-                        value={memEmail}
-                        onChange={() => { }} />
-                </div>
-                <div>
-                    <label htmlFor="memId" className=''>아이디</label>
-                    <input type="text"
-                        className=''
-                        id='memId'
-                        name='memId'
-                        placeholder='아이디를 입력하세요'
-                        value={memId}
-                        onChange={() => { }} />
-                </div>
-                <button type="submit" className="">비밀번호 찾아주겠노라~!</button>
-            </form>
+        <div className="findpw-container">
+            <div className='title-container'>
+                <h1 className='title-book'>북</h1>
+                <h1 className='title-signal'>시그널</h1>
+            </div>
+            <div className='findpw-form-container'>
+                <h4 className='findpw-title'>비밀번호 찾기</h4>
+                <hr />
+                <br />
+                <form action="" className="findpw-form">
+                    <div className="input-group">
+                        <input
+                            type="text"
+                            className='input-field'
+                            id='memEmail'
+                            name='memEmail'
+                            placeholder='example@gmail.com'
+                            value={memEmail}
+                            onChange={() => setMemEmail()} />
+                    </div>
+                    <div className="input-group">
+                        <input
+                            type="text"
+                            className='input-field'
+                            id='memId'
+                            name='memId'
+                            placeholder='아이디'
+                            value={memId}
+                            onChange={() => setMemId()} />
+                    </div>
+                    <button type="submit" className="findpw-button">다음</button>
+                </form>
+            </div>
+            <div className="findpw-footer">
+                <Link to="/FindId">아이디 찾기</Link> | <Link to="/Login">로그인</Link> | <Link to="/Join">회원가입</Link>
+            </div>
         </div>
-    )
+    );
 }
 
-export default FindPw
+export default FindPassword;

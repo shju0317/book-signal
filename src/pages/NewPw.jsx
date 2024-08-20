@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import '../css/newpw.css';
 
 const NewPw = () => {
 
@@ -6,33 +8,45 @@ const NewPw = () => {
     const [confirmNewPw, setConfirmNewPw] = useState('');
 
     return (
-        <div>
-            <h4>비밀번호 재설정</h4>
-            <form action="">
-                <div>
-                    <label htmlFor="newPw" className=''>새 비밀번호</label>
-                    <input type="password"
-                        className=''
-                        id='newPw'
-                        name='newPw'
-                        placeholder='새 비밀번호 입력'
-                        value={newPw}
-                        onChange={() => { }} />
-                </div>
-                <div>
-                    <label htmlFor="confirmNewPw" className=''>새 비밀번호 확인</label>
-                    <input type="password"
-                        className=''
-                        id='confirmNewPw'
-                        name='confirmNewPw'
-                        placeholder='새 비밀번호 입력'
-                        value={confirmNewPw}
-                        onChange={() => { }} />
-                </div>
-                <button type="submit" className="">비밀번호 재설정</button>
-            </form>
+        <div className="newpw-container">
+            <div className='title-container'>
+                <h1 className='title-book'>북</h1>
+                <h1 className='title-signal'>시그널</h1>
+            </div>
+            <div className='newpw-form-container'>
+                <h4 className='newpw-title'>비밀번호 재설정</h4>
+                <hr />
+                <br />
+                <form action="" className="newpw-form">
+                    <div className="input-group">
+                        <input 
+                            type="password" 
+                            className='input-field' 
+                            id='newPw' 
+                            name='newPw' 
+                            placeholder='새 비밀번호 입력' 
+                            value={newPw}
+                            onChange={(e) => setNewPw(e.target.value)} />
+                    </div>
+                    <div className="input-group">
+                        <input 
+                            type="password" 
+                            className='input-field' 
+                            id='confirmNewPw' 
+                            name='confirmNewPw' 
+                            placeholder='새 비밀번호 입력' 
+                            value={confirmNewPw}
+                            onChange={(e) => setConfirmNewPw(e.target.value)} />
+                    </div>
+                    <button type="submit" className="newpw-button">비밀번호 재설정</button>
+                </form>
+            </div>
+            {/* Link 요소들을 newpw-form-container 외부에 배치 */}
+            <div className="newpw-footer">
+                <Link to="/FindId">아이디 찾기</Link> | <Link to="/Login">로그인</Link> | <Link to="/Join">회원가입</Link>
+            </div>
         </div>
-    )
+    );
 }
 
-export default NewPw
+export default NewPw;
