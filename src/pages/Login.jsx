@@ -57,7 +57,7 @@ const Login = () => {
           <button type="submit" className="login-button">로그인</button>
         </form>
         <div className="login-footer">
-          <a href="#">아이디 찾기</a> | <a href="#">비밀번호 찾기</a> | <Link to="/join">회원가입</Link>
+        <Link to="/FindId">아이디 찾기</Link> | <Link to="/FindPw">비밀번호 찾기</Link> | <Link to="/Join">회원가입</Link>
         </div>
       </div>
     </div>
