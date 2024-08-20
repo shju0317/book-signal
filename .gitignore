@@ -33,3 +33,6 @@ yarn-error.log*
 
 # Ignore Tailwind CSS output file
 src/styles/output.css
+
+# 환경변수 제외 처리
+.env
