@@ -15,7 +15,10 @@ const Header = () => {
         <li><Link to="/mypage">마이페이지</Link></li>
       </ul>
       <Search/>
-      <button type='button' onClick={()=>{navigate('/login')}}>로그인</button>
+      <div>
+        <button type='button' onClick={()=>{navigate('/join')}} className='mr-5'>회원가입</button>
+        <button type='button' onClick={()=>{navigate('/login')}}>로그인</button>
+      </div>
     </header>
   )
 }
