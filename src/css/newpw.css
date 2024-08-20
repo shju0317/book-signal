@@ -1,0 +1,130 @@
+/* 폰트 설정 */
+@font-face {
+    font-family: 'Cafe24Moyamoya-Regular-v1.0';
+    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_231029@1.1/Cafe24Moyamoya-Regular-v1.0.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Pretendard-Regular';
+    src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+}
+
+/* 전체 페이지 배경 설정 */
+/* body {
+    background-color: #FCF4EF;
+    font-family: 'Pretendard-Regular', sans-serif;
+    height: 100vh; 
+    margin: 0; 
+    display: flex;
+    justify-content: center;
+} */
+
+/* 컨테이너 설정 */
+.newpw-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 50px;
+}
+
+/* 타이틀 컨테이너 */
+.title-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+    font-family: 'Cafe24Moyamoya-Regular-v1.0', cursive;
+}
+
+/* "북" 타이틀 */
+.title-book {
+    color: #F57E53;
+    font-size: 2.5rem;
+}
+
+/* "시그널" 타이틀 */
+.title-signal {
+    color: black;
+    font-size: 2.5rem;
+}
+
+/* 비밀번호 재설정 폼 컨테이너 */
+.newpw-form-container {
+    background-color: white;
+    padding: 30px;
+    width: 400px; 
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    text-align: center; /* 텍스트 중앙 정렬 */
+}
+
+/* 비밀번호 재설정 제목 */
+.newpw-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    text-align: left;
+    margin-left: 15px;
+}
+
+/* 폼 레이아웃 */
+.newpw-form {
+    display: flex;
+    flex-direction: column;
+}
+
+/* 입력 필드 그룹 */
+.input-group {
+    margin-bottom: 15px;
+}
+
+/* 입력 필드 */
+.input-field {
+    width: 100%; 
+    padding: 15px;
+    background-color: #f5f5f5;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Pretendard-Regular', sans-serif;
+    outline: none;
+    font-size: 1rem;
+}
+
+/* 버튼 설정 */
+.newpw-button {
+    background-color: #ff9b82;
+    border: none;
+    color: white;
+    padding: 15px;
+    width: 100%;
+    font-size: 1rem;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-top: 10px;
+    font-family: 'Pretendard-Regular', sans-serif;
+    margin-top: 20px;
+}
+
+.newpw-button:hover {
+    background-color: #ff7e63;
+}
+
+/* 하단 링크 */
+.newpw-footer {
+    margin-top: 20px;
+    font-size: 0.875rem;
+    text-align: center;
+}
+
+.newpw-footer a {
+    color: black;
+    text-decoration: none;
+    margin: 0 5px;
+}
+
+.newpw-footer a:hover {
+    text-decoration: underline;
+}
