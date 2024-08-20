@@ -2,40 +2,12 @@ import React, { useState } from 'react';
 import Modal from 'react-modal';
 import Rating from 'react-rating-stars-component';
 
-// 모달 스타일 설정
-const customStyles = {
-  content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
-  },
-};
-
-// 모달의 루트 엘리먼트를 설정 (필수)
-Modal.setAppElement('#root');
-
 const GetReview = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState('');
 
-  const openModal = () => {
-    setModalIsOpen(true);
-  };
 
-  const closeModal = () => {
-    setModalIsOpen(false);
-  };
-
-  const handleSubmit = () => {
-    // 별점과 리뷰 제출 시 처리 로직
-    console.log('Rating:', rating);
-    console.log('Review:', review);
-    closeModal();
-  };
 
   return (
     <div>

@@ -16,7 +16,8 @@ function App() {
           <Route path="/Join" element={<Join />} />
           <Route path="/FindId" element={<FindId />} />
           <Route path="/FindPw" element={<FindPw />} />
-          <Route path="/NewPw" element={<NewPw />} /> 
+          <Route path="/NewPw" element={<NewPw />} />
+
         </Routes>
       </div>
     </Router>
