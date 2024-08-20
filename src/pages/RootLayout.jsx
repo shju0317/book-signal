@@ -4,7 +4,7 @@ import { Outlet } from 'react-router-dom'
 
 const RootLayout = () => {
   return (
-    <div>
+    <div className='min-w-xs'>
       <Header/>
       <main>
         <Outlet/>
