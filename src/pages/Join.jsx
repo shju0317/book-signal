@@ -1,102 +1,101 @@
 import React, { useState } from 'react';
-import '../css/join.css'
+import '../css/join.css';
 
 const Join = () => {
-
   const [memId, setMemId] = useState('');
   const [memPw, setMemPw] = useState('');
-  const [confrimPw, setConfirmPw] = useState('');
+  const [confirmPw, setConfirmPw] = useState('');
   const [memName, setMemName] = useState('');
   const [memNick, setMemNick] = useState('');
   const [memEmail, setMemEmail] = useState('');
   const [memBirth, setMemBirth] = useState('');
 
   return (
-    <div>
-      <h4>회원가입</h4>
-      <form action="">
-        <div>
-          <label htmlFor="memId" className=''>아이디</label>
-          <input type="text"
-          className=''
-          id='memId'
-          name='memId'
-          placeholder='아이디를 입력하세요'
-          value={memId}
-          onChange={()=>{}} />
-          <button type='button' onClick={''}>아이디 중복확인</button>
-        </div>
-        <div>
-          <label htmlFor="memPw" className=''>비밀번호</label>
-          <input type="password"
-          className=''
-          id='memPw'
-          name='memPw'
-          placeholder='비밀번호를 입력하세요'
-          value={memPw}
-          onChange={()=>{}} />
-        </div>
-        <div>
-          <label htmlFor="confirmPw" className=''>비밀번호 재확인</label>
-          <input type="password"
-          className=''
-          id='comfirmPw'
-          name='confirmPw'
-          placeholder='비밀번호를 다시 입력하세요'
-          value={confrimPw}
-          onChange={()=>{}} />
-        </div>
-        <div>
-          <label htmlFor="memName" className=''>이름</label>
-          <input type="text"
-          className=''
-          id='memName'
-          name='memName'
-          placeholder='이름을 입력하세요'
-          value={memName}
-          onChange={()=>{}} />
-        </div>
-        <div>
-        <label htmlFor="memEmail" className=''>이메일</label>
-          <input
-            type='memEmail'
-            className=''
-            id='memEmail'
-            name='memEmail'
-            placeholder="이메일을 입력하세요"
-            value={memEmail}
-            onChange={()=>{}}
-          />
-          <button type="button" onClick={''}>이메일 중복 확인</button>
-        </div>
-        <div>
-          <label htmlFor="memNick" className="">닉네임</label>
-          <input
-            type="text"
-            className=""
-            id="memNick"
-            name="memNick"
-            placeholder="닉네임을 입력하세요"
-            value={memNick}
-            onChange={()=>{}}
-          />
-          <button type="button" onClick={''}>닉네임 중복 확인</button>
-        </div>
-        <div>
-          <label htmlFor="memBirth" className="">생년월일</label>
-          <input
-            type="date"
-            className=""
-            id="memBirth"
-            name="memBirth"
-            value={memBirth}
-            onChange={()=>{}}
-          />
-        </div>
-        <button type="submit" className="">회원가입 하여라~!</button>
-      </form>
+    <div className='page-container'>
+      <div className='title-container'>
+        <h1 className='title-book'>북</h1>
+        <h1 className='title-signal'>시그널</h1>
+      </div>
+      <div className='join-container'>
+        <h4 className='join-title'>회원가입</h4>
+        <hr />
+        <br />
+        <form className='join-form'>
+          <div className='input-group'>
+            <input
+              type='text'
+              id='memEmail'
+              name='memEmail'
+              placeholder="example@gmail.com"
+              value={memEmail}
+              onChange={() => setMemEmail()}
+            />
+            <button type="button" className='check-button'>중복확인</button>
+          </div>
+          <div className='input-group'>
+            <input 
+              type="text"
+              id='memName'
+              name='memName'
+              placeholder='홍길동'
+              value={memName}
+              onChange={() => setMemName()} />
+              
+          </div>
+          <div className='input-group'>
+            <input
+              type="text"
+              id="memNick"
+              name="memNick"
+              placeholder="닉네임   ex) 바나나알러지원숭이"
+              value={memNick}
+              onChange={() => setMemNick()}
+            />
+            <button type="button" className='check-button'>중복확인</button>
+          </div>
+          <div className='input-group'>
+            <input 
+              type="text"
+              id='memId'
+              name='memId'
+              placeholder='아이디 입력'
+              value={memId}
+              onChange={() => setMemId()} />
+            <button type='button' className='check-button'>중복확인</button>
+          </div>
+          <div className='input-group'>
+            <input 
+              type="password"
+              id='memPw'
+              name='memPw'
+              placeholder='비밀번호 입력'
+              value={memPw}
+              onChange={() => setMemPw()} />
+          </div>
+          <div className='input-group'>
+            <input 
+              type="password"
+              id='confirmPw'
+              name='confirmPw'
+              placeholder='비밀번호 확인'
+              value={confirmPw}
+              onChange={() => setConfirmPw()} />
+          </div>
+          <div className='input-group'>
+            <label htmlFor="memBirth" className='input-label'>생년월일</label>
+            <input
+              type="date"
+              id="memBirth"
+              name="memBirth"
+              value={memBirth}
+              onChange={() => setMemBirth()}
+            />
+          </div>
+          <button type="submit">회원가입</button>
+        </form>
+      </div>
     </div>
-  )
+  );
 }
 
-export default Join
+export default Join;

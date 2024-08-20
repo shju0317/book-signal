@@ -1,0 +1,170 @@
+/* 폰트 설정 */
+@font-face {
+    font-family: 'Cafe24Moyamoya-Regular-v1.0';
+    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_231029@1.1/Cafe24Moyamoya-Regular-v1.0.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Pretendard-Regular';
+    src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+}
+
+/* 전체 페이지 배경 설정 */
+body {
+    background-color: #FCF4EF;
+    font-family: 'Pretendard-Regular', sans-serif;
+}
+
+/* 타이틀 컨테이너 */
+.title-container {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+    font-family: 'Cafe24Moyamoya-Regular-v1.0', cursive;
+}
+
+/* "북" 타이틀 */
+.title-book {
+    color: #F57E53;
+    font-size: 2.5rem;
+}
+
+/* "시그널" 타이틀 */
+.title-signal {
+    color: black;
+    font-size: 2.5rem;
+}
+
+/* 로그인 컨테이너 */
+.login-container {
+    background-color: white;
+    padding: 20px;
+    width: 600px;
+    margin: 10px auto;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 로그인 제목 */
+.login-title {
+    padding-left: 15px;
+    text-align: left;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+
+/* 폼 레이아웃 */
+.login-form {
+    display: flex;
+    flex-direction: column;
+}
+
+/* 입력 필드 그룹 */
+.input-group {
+    display: flex;
+    margin-bottom: 15px;
+}
+
+.input-field {
+    width: 96%;
+    padding: 15px;
+    background-color: #f5f5f5;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Pretendard-Regular', sans-serif;
+    outline: none;
+    font-size: 1rem;
+}
+
+/* 체크박스 그룹 */
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.checkbox-group input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+    position: relative;
+    cursor: pointer;
+    outline: none;
+    margin-right: 10px;
+}
+
+.checkbox-group input[type="checkbox"]:checked {
+    background-color: #28a745;
+    border-color: #28a745;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.checkbox-group input[type="checkbox"]:checked::before {
+    content: '✔';
+    font-size: 12px;
+    color: white;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* 에러 메시지 */
+.error-message {
+    color: #ff4d4f;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.error-message img {
+    width: 16px;
+    height: 16px;
+    margin-right: 5px;
+}
+
+/* 로그인 버튼 */
+.login-button {
+    background-color: #ff9b82;
+    border: none;
+    color: white;
+    padding: 15px;
+    width: 100%;
+    font-size: 1rem;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: 'Pretendard-Regular', sans-serif;
+    margin-bottom: 20px;
+}
+
+.login-button:hover {
+    background-color: #ff7e63;
+}
+
+/* 하단 링크 */
+.login-footer {
+    text-align: center;
+    font-size: 0.875rem;
+}
+
+.login-footer a {
+    color: black;
+    text-decoration: none;
+    margin: 0 5px;
+}
+
+.login-footer a:hover {
+    text-decoration: underline;
+}
