@@ -2,10 +2,14 @@ import React from 'react'
 import { Worker, Viewer, ScrollMode } from '@react-pdf-viewer/core'
 import { useEffect, useRef } from 'react';
 import { pageNavigationPlugin } from '@react-pdf-viewer/page-navigation';
+import { zoomPlugin } from '@react-pdf-viewer/zoom';
 
 const BookView = () => {
   const viewerRef = useRef(null);
   const pageNavigationPluginInstance = pageNavigationPlugin();
+
+  const zoomPluginInstance = zoomPlugin();
+    const { ZoomInButton, ZoomOutButton, ZoomPopover } = zoomPluginInstance;
 
   return (
     <div>
@@ -21,6 +25,11 @@ const BookView = () => {
             }}
         >
         </div>
+        <div style={{ marginBottom: '16px' }}>
+                <ZoomOutButton />
+                <ZoomPopover />
+                <ZoomInButton />
+            </div>
         <div
           style={{
               border: '5px solid rgba(0, 0, 0, 0.3)',
@@ -40,7 +49,7 @@ const BookView = () => {
             width: '100%',
             height: '100%',
           }}
-          plugins={[pageNavigationPluginInstance]}
+          plugins={[pageNavigationPluginInstance, zoomPluginInstance]}
           // plugins={[scrollModePluginInstance]} // 스크롤 모드를 활성화
           // scrollMode={ScrollMode.Vertical} // 스크롤 모드 수직 설정
           />

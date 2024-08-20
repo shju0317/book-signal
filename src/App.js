@@ -1,10 +1,21 @@
+import { Routes, Route } from 'react-router-dom';
 import './App.css';
+import Home from './pages/Home';
+import MyLib from './pages/MyLib';
+import MyPage from './pages/MyPage';
+import RootLayout from './pages/RootLayout';
+import Logout from './pages/Logout';
 
 function App() {
   return (
-    <div className="App">
-      <div>프로젝트 시작</div>
-    </div>
+    <Routes>
+      <Route element={<RootLayout/>}>
+        <Route index element={<Home/>}/> 
+        <Route path='/mylib' element={<MyLib/>}/> 
+        <Route path='/mypage' element={<MyPage/>}/>
+        <Route path='/logout' element={<Logout/>}/>
+      </Route>
+    </Routes>
   );
 }
 
