@@ -1,10 +1,11 @@
 import { Routes, Route } from 'react-router-dom';
 import './App.css';
+import './styles/fonts.css'; 
 import Home from './pages/Home';
 import MyLib from './pages/MyLib';
 import MyPage from './pages/MyPage';
 import RootLayout from './pages/RootLayout';
-import Logout from './pages/Logout';
+import Login from './pages/Login';
 
 function App() {
   return (
@@ -13,7 +14,7 @@ function App() {
         <Route index element={<Home/>}/> 
         <Route path='/mylib' element={<MyLib/>}/> 
         <Route path='/mypage' element={<MyPage/>}/>
-        <Route path='/logout' element={<Logout/>}/>
+        <Route path='/login' element={<Login/>}/>
       </Route>
     </Routes>
   );

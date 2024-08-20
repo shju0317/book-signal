@@ -30,3 +30,6 @@ yarn-error.log*
 *.ntvs*
 *.njsproj
 *.sln
+
+# Ignore Tailwind CSS output file
+src/styles/output.css
