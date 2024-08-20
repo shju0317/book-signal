@@ -6,7 +6,7 @@ const Search = () => {
       <input
         type="text"
         placeholder="도서명을 입력하세요"
-        className="w-48 border-b border-black p-1"
+        className="w-48 border-b border-black p-1 bg-transparent"
       />
       <button><IoSearchCircle size={32}/></button>
     </div>
