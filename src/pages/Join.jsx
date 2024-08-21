@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import '../css/join.css';
@@ -37,10 +37,10 @@ const Join = () => {
 
   // 닉네임 중복체크
   const checkNick = async () => {
-    try { 
+    try {
       const res = await fetch(`http://localhost:3001/check-nick?mem_nick=${memNick}`);
       const data = await res.json();
-  
+
       if (data.exists) {
         setNickCheck({ status: 'error', message: '이미 사용중인 닉네임 입니다.' });
       } else {
@@ -67,8 +67,8 @@ const Join = () => {
     }
   };
 
-   // 비밀번호 확인
-   useEffect(() => {
+  // 비밀번호 확인
+  useEffect(() => {
     if (confirmPw.length > 0) {
       if (memPw === confirmPw) {
         setPwCheck('success');
@@ -79,10 +79,10 @@ const Join = () => {
       setPwCheck(null); // 비밀번호 확인 입력 값이 없을 때는 아이콘을 숨김
     }
   }, [memPw, confirmPw]);
-  
+
   const submitBtn = async (e) => {
     e.preventDefault();
-    if(!memId || !memPw || !memName || !memNick || !memBirth || !memEmail){
+    if (!memId || !memPw || !memName || !memNick || !memBirth || !memEmail) {
       alert('모든 정보를 입력해주세요!');
       return;
     }
@@ -161,12 +161,12 @@ const Join = () => {
               중복확인
             </button>
           </div>
-            {emailCheck && (
-              <p className={`check-result ${emailCheck.status}`}>
-                {emailCheck.status === 'error' ? <FaTimesCircle /> : <FaCheckCircle />}
-                {emailCheck.message}
-              </p>
-            )}
+          {emailCheck && (
+            <p className={`check-result ${emailCheck.status}`}>
+              {emailCheck.status === 'error' ? <FaTimesCircle /> : <FaCheckCircle />}
+              {emailCheck.message}
+            </p>
+          )}
           <div className="input-group">
             <input
               type="text"
@@ -190,12 +190,12 @@ const Join = () => {
               중복확인
             </button>
           </div>
-            {nickCheck && (
-              <p className={`check-result ${nickCheck.status}`}>
-                {nickCheck.status === 'error' ? <FaTimesCircle /> : <FaCheckCircle />}
-                {nickCheck.message}
-              </p>
-            )}
+          {nickCheck && (
+            <p className={`check-result ${nickCheck.status}`}>
+              {nickCheck.status === 'error' ? <FaTimesCircle /> : <FaCheckCircle />}
+              {nickCheck.message}
+            </p>
+          )}
           <div className="input-group">
             <input
               type="text"
@@ -209,12 +209,12 @@ const Join = () => {
               중복확인
             </button>
           </div>
-            {idCheck && (
-              <p className={`check-result ${idCheck.status}`}>
-                {idCheck.status === 'error' ? <FaTimesCircle /> : <FaCheckCircle />}
-                {idCheck.message}
-              </p>
-            )}
+          {idCheck && (
+            <p className={`check-result ${idCheck.status}`}>
+              {idCheck.status === 'error' ? <FaTimesCircle /> : <FaCheckCircle />}
+              {idCheck.message}
+            </p>
+          )}
           <div className="input-group">
             <input
               type="password"
@@ -233,12 +233,12 @@ const Join = () => {
               placeholder="비밀번호 확인"
               value={confirmPw}
               onChange={(e) => setConfirmPw(e.target.value)}
-              />
-              {pwCheck && (
-                <span className="password-icon">
-                  {pwCheck === 'error' ? <FaTimesCircle color="red" /> : <FaCheckCircle color="green" />}
-                </span>
-              )}
+            />
+            {pwCheck && (
+              <span className="password-icon">
+                {pwCheck === 'error' ? <FaTimesCircle color="red" /> : <FaCheckCircle color="green" />}
+              </span>
+            )}
           </div>
           <div className="input-group">
             <label htmlFor="memBirth" className="input-label">생년월일</label>
@@ -254,6 +254,11 @@ const Join = () => {
             회원가입
           </button>
         </form>
+      </div>
+      <div className="footer-wrapper">
+        <div className="join-footer">
+          <Link to="/Login">이미 회원이신가요?</Link>
+        </div>
       </div>
     </div>
   );
