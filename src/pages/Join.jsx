@@ -12,7 +12,6 @@ const Join = () => {
   const [memNick, setMemNick] = useState('');
   const [memBirth, setMemBirth] = useState('');
   const [memEmail, setMemEmail] = useState('');
-
   const [emailCheck, setEmailCheck] = useState(null);
   const [nickCheck, setNickCheck] = useState(null);
   const [idCheck, setIdCheck] = useState(null);
@@ -137,9 +136,14 @@ const Join = () => {
     }
   };
 
+  // 타이틀 컨테이너 클릭 시 Home 페이지로 이동
+  const handleTitleClick = () => {
+    navigate('/');
+  };
+
   return (
     <div className="page-container">
-      <div className="title-container">
+      <div className="title-container" onClick={handleTitleClick} style={{ cursor: 'pointer' }}>
         <h1 className="title-book">북</h1>
         <h1 className="title-signal">시그널</h1>
       </div>
@@ -263,6 +267,5 @@ const Join = () => {
     </div>
   );
 };
-
 
 export default Join;

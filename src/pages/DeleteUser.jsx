@@ -12,7 +12,7 @@ const DeleteUser = () => {
         <h1 className='title-signal'>시그널</h1>
       </div>
       <div className="form-container">
-        <h4 className="login-title">회원탈퇴</h4>
+        <h4 className="deleteuser-title">회원탈퇴</h4>
         <hr />
         <br />
         <form className="deleteuser-form">
