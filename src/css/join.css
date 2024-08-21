@@ -146,3 +146,53 @@ button[type="submit"] {
 button[type="submit"]:hover {
     background-color: #ff7e63;
 }
+
+/* 기본 스타일 */
+.input-group {
+    margin-bottom: 10px; /* 입력 그룹 간 간격 추가 */
+  }
+  
+  .input-with-button {
+    display: flex;
+    align-items: center;
+  }
+  
+  .input-with-button input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .check-button {
+    margin-left: 10px;
+    padding: 5px 10px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border: 1px solid #333;
+    background-color: white;
+    border-radius: 4px;
+  }
+  
+  /* 중복 확인 결과 메시지 스타일 */
+  .check-result {
+    margin-bottom: 20px;
+    margin-left: 15px;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 5px; /* 아이콘과 텍스트 사이의 간격 */
+    color: red;
+
+  }
+  
+  /* 성공 메시지 */
+  .check-result.success {
+    color: green;
+  }
+  
+  /* 오류 메시지 */
+  .check-result.error {
+    color: red;
+  }
+  
