@@ -1,8 +1,8 @@
 /* 컨테이너 */
 .mylib-container {
-    width: 80%;
+    width: 1280px;
     margin: 0 auto;
-    padding: 20px;
+    padding-top: 20px;
 }
 
 /* 타이틀 */
@@ -42,6 +42,8 @@
 
 /* 책 카드 */
 .book-card {
+    width: 200px;
+    height: 300px;
     position: relative;
     background-color: #fff;
     border-radius: 10px;
