@@ -11,7 +11,7 @@ import Join from './pages/Join';
 import FindId from './pages/FindId'
 import FindPw from './pages/FindPw'
 import NewPw from './pages/NewPw'
-import BookViewTest from './pages/BookViewTest';
+import BookViewTest from './pages/BookViewPDF';
 
 function App() {
   return (

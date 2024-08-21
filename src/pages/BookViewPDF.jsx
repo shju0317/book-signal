@@ -9,9 +9,10 @@ const BookViewTest = () => {
   const [pdf, setPdf] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const [scale, setScale] = useState(1.5);
-  const [darkMode, setDarkMode] = useState(false);
-  const canvasRef = useRef(null);
+  const [scale, setScale] = useState(1.5); // 줌 비율
+  const [darkMode, setDarkMode] = useState(false); // 다크 모드
+  const [textContent, setTextContent] = useState(''); // 페이지 텍스트
+  const containerRef = useRef(null);
 
   useEffect(() => {
     const loadPdf = async () => {
@@ -20,33 +21,26 @@ const BookViewTest = () => {
         const pdfDocument = await loadingTask.promise;
         setPdf(pdfDocument);
         setTotalPages(pdfDocument.numPages);
-        renderPage(1, pdfDocument);
+        await renderPage(pageNumber, pdfDocument);
       } catch (error) {
         console.error('Error loading PDF:', error);
       }
     };
 
     loadPdf();
-  }, [scale, darkMode]);
+  }, [pageNumber, scale, darkMode]);
 
   const renderPage = async (num, pdfDocument) => {
     try {
       const page = await pdfDocument.getPage(num);
       const viewport = page.getViewport({ scale });
-      const canvas = canvasRef.current;
-      const context = canvas.getContext('2d');
-      canvas.height = viewport.height;
-      canvas.width = viewport.width;
 
-      // 배경색 설정
-      context.fillStyle = darkMode ? '#333' : '#fff';
-      context.fillRect(0, 0, canvas.width, canvas.height);
+      // 텍스트 추출
+      const textContent = await page.getTextContent();
+      const text = textContent.items.map(item => item.str).join(' ');
+      setTextContent(text);
 
-      const renderContext = {
-        canvasContext: context,
-        viewport: viewport,
-      };
-      await page.render(renderContext).promise;
+      // 캔버스는 필요 없으므로 삭제
     } catch (error) {
       console.error('Error rendering page:', error);
     }
@@ -55,14 +49,12 @@ const BookViewTest = () => {
   const handlePrevPage = () => {
     if (pageNumber > 1) {
       setPageNumber(pageNumber - 1);
-      renderPage(pageNumber - 1, pdf);
     }
   };
 
   const handleNextPage = () => {
     if (pageNumber < totalPages) {
       setPageNumber(pageNumber + 1);
-      renderPage(pageNumber + 1, pdf);
     }
   };
 
@@ -79,7 +71,17 @@ const BookViewTest = () => {
   };
 
   return (
-    <div style={{ textAlign: 'center', padding: '20px', backgroundColor: darkMode ? '#333' : '#fff', color: darkMode ? '#fff' : '#000' }}>
+    <div
+      ref={containerRef}
+      style={{
+        textAlign: 'center',
+        padding: '20px',
+        backgroundColor: darkMode ? '#333' : '#fff',
+        color: darkMode ? '#fff' : '#000',
+        maxWidth: '100vw',
+        overflowX: 'auto'
+      }}
+    >
       <div style={{ marginBottom: '20px' }}>
         <button onClick={handlePrevPage} disabled={pageNumber <= 1}>
           Previous
@@ -98,7 +100,16 @@ const BookViewTest = () => {
           Toggle Dark Mode
         </button>
       </div>
-      <canvas ref={canvasRef} style={{ border: '1px solid #ddd' }} />
+      <div
+        style={{
+          width: '100%',
+          height: 'auto',
+          overflowY: 'auto',
+          fontSize: `${scale * 16}px` // 폰트 크기 조정
+        }}
+      >
+        <p style={{ margin: 0 }}>{textContent}</p>
+      </div>
     </div>
   );
 };
