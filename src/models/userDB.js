@@ -1,6 +1,6 @@
 const db = require('../config/database'); // 데이터베이스 연결 설정
 
-// 회원가입 함수                     
+// 회원가입                     
 exports.join = (data) => {
     return new Promise((resolve, reject) => {
         console.log(data); // 데이터 로그 출력
@@ -18,8 +18,30 @@ exports.join = (data) => {
 };
 
 
-// 사용자 정보 조회 함수
-exports.getUser = (mem_id) => {
+
+
+// 이메일 중복체크
+exports.getUserByEmail = (mem_email) => {
+    return new Promise((resolve, reject) => {
+      db.query(`SELECT * FROM member WHERE mem_mail = ?`, [mem_email], (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      });
+    });
+  };
+
+  // 닉네임 중복체크
+exports.getUserByNick = (mem_nick) => {
+    return new Promise((resolve, reject) => {
+      db.query(`SELECT * FROM member WHERE mem_nick = ?`, [mem_nick], (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      });
+    });
+  };
+
+// 아이디 중복체크
+exports.getUserId = (mem_id) => {
     return new Promise((resolve, reject) => {
         db.query(`SELECT * FROM member WHERE mem_id = ?`, [mem_id], (err, result) => {
             if (err) reject(err);
