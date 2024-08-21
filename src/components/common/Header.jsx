@@ -1,12 +1,12 @@
-import React from 'react'
-import Search from './Search'
-import { Link, useNavigate } from 'react-router-dom'
+import React from 'react';
+import Search from './Search';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Header = () => {
   const navigate = useNavigate();
 
   return (
-    <header className='flex justify-between items-center px-2 py-5 font-semibold'>
+    <header className='max-w-4xl mx-auto flex justify-between items-center px-2 py-5 font-semibold'>
       <h1 className='text-4xl font-bold font-logo'>
         <Link to="/"><span className='text-primary'>북</span>시그널</Link>
       </h1>
@@ -20,7 +20,7 @@ const Header = () => {
         <button type='button' onClick={()=>{navigate('/login')}}>로그인</button>
       </div>
     </header>
-  )
+  );
 }
 
-export default Header
+export default Header;
