@@ -12,6 +12,7 @@ import FindId from './pages/FindId'
 import FindPw from './pages/FindPw'
 import NewPw from './pages/NewPw'
 import BookViewer from './pages/BookViewer';
+import BookViewPDF from './pages/BookViewPDF';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
         <Route path="/findpw" element={<FindPw />} />
         <Route path="/newpw" element={<NewPw />} /> 
         <Route path="/bookviewer" element={<BookViewer />} /> 
+        <Route path="/bookviewtest" element={<BookViewPDF />} /> 
       </Route>
     </Routes>
   );
