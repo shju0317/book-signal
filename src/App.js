@@ -11,6 +11,7 @@ import Join from './pages/Join';
 import FindId from './pages/FindId'
 import FindPw from './pages/FindPw'
 import NewPw from './pages/NewPw'
+import BookViewTest from './pages/BookViewTest';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         <Route path="/findid" element={<FindId />} />
         <Route path="/findpw" element={<FindPw />} />
         <Route path="/newpw" element={<NewPw />} /> 
+        <Route path="/bookviewtest" element={<BookViewTest />} /> 
       </Route>
     </Routes>
   );
