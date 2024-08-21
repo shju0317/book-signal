@@ -6,6 +6,7 @@ const Login = () => {
   const [memId, setMemId] = useState('');
   const [memPw, setMemPw] = useState('');
   const [autologin, setAutoLogin] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(''); // 오류 메시지 상태
   const navigate = useNavigate();
 
   const login = async (e) => {
@@ -22,13 +23,14 @@ const Login = () => {
 
       if (response.ok) {
         alert('로그인 성공!');
-        navigate('/');
-        // 로그인 성공 시 추가 로직 (예: 페이지 이동)
+        navigate('/'); // 로그인 성공 시 메인 페이지로 이동
       } else {
-        alert('아이디나 비밀번호를 확인해주세요.');
+        const data = await response.json();
+        setErrorMessage(data.message); // 서버에서 받은 오류 메시지 설정
       }
     } catch (error) {
       console.error('Login Error:', error);
+      setErrorMessage('서버 오류가 발생했습니다. 나중에 다시 시도해주세요.');
     }
   };
 
@@ -80,9 +82,7 @@ const Login = () => {
             />
             <label htmlFor="autologin" className="checkbox-label">자동 로그인</label>
           </div>
-          <p className="error-message">
-            * 아이디 또는 비밀번호가 잘못 되었습니다. 아이디와 비밀번호를 정확히 입력해 주세요.
-          </p>
+          {errorMessage && <p className="error-message">{errorMessage}</p>}
           <button type="submit" className="login-button" onClick={login}>로그인</button>
         </form>
       </div>

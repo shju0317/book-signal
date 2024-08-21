@@ -22,7 +22,7 @@ exports.join = async (req, res) => {
     }
 
     try {
-        const getUser = await userDB.getUser(mem_id);
+        const getUser = await userDB.getUserId(mem_id);
         if (getUser.length) {
             res.status(401).json('이미 존재하는 아이디입니다.');
             return;
@@ -46,6 +46,7 @@ exports.join = async (req, res) => {
     }
 };
 
+// 암호화 비교
 const hashCompare = async (inputValue, hash) => {
     try {
         const isMatch = await bcrypt.compare(inputValue, hash);
@@ -57,28 +58,31 @@ const hashCompare = async (inputValue, hash) => {
     }
 };
 
+// 로그인
 exports.login = async (req, res) => {
     const { mem_id, mem_pw } = req.body;
 
     try {
         const getUser = await userDB.getUser(mem_id);
-        if (!getUser.length) {
-            res.status(401).json('존재하지 않는 아이디입니다.');
-            return;
+        if (getUser.length === 0) {
+            return res.status(401).json({ message: '존재하지 않는 아이디입니다.' });
         }
 
         const isMatch = await hashCompare(mem_pw, getUser[0].mem_pw);
 
         if (!isMatch) {
-            res.status(401).json('비밀번호가 일치하지 않습니다.');
-            return;
+            return res.status(401).json({ message: '비밀번호가 일치하지 않습니다.' });
         }
-        res.status(200).json('로그인 성공');
+
+        // 로그인 성공 시 토큰 또는 세션 관리 로직 추가 가능
+        res.status(200).json({ message: '로그인 성공' });
+        
     } catch (err) {
         console.error(err);
-        res.status(500).json(err);
+        res.status(500).json({ message: '서버 오류' });
     }
 };
+
 
 // 이메일 중복 체크 함수
 exports.getUserByEmail = async (mem_email) => {

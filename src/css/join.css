@@ -225,3 +225,25 @@ button[type="submit"]:hover {
     color: red;
   }
   
+  /* 오류 필드 */
+.error-border {
+    border: 2px solid red;
+}
+
+.error-input::placeholder {
+    color: red;
+}
+
+/* 모든 항목을 입력해주세요 메시지 스타일 */
+.all-fields-error {
+    color: #ff4d4f;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.emailvalid{
+    margin-left: 5px;
+    margin-bottom: 20px;
+    color: red;
+}
