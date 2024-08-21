@@ -26,7 +26,7 @@ function App() {
         <Route path="/findid" element={<FindId />} />
         <Route path="/findpw" element={<FindPw />} />
         <Route path="/newpw" element={<NewPw />} /> 
-        <Route path="/bookviewer" element={<BookViewer />} /> 
+        <Route path="/viewer" element={<BookViewer />} /> 
       </Route>
     </Routes>
   );

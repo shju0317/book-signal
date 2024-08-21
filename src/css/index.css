@@ -4,9 +4,9 @@
 
 body {
   font-family: 'Pretendard', sans-serif;
-  max-width: 1024px; /* 기본 너비 설정 */
-  margin: 0 auto;    /* 중앙 정렬 */
-  padding: 0 1rem;  /* 기본 패딩 (필요에 따라 조정) */
+  max-width: 1024px;
+  margin: 0 auto;   
+  padding: 0 1rem;
 }
 
 .font-logo{
