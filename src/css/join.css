@@ -1,8 +1,17 @@
+.page-wrapper {
+    background-color: #FCF4EF;
+    /* 원하는 배경색으로 변경 */
+    min-height: 100vh;
+    width: 100%;
+    box-sizing: border-box;
+}
+
 /* 페이지 컨테이너 */
 .page-container {
     display: flex;
     flex-direction: column;
     align-items: center;
+    background-color: #FCF4EF;
 }
 
 /* 타이틀 컨테이너 */
@@ -145,4 +154,96 @@ button[type="submit"] {
 
 button[type="submit"]:hover {
     background-color: #ff7e63;
+}
+
+/* 하단 링크 */
+.join-footer {
+    text-align: center;
+    font-size: 0.875rem;
+    margin-top: 20px; /* 위쪽 여백 추가 */
+}
+
+.join-footer a {
+    color: black;
+    text-decoration: none;
+    margin: 0 5px;
+}
+
+.join-footer a:hover {
+    text-decoration: underline;
+}
+
+.footer-wrapper {
+    text-align: center;
+}
+/* 기본 스타일 */
+.input-group {
+    margin-bottom: 10px; /* 입력 그룹 간 간격 추가 */
+  }
+  
+  .input-with-button {
+    display: flex;
+    align-items: center;
+  }
+  
+  .input-with-button input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .check-button {
+    margin-left: 10px;
+    padding: 5px 10px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border: 1px solid #333;
+    background-color: white;
+    border-radius: 4px;
+  }
+  
+  /* 중복 확인 결과 메시지 스타일 */
+  .check-result {
+    margin-bottom: 20px;
+    margin-left: 15px;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 5px; /* 아이콘과 텍스트 사이의 간격 */
+    color: red;
+
+  }
+  
+  /* 성공 메시지 */
+  .check-result.success {
+    color: green;
+  }
+  
+  /* 오류 메시지 */
+  .check-result.error {
+    color: red;
+  }
+  
+  /* 오류 필드 */
+.error-border {
+    border: 2px solid red;
+}
+
+.error-input::placeholder {
+    color: red;
+}
+
+/* 모든 항목을 입력해주세요 메시지 스타일 */
+.all-fields-error {
+    color: #ff4d4f;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.emailvalid{
+    margin-left: 5px;
+    margin-bottom: 20px;
+    color: red;
 }

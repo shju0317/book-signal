@@ -1,53 +1,66 @@
 import React, { useState } from 'react';
 import Modal from 'react-modal';
 import Rating from 'react-rating-stars-component';
+import '../css/getreview.css';
 
 const GetReview = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState('');
 
+  // Modal의 app element를 설정
+  Modal.setAppElement('#root');
 
+  const openModal = () => {
+    setModalIsOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+  };
+
+  const handleSubmit = () => {
+    console.log('별점:', rating);
+    console.log('리뷰:', review);
+    closeModal();
+  };
 
   return (
     <div>
-      <h1>별점과 리뷰를 남겨주세요!</h1>
-      <button onClick={openModal}>리뷰 남기기</button>
-
       {/* 모달 창 */}
       <Modal
         isOpen={modalIsOpen}
         onRequestClose={closeModal}
-        style={customStyles}
         contentLabel="리뷰와 별점 남기기"
+        className="review-modal"
+        overlayClassName="review-modal-overlay"
       >
-        <h2>리뷰와 별점을 남겨주세요</h2>
-        
+        <button className="modal-close-button" onClick={closeModal}>X</button>
+        <h2 className="modal-title">별점과 리뷰 작성하기</h2>
+        <p className="book-title">선우 바보 아니다?</p>
+
         {/* 별점 컴포넌트 */}
-        <Rating
-          count={5}
-          value={rating}
-          onChange={(newRating) => setRating(newRating)}
-          size={40}
-          activeColor="#ffd700"
-        />
+        <div className='rating-container'>
+          <Rating
+            count={5}
+            value={rating}
+            onChange={(newRating) => setRating(newRating)}
+            size={40}
+            activeColor="#ffd700"
+          />
+        </div>
 
         {/* 리뷰 입력 필드 */}
         <textarea
           value={review}
           onChange={(e) => setReview(e.target.value)}
-          placeholder="리뷰를 입력하세요"
+          placeholder="독서는 어떠셨나요? 리뷰를 작성해주세요 :)"
           rows={4}
-          style={{ width: '100%', marginTop: '10px' }}
+          className="review-textarea"
         />
 
         {/* 제출 버튼 */}
-        <div style={{ marginTop: '20px' }}>
-          <button onClick={handleSubmit}>제출</button>
-          <button onClick={closeModal} style={{ marginLeft: '10px' }}>
-            닫기
-          </button>
-        </div>
+        <button className="submit-button" onClick={handleSubmit}>등록하기</button>
       </Modal>
     </div>
   );

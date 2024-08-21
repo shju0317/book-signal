@@ -1,0 +1,77 @@
+.search-report-container {
+    padding: 20px;
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+h1 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.search-summary {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    font-size: 1.25rem;
+}
+
+.search-summary p {
+    margin-left: 10px;
+    font-size: 1.25rem;
+}
+
+.book-results {
+    margin-top: 20px;
+}
+
+h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+
+.books-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* 최소 너비 180px로 조정 */
+    gap: 30px; /* 책 카드들 사이의 간격을 적절히 설정 */
+}
+
+.book-card {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    text-align: center;
+    border: 1px solid #e0e0e0; /* 카드 간에 선을 추가 */
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; /* 카드에 호버 효과 추가 */
+}
+
+.book-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.book-cover {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.book-info {
+    margin-top: 10px;
+}
+
+.book-title {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.book-author {
+    font-size: 0.875rem;
+    color: #555;
+    border-top: 1px solid #e0e0e0; /* 저자와 평점 위에 선 추가 */
+    padding-top: 5px;
+    margin-top: 5px;
+}

@@ -1,0 +1,92 @@
+/* 전체적인 모달 오버레이 */
+.review-modal-overlay {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+  
+/* 모달 창 스타일 */
+.review-modal {
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    width: 90%;
+    max-width: 400px;
+    position: relative;
+    text-align: center;
+}
+  
+/* 닫기 버튼 스타일 */
+.modal-close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+}
+  
+/* 모달 타이틀 */
+.modal-title {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+  
+/* 책 제목 스타일 */
+.book-title {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 1.1rem;
+    color: #555;
+}
+  
+/* 리뷰 텍스트 입력 필드 */
+.review-textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    margin-bottom: 20px;
+    resize: none;
+}
+  
+/* 제출 버튼 스타일 */
+.submit-button {
+    background-color: #ff9b82;
+    border: none;
+    color: white;
+    padding: 12px;
+    width: 100%;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: 'Pretendard-Regular', sans-serif;
+    font-size: 1rem;
+}
+  
+.submit-button:hover {
+    background-color: #ff7e63;
+}
+  
+/* 리뷰 모달 열기 버튼 스타일 */
+.open-modal-button {
+    background-color: #ff9b82;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+  
+.open-modal-button:hover {
+    background-color: #ff7e63;
+}
+
+/* 별점 컴포넌트를 감싸는 컨테이너 */
+.rating-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+

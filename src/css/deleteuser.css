@@ -1,0 +1,86 @@
+/* 전체 페이지 레이아웃 */
+.deleteuser-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* 타이틀 컨테이너 */
+.title-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 50px; /* 타이틀과 폼 사이의 간격 */
+}
+
+.title-book {
+    color: #F57E53;
+    font-size: 2.5rem;
+}
+
+.title-signal {
+    color: #333;
+    font-size: 2.5rem;
+}
+
+/* 폼 컨테이너 */
+.form-container {
+    background-color: white;
+    
+    padding: 20px;
+    width: 400px;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    font-family: 'Pretendard-Regular', sans-serif;
+}
+
+/* 회원탈퇴 제목 */
+.deleteuser-title {
+    text-align: left;
+    font-size: 1.25rem;
+    margin-bottom: 10px;
+    color: #333;
+    font-weight: 100;
+}
+
+/* 폼 스타일 */
+.deleteuser-form {
+    display: flex;
+    flex-direction: column;
+}
+
+/* 입력 필드 그룹 */
+.input-group {
+    margin-bottom: 20px;
+}
+
+/* 입력 필드 스타일 */
+.input-field {
+    width: 100%;
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    font-size: 1rem;
+    box-sizing: border-box;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+/* 회원탈퇴 버튼 */
+.deleteuser-button {
+    background-color: #F57E53;
+    border: none;
+    color: white;
+    padding: 15px;
+    width: 100%;
+    font-size: 1rem;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: 'Pretendard-Regular', sans-serif;
+    margin-top: 10px;
+}
+
+.deleteuser-button:hover {
+    background-color: #E14D2A;
+}

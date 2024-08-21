@@ -1,3 +1,7 @@
+.page-container{
+    min-height: 100vh;
+}
+
 /* 타이틀 컨테이너 */
 .title-container {
     margin-top: 30px;
@@ -32,10 +36,10 @@
 
 /* 로그인 제목 */
 .login-title {
-    padding-left: 15px;
     text-align: left;
     font-size: 1.5rem;
     margin-bottom: 20px;
+    font-weight: 400px; /* 글씨를 두껍게 설정 */
 }
 
 /* 폼 레이아웃 */

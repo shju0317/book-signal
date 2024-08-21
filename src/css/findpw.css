@@ -13,13 +13,18 @@
     font-style: normal;
 }
 
+.findpw-container {
+    background-color: #fcf4ef;
+    width: 100%;
+    min-height: 100vh;
+}
+
 
 /* 컨테이너 설정 */
 .findpw-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 50px;
 }
 
 /* 타이틀 컨테이너 */
@@ -57,14 +62,14 @@
     text-align: left;
     font-size: 1.5rem;
     margin-bottom: 20px;
-    margin-left: 15px;
 }
 
 /* 폼 레이아웃 */
 .findpw-form {
     display: flex;
     flex-direction: column;
-    width: 100%; /* 폼 너비를 100%로 설정 */
+    width: 100%;
+    /* 폼 너비를 100%로 설정 */
 }
 
 /* 입력 필드 그룹 */
