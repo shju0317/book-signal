@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link,useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import '../css/login.css';
 
 const Login = () => {
@@ -20,24 +20,26 @@ const Login = () => {
         body: JSON.stringify({ mem_id: memId, mem_pw: memPw }),
       });
 
-     // const data = await response.json();
-
       if (response.ok) {
         alert('로그인 성공!');
         navigate('/');
         // 로그인 성공 시 추가 로직 (예: 페이지 이동)
       } else {
-        alert('아이디나 비밀번호를 확인해주세요.')
+        alert('아이디나 비밀번호를 확인해주세요.');
       }
     } catch (error) {
       console.error('Login Error:', error);
-      
     }
+  };
+
+  // 타이틀 컨테이너 클릭 시 Home 페이지로 이동
+  const handleTitleClick = () => {
+    navigate('/');
   };
 
   return (
     <div className='page-container'>
-      <div className='title-container'>
+      <div className='title-container' onClick={handleTitleClick} style={{ cursor: 'pointer' }}>
         <h1 className='title-book'>북</h1>
         <h1 className='title-signal'>시그널</h1>
       </div>
