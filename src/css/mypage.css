@@ -2,20 +2,25 @@
 .mypage-container {
     display: flex;
     flex-direction: row;
-    max-width: 1024px;  /* 중앙에 정렬되도록 최대 너비 설정 */
+    max-width: 1024px;
+    /* 중앙에 정렬되도록 최대 너비 설정 */
     width: 100%;
     background-color: white;
     border-radius: 15px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    overflow: hidden; /* 콘텐츠가 넘칠 경우 숨기기 */
+    overflow: hidden;
+    /* 콘텐츠가 넘칠 경우 숨기기 */
     margin: 20px auto;
+    min-height: 80vh;
+    /* 페이지 세로 길이를 늘리기 위해 min-height 설정 */
 }
 
 /* 사용자 정보 섹션 */
 .user-info {
     flex: 1;
     padding: 20px;
-    border-right: 1px solid #eee; /* 오른쪽 경계선 추가 */
+    border-right: 1px solid #eee;
+    /* 오른쪽 경계선 추가 */
     background-color: #F9F9F9;
 }
 
@@ -25,16 +30,33 @@
     color: #333;
 }
 
-.user-info p {
+/* 공통 아이콘과 텍스트 그룹 스타일 */
+.info-group {
+    display: flex;
+    align-items: center;
     margin-bottom: 10px;
+}
+
+.icon {
+    margin-right: 10px;
+    /* 아이콘과 텍스트 사이의 간격 */
+    font-size: 1.5rem;
+    color: #333;
+}
+
+/* 텍스트 스타일 */
+.user-info p {
     font-size: 1rem;
     color: #555;
+    margin: 0;
+    /* 아이콘과 동일한 라인에 정확히 맞추기 위해 margin 제거 */
 }
 
 /* 포인트 정보 스타일 */
 .user-info .points {
     font-weight: bold;
-    color: #F57E53; /* 강조를 위한 색상 */
+    color: #F57E53;
+    /* 강조를 위한 색상 */
 }
 
 .user-info button {
@@ -52,16 +74,20 @@
     flex: 2;
     padding: 20px;
     display: flex;
-    justify-content: center; /* 가로 중앙 정렬 */
-    align-items: center; /* 세로 중앙 정렬 */
+    justify-content: center;
+    /* 가로 중앙 정렬 */
+    align-items: center;
+    /* 세로 중앙 정렬 */
     flex-direction: column;
     text-align: center;
 }
 
 /* 아이콘 스타일 */
 .preview-icon {
-    font-size: 4rem; /* 아이콘 크기 조정 */
-    margin-bottom: 10px; /* 아래 여백 추가 */
+    font-size: 4rem;
+    /* 아이콘 크기 조정 */
+    margin-bottom: 10px;
+    /* 아래 여백 추가 */
     color: #888;
 }
 
@@ -74,5 +100,6 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100%; /* 컨테이너 높이 전체 차지 */
+    height: 100%;
+    /* 컨테이너 높이 전체 차지 */
 }

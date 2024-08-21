@@ -1,15 +1,45 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom'; // Link 컴포넌트 추가
+import { Link, useNavigate } from 'react-router-dom';
 import '../css/login.css';
 
 const Login = () => {
   const [memId, setMemId] = useState('');
   const [memPw, setMemPw] = useState('');
   const [autologin, setAutoLogin] = useState(false);
+  const navigate = useNavigate();
+
+  const login = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch('http://localhost:3001/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ mem_id: memId, mem_pw: memPw }),
+      });
+
+      if (response.ok) {
+        alert('로그인 성공!');
+        navigate('/');
+        // 로그인 성공 시 추가 로직 (예: 페이지 이동)
+      } else {
+        alert('아이디나 비밀번호를 확인해주세요.');
+      }
+    } catch (error) {
+      console.error('Login Error:', error);
+    }
+  };
+
+  // 타이틀 컨테이너 클릭 시 Home 페이지로 이동
+  const handleTitleClick = () => {
+    navigate('/');
+  };
 
   return (
     <div className='page-container'>
-      <div className='title-container'>
+      <div className='title-container' onClick={handleTitleClick} style={{ cursor: 'pointer' }}>
         <h1 className='title-book'>북</h1>
         <h1 className='title-signal'>시그널</h1>
       </div>
@@ -26,7 +56,7 @@ const Login = () => {
               name="memId"
               placeholder="아이디 입력"
               value={memId}
-              onChange={() => setMemId()}
+              onChange={(e) => setMemId(e.target.value)}
             />
           </div>
           <div className="input-group">
@@ -37,7 +67,7 @@ const Login = () => {
               name="memPw"
               placeholder="비밀번호 입력"
               value={memPw}
-              onChange={() => setMemPw()}
+              onChange={(e) => setMemPw(e.target.value)}
             />
           </div>
           <div className="checkbox-group">
@@ -53,7 +83,7 @@ const Login = () => {
           <p className="error-message">
             * 아이디 또는 비밀번호가 잘못 되었습니다. 아이디와 비밀번호를 정확히 입력해 주세요.
           </p>
-          <button type="submit" className="login-button">로그인</button>
+          <button type="submit" className="login-button" onClick={login}>로그인</button>
         </form>
       </div>
       <div className="footer-wrapper">

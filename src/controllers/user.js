@@ -57,7 +57,7 @@ const hashCompare = async (inputValue, hash) => {
     }
 };
 
-exports.loginCheck = async (req, res) => {
+exports.login = async (req, res) => {
     const { mem_id, mem_pw } = req.body;
 
     try {
@@ -67,8 +67,7 @@ exports.loginCheck = async (req, res) => {
             return;
         }
 
-        const blobToStr = Buffer.from(getUser[0].mem_pw).toString();
-        const isMatch = await hashCompare(mem_pw, blobToStr);
+        const isMatch = await hashCompare(mem_pw, getUser[0].mem_pw);
 
         if (!isMatch) {
             res.status(401).json('비밀번호가 일치하지 않습니다.');
@@ -78,5 +77,38 @@ exports.loginCheck = async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json(err);
+    }
+};
+
+// 이메일 중복 체크 함수
+exports.getUserByEmail = async (mem_email) => {
+    try {
+        const getUser = await userDB.getUserByEmail(mem_email);
+        return getUser;
+    } catch (err) {
+        console.error(err);
+        throw err;
+    }
+};
+
+// 닉네임 중복 체크 함수
+exports.getUserByNick = async (mem_nick) => {
+    try {
+        const getUser = await userDB.getUserByNick(mem_nick);
+        return getUser;
+    } catch (err) {
+        console.error(err);
+        throw err;
+    }
+};
+
+// 아이디 중복 체크 함수
+exports.getUserId = async (mem_id) => {
+    try {
+        const getUser = await userDB.getUserId(mem_id);
+        return getUser;
+    } catch (err) {
+        console.error(err);
+        throw err;
     }
 };

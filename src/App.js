@@ -13,6 +13,7 @@ import FindPw from './pages/FindPw';
 import NewPw from './pages/NewPw';
 import GetReview from './pages/GetReview';
 import DeleteUser from './pages/DeleteUser'
+import SearchReport from './pages/searchReport';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         <Route path='/chatbot' element={<Chatbot/>}/>
         <Route path='/getreview' element={<GetReview />} />
         <Route path='/deleteuser' element={<DeleteUser />} />
+        <Route path='/searchreport' element={<SearchReport />} />
         
       </Route>
 
