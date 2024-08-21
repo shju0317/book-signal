@@ -33,36 +33,3 @@ exports.getUser = (mem_id) => {
         });
     });
 };
-
-// 로그인 함수
-exports.login = (mem_id, mem_pw) => {
-    return new Promise((resolve, reject) => {
-        console.log('사용자 아이디:', mem_id, '사용자 비밀번호:', mem_pw); // 데이터 로그 출력
-
-        // 아이디로 사용자 조회
-        db.query(`SELECT * FROM member WHERE mem_id = ?`, [mem_id], (err, result) => {
-            if (err) {
-                console.error('Database Error:', err); // 데이터베이스 에러 출력
-                return reject(err);
-            }
-
-            // 사용자 존재 확인
-            if (result.length === 0) {
-                return resolve({ success: false, message: 'Invalid user ID' });
-            }
-
-            const user = result[0];
-
-            // 비밀번호 비교
-            if (user.mem_pw === mem_pw) {
-                // 아이디와 비밀번호 모두 일치
-                resolve({ success: true, user });
-                console.log('성공');
-                
-            } else {
-                // 비밀번호 불일치
-                resolve({ success: false, message: 'Invalid password' });
-            }
-        });
-    });
-};
