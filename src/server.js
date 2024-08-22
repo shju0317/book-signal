@@ -3,28 +3,38 @@ const cors = require('cors');
 const userRoutes = require('./routes/userRoutes');
 const searchRoutes = require('./routes/searchRoutes');
 const path = require('path');
-
 const session = require('express-session');
 const app = express();
 
-// 세션 설정
+// 세션 설정 (기본 설정)
 app.use(session({
-    secret: 'MyKey', // 원하는 키설정
+    secret: 'MyKey', 
     resave: false,
     saveUninitialized: false,
     cookie: {
-      maxAge: 1000 * 60 * 60 * 24 * 7 // 세션 유지 기간 (7일)
+        httpOnly: true,
+        secure: false, 
+        maxAge: null // 기본 설정에서는 세션 종료 시 만료
     }
 }));
 
 app.use(express.json());
 app.use(cors({
-    origin: 'http://localhost:3000', // React 클라이언트의 주소
+    origin: 'http://localhost:3000',
     credentials: true,
 }));
 
 // 정적 파일 제공을 위한 경로 설정
 app.use('/images', express.static(path.join(__dirname, 'public/images')));
+
+// 세션 상태 확인을 위한 엔드포인트
+app.get('/check-session', (req, res) => {
+    if (req.session.user) {
+        res.status(200).json({ user: req.session.user });
+    } else {
+        res.status(401).json({ message: '로그인되지 않음' });
+    }
+});
 
 app.use('/', userRoutes);
 app.use('/api', searchRoutes);
