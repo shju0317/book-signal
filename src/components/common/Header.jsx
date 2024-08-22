@@ -6,7 +6,7 @@ const Header = () => {
   const navigate = useNavigate();
 
   return (
-    <header className='max-w-screen-xl mx-auto flex justify-between items-center px-2 py-5 font-semibold'>
+    <header className='max-w-screen-xl mx-auto mb-8 flex justify-between items-center px-2 py-5 font-semibold'>
       <h1 className='text-4xl font-bold font-logo'>
         <Link to="/"><span className='text-primary'>북 </span>시그널</Link>
       </h1>

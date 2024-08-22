@@ -11,13 +11,13 @@ import Join from './pages/Join';
 import FindId from './pages/FindId'
 import FindPw from './pages/FindPw'
 import NewPw from './pages/NewPw'
-import BookViewTest from './pages/BookViewPDF';
-import FindId from './pages/FindId';
-import FindPw from './pages/FindPw';
-import NewPw from './pages/NewPw';
+import BookViewer from './pages/BookViewer';
+import BookViewPDF from './pages/BookViewPDF';
+import BookDetail from './pages/BookDetail';
 import GetReview from './pages/GetReview';
 import DeleteUser from './pages/DeleteUser'
 import SearchReport from './pages/searchReport';
+import RankingBookList from './pages/RankingBookList';
 
 function App() {
   return (
@@ -31,11 +31,13 @@ function App() {
         <Route path="/findid" element={<FindId />} />
         <Route path="/findpw" element={<FindPw />} />
         <Route path="/newpw" element={<NewPw />} /> 
-        <Route path="/bookviewtest" element={<BookViewTest />} /> 
+        <Route path="/bookviewer" element={<BookViewer />} /> 
+        <Route path="/bookviewtest" element={<BookViewPDF />} /> 
+        <Route path="/detail" element={<BookDetail />} /> 
         <Route path='/getreview' element={<GetReview />} />
         <Route path='/deleteuser' element={<DeleteUser />} />
         <Route path='/searchreport' element={<SearchReport />} />
-        
+        <Route path='/ranking' element={<RankingBookList />} />
       </Route>
 
       {/* RootLayout이 적용되지 않는 독립적인 경로 */}

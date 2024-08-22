@@ -1,0 +1,21 @@
+.book-info-wrapper{
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.book-info-contents span{
+  color: #f57e53;
+  margin-left: 6px;
+  font-weight: 500;
+}
+
+.book-info-button button{
+  color: #f57e53;
+  height: 70px;
+  flex-grow: 1;
+}
+
+.book-info-button button:hover{
+  color: white;
+  background-color: #f57e53;
+}
