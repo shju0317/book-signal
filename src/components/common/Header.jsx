@@ -1,6 +1,6 @@
 import React from 'react';
 import Search from './Search';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -11,8 +11,26 @@ const Header = () => {
         <Link to="/"><span className='text-primary'>북 </span>시그널</Link>
       </h1>
       <ul className='flex gap-6 ml-[-450px] text-xl'>
-        <li><Link to="/mylib">내 서재</Link></li>
-        <li><Link to="/mypage">마이페이지</Link></li>
+        <li>
+          <NavLink
+            to="/mylib"
+            className={({ isActive }) => 
+              isActive ? 'text-primary' : 'hover:text-primary'
+            }
+          >
+            내 서재
+          </NavLink>
+        </li>
+        <li>
+          <NavLink
+            to="/mypage"
+            className={({ isActive }) => 
+              isActive ? 'text-primary' : 'hover:text-primary'
+            }
+          >
+            마이페이지
+          </NavLink>
+        </li>
       </ul>
       <Search/>
       <div className='text-xl ml-[-450px]'>
