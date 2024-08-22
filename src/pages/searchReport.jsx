@@ -20,6 +20,7 @@ const SearchReport = () => {
                     setLoading(false);  // 로딩 상태 해제
                 })
                 .catch(error => {
+                    console.log('Error fetching data:', error);  // 에러 로그 추가
                     setError('데이터를 불러오는 중 오류가 발생했습니다.');
                     setLoading(false);  // 로딩 상태 해제
                 });
@@ -37,7 +38,6 @@ const SearchReport = () => {
     }
 
     console.log(books);
-    
 
     return (
         <div className="search-report-container">
@@ -58,10 +58,10 @@ const SearchReport = () => {
                     {books.length > 0 ? (
                         books.map((book, index) => (
                             <div key={index} className="book-card">
-                                <img src={`/images/${book.book_name}`} alt={book.book_name} className="book-cover" />
+                                <img src={book.book_cover} alt={book.book_name} className="book-cover" />
                                 
                                 <div className="book-info">
-                                    <p className="book-title">&lt;{book.book_name}&gt;</p>
+                                    <p className="search-book-title">&lt;{book.book_name}&gt;</p>
                                     <p className="book-author">{book.book_writer} 저자</p>
                                 </div>
                             </div>
