@@ -1,3 +1,4 @@
+const { log } = require('console');
 const conn = require('../config/database');
 const fs = require('fs');
 const path = require('path');
@@ -16,14 +17,22 @@ exports.searchBooks = (searchQuery) => {
 
             // 서버에 이미지가 있는지 확인
             const updatedResults = results.map(book => {
+                // 한글 파일 이름 처리
+                const decodedFileName = decodeURIComponent(book.book_cover);
+
                 // 실제 파일 경로 확인
-                const imagePath = path.join(__dirname, '../public/images', book.book_cover);
+                const imagePath = path.join(__dirname, '../public/images', decodedFileName);
+
+                // 경로를 콘솔에 출력하여 확인
+                console.log('Checking file at path:', imagePath);
+
                 if (fs.existsSync(imagePath)) {
                     // 파일이 존재할 경우 URL 경로 설정
-                    book.book_cover = `/images/${book.book_cover}`;
+                    book.book_cover = `/images/${decodedFileName}`;
                 } else {
                     // 파일이 존재하지 않을 경우 기본 이미지 설정
                     book.book_cover = '/images/default.jpg'; // 기본 이미지 경로 설정
+                    console.log('File not found, using default image');
                 }
                 return book;
             });
