@@ -57,4 +57,8 @@ router.get('/check-nick', async (req, res) => {
     }
   });
   
+// 아이디 찾기
+router.post('/find-id', userController.findId);
+
+
 module.exports = router;
