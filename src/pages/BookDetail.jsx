@@ -5,7 +5,7 @@ import { FaRegStar } from "react-icons/fa6";
 
 const BookDetail = () => {
   return (
-    <div className='book-info-wrapper flex flex-col gap-10  '>
+    <div className='book-info-wrapper flex flex-col gap-10 max-w-screen-xl m-auto'>
       <section className='flex gap-6 w-30 justify-between'>
         <h2 className='sr-only'>도서 정보</h2>
         <div className='book-cover-wrapper w-[250px] aspect-w-2 aspect-h-3'>

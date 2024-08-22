@@ -9,44 +9,80 @@ const BookViewTest = () => {
   const [pdf, setPdf] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const [scale, setScale] = useState(1.5);
-  const [darkMode, setDarkMode] = useState(false);
-  const canvasRef = useRef(null);
+  const [fontSize, setFontSize] = useState(20); // 기본 폰트 크기
+  const [darkMode, setDarkMode] = useState(false); // 다크 모드
+  const [textContent, setTextContent] = useState(''); // 현재 페이지 텍스트
+  const [pageTexts, setPageTexts] = useState([]); // 페이지별 텍스트
+
+  const containerRef = useRef(null);
 
   useEffect(() => {
     const loadPdf = async () => {
       try {
-        const loadingTask = getDocument('/pdf/현진건-운수좋은날+B3356-개벽.pdf');
+        const loadingTask = getDocument('/pdf/김유정-동백꽃-조광.pdf');
         const pdfDocument = await loadingTask.promise;
         setPdf(pdfDocument);
         setTotalPages(pdfDocument.numPages);
-        renderPage(1, pdfDocument);
+
+        // 전체 텍스트 로드
+        const texts = [];
+        for (let i = 1; i <= pdfDocument.numPages; i++) {
+          const page = await pdfDocument.getPage(i);
+          const textContent = await page.getTextContent();
+          texts.push(textContent.items.map(item => item.str).join(' '));
+        }
+        setPageTexts(texts);
+
+        // 현재 페이지 텍스트 설정
+        renderPage(pageNumber, texts[pageNumber - 1]);
       } catch (error) {
         console.error('Error loading PDF:', error);
       }
     };
 
     loadPdf();
-  }, [scale, darkMode]);
+  }, []);
 
-  const renderPage = async (num, pdfDocument) => {
+  useEffect(() => {
+    if (pageTexts.length > 0) {
+      renderPage(pageNumber, pageTexts[pageNumber - 1]);
+    }
+  }, [fontSize, pageNumber, pageTexts]);
+
+  const renderPage = (num, text) => {
     try {
-      const page = await pdfDocument.getPage(num);
-      const viewport = page.getViewport({ scale });
-      const canvas = canvasRef.current;
-      const context = canvas.getContext('2d');
-      canvas.height = viewport.height;
-      canvas.width = viewport.width;
+      const container = containerRef.current;
+      const containerHeight = container.clientHeight;
+      const containerWidth = container.clientWidth;
 
-      // 배경색 설정
-      context.fillStyle = darkMode ? '#333' : '#fff';
-      context.fillRect(0, 0, canvas.width, canvas.height);
+      let currentText = '';
+      let tempDiv = document.createElement('div');
 
-      const renderContext = {
-        canvasContext: context,
-        viewport: viewport,
-      };
-      await page.render(renderContext).promise;
+      tempDiv.style.position = 'absolute';
+      tempDiv.style.visibility = 'hidden';
+      tempDiv.style.width = `${containerWidth}px`;
+      tempDiv.style.fontSize = `${fontSize}px`;
+      tempDiv.style.lineHeight = '2.5';
+      tempDiv.style.whiteSpace = 'pre-wrap';
+      tempDiv.style.wordWrap = 'break-word';
+      document.body.appendChild(tempDiv);
+
+      let lastFittingIndex = 0;
+
+      // 텍스트를 단어 단위로 추가해가면서 컨테이너에 맞는 텍스트 양을 계산
+      const words = text.split(' ');
+      for (let i = 0; i < words.length; i++) {
+        tempDiv.innerText = currentText + words[i] + ' ';
+        if (tempDiv.clientHeight > containerHeight) {
+          break;
+        }
+        currentText += words[i] + ' ';
+        lastFittingIndex = i;
+      }
+
+      setTextContent(words.slice(0, lastFittingIndex + 1).join(' '));
+
+      document.body.removeChild(tempDiv);
     } catch (error) {
       console.error('Error rendering page:', error);
     }
@@ -55,23 +91,21 @@ const BookViewTest = () => {
   const handlePrevPage = () => {
     if (pageNumber > 1) {
       setPageNumber(pageNumber - 1);
-      renderPage(pageNumber - 1, pdf);
     }
   };
 
   const handleNextPage = () => {
     if (pageNumber < totalPages) {
       setPageNumber(pageNumber + 1);
-      renderPage(pageNumber + 1, pdf);
     }
   };
 
-  const handleZoomIn = () => {
-    setScale(prevScale => prevScale * 1.2);
+  const handleFontSizeIncrease = () => {
+    setFontSize(prevSize => prevSize + 2);
   };
 
-  const handleZoomOut = () => {
-    setScale(prevScale => prevScale / 1.2);
+  const handleFontSizeDecrease = () => {
+    setFontSize(prevSize => Math.max(prevSize - 2, 10)); // 최소 폰트 크기 10px
   };
 
   const toggleDarkMode = () => {
@@ -79,8 +113,23 @@ const BookViewTest = () => {
   };
 
   return (
-    <div style={{ textAlign: 'center', padding: '20px', backgroundColor: darkMode ? '#333' : '#fff', color: darkMode ? '#fff' : '#000' }}>
-      <div style={{ marginBottom: '20px' }}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: 'vh',
+        backgroundColor: darkMode ? '#333' : '#fff',
+        color: darkMode ? '#fff' : '#000',
+        overflow: 'hidden', // 전체 스크롤 제거
+      }}
+    >
+      <div
+        style={{
+          padding: '20px',
+          textAlign: 'center',
+          flexShrink: 0, // 헤더 높이 고정
+        }}
+      >
         <button onClick={handlePrevPage} disabled={pageNumber <= 1}>
           Previous
         </button>
@@ -88,17 +137,37 @@ const BookViewTest = () => {
         <button onClick={handleNextPage} disabled={pageNumber >= totalPages}>
           Next
         </button>
-        <button onClick={handleZoomIn} style={{ marginLeft: '10px' }}>
-          Zoom In
+        <button onClick={handleFontSizeIncrease} style={{ marginLeft: '10px' }}>
+          Increase Font Size
         </button>
-        <button onClick={handleZoomOut} style={{ marginLeft: '10px' }}>
-          Zoom Out
+        <button onClick={handleFontSizeDecrease} style={{ marginLeft: '10px' }}>
+          Decrease Font Size
         </button>
         <button onClick={toggleDarkMode} style={{ marginLeft: '10px' }}>
           Toggle Dark Mode
         </button>
       </div>
-      <canvas ref={canvasRef} style={{ border: '1px solid #ddd' }} />
+      <div
+        ref={containerRef}
+        style={{
+          flex: 1,
+          overflow: 'hidden', // 텍스트 영역에서 스크롤 제거
+          padding: '0px',
+          margin:'20px',
+          fontSize: `${fontSize}px`,
+          backgroundColor: darkMode ? '#333' : '#fff',
+          color: darkMode ? '#fff' : '#000',
+          lineHeight: '2.5', // 줄 간격 설정 (필요에 따라 조정)
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'justify', // 텍스트 정렬
+        }}
+      >
+        <p style={{ margin: 20, whiteSpace: 'pre-wrap', overflowWrap: 'break-word' }}>
+          {textContent}
+        </p>
+      </div>
     </div>
   );
 };

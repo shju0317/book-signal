@@ -14,16 +14,18 @@ import NewPw from './pages/NewPw'
 import BookViewer from './pages/BookViewer';
 import BookViewPDF from './pages/BookViewPDF';
 import BookDetail from './pages/BookDetail';
+import GetReview from './pages/GetReview';
+import DeleteUser from './pages/DeleteUser'
+import SearchReport from './pages/searchReport';
 
 function App() {
   return (
     <Routes>
+      {/* RootLayout이 적용되는 경로 */}
       <Route element={<RootLayout/>}>
         <Route index element={<Home/>}/> 
         <Route path='/mylib' element={<MyLib/>}/> 
         <Route path='/mypage' element={<MyPage/>}/>
-        <Route path='/login' element={<Login/>}/>
-        <Route path='/join' element={<Join/>}/>
         <Route path='/chatbot' element={<Chatbot/>}/>
         <Route path="/findid" element={<FindId />} />
         <Route path="/findpw" element={<FindPw />} />
@@ -31,7 +33,17 @@ function App() {
         <Route path="/bookviewer" element={<BookViewer />} /> 
         <Route path="/bookviewtest" element={<BookViewPDF />} /> 
         <Route path="/detail" element={<BookDetail />} /> 
+        <Route path='/getreview' element={<GetReview />} />
+        <Route path='/deleteuser' element={<DeleteUser />} />
+        <Route path='/searchreport' element={<SearchReport />} />
       </Route>
+
+      {/* RootLayout이 적용되지 않는 독립적인 경로 */}
+      <Route path='/login' element={<Login/>}/>
+      <Route path='/join' element={<Join/>}/>
+      <Route path="/findid" element={<FindId />} />
+      <Route path="/findpw" element={<FindPw />} />
+      <Route path="/newpw" element={<NewPw />} />
     </Routes>
   );
 }

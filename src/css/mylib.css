@@ -1,0 +1,87 @@
+/* 컨테이너 */
+.mylib-container {
+    width: 1280px;
+    margin: 0 auto;
+    padding-top: 20px;
+}
+
+/* 타이틀 */
+.mylib-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* 탭 스타일링 */
+.tabs {
+    display: flex;
+    justify-content: space-around;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 20px;
+}
+
+.tab {
+    padding: 10px 20px;
+    cursor: pointer;
+    color: #999;
+}
+
+.tab.active {
+    color: #F57E53; /* 활성 탭 색상 */
+    font-weight: bold;
+    border-bottom: 2px solid #F57E53; /* 활성 탭 하단 강조선 */
+}
+
+/* 책 그리드 */
+.books-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 20px;
+}
+
+/* 책 카드 */
+.book-card {
+    width: 200px;
+    height: 300px;
+    position: relative;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    text-align: center;
+}
+
+/* 책 커버 이미지 */
+.book-cover {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+/* 책 정보 */
+.book-info {
+    margin-top: 10px;
+}
+
+.book-title {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.book-author {
+    font-size: 0.875rem;
+    color: #777;
+}
+
+/* 하트 아이콘 */
+.book-heart {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 1.5rem;
+    color: #F57E53;
+}
