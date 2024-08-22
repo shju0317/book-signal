@@ -10,29 +10,29 @@ const Login = () => {
   const navigate = useNavigate();
 
   const login = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      const response = await fetch('http://localhost:3001/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ mem_id: memId, mem_pw: memPw }),
-      });
+  try {
+    const response = await fetch('http://localhost:3001/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ mem_id: memId, mem_pw: memPw, autologin }),
+    });
 
-      if (response.ok) {
-        alert('로그인 성공!');
-        navigate('/'); // 로그인 성공 시 메인 페이지로 이동
-      } else {
-        const data = await response.json();
-        setErrorMessage(data.message); // 서버에서 받은 오류 메시지 설정
-      }
-    } catch (error) {
-      console.error('Login Error:', error);
-      setErrorMessage('서버 오류가 발생했습니다. 나중에 다시 시도해주세요.');
+    if (response.ok) {
+       navigate('/'); // 로그인 성공 시 메인 페이지로 이동
+    } else {
+      const data = await response.json();
+      setErrorMessage(data.message); // 서버에서 받은 오류 메시지 설정
     }
-  };
+  } catch (error) {
+    console.error('Login Error:', error);
+    setErrorMessage('서버 오류가 발생했습니다. 나중에 다시 시도해주세요.');
+  }
+};
+
 
   // 타이틀 컨테이너 클릭 시 Home 페이지로 이동
   const handleTitleClick = () => {
@@ -82,7 +82,8 @@ const Login = () => {
             />
             <label htmlFor="autologin" className="checkbox-label">자동 로그인</label>
           </div>
-          {errorMessage && <p className="error-message">{errorMessage}</p>}
+          {errorMessage && <p className="error-message" dangerouslySetInnerHTML={{ __html: errorMessage }}></p>
+        }
           <button type="submit" className="login-button" onClick={login}>로그인</button>
         </form>
       </div>

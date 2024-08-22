@@ -56,3 +56,18 @@ exports.getUserId = (mem_id) => {
         });
     });
 };
+
+// 아이디 찾기
+exports.getUserByEmailAndName = (mem_email, mem_name) => {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `SELECT mem_id FROM member WHERE mem_mail = ? AND mem_name = ?`,
+      [mem_email, mem_name],
+      (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      }
+    );
+  });
+};
+
