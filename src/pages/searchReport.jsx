@@ -1,20 +1,43 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import '../css/searchreport.css';
 import { BiSearchAlt } from "react-icons/bi";
+import axios from 'axios';
 
 const SearchReport = () => {
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
     const searchQuery = queryParams.get('query');
+    const [books, setBooks] = useState([]);  // 검색 결과를 저장할 상태
+    const [loading, setLoading] = useState(true);  // 로딩 상태
+    const [error, setError] = useState(null);  // 에러 상태
 
-    // 예시 데이터를 사용하여 검색 결과를 시뮬레이션
-    const books = [
-        { id: 1, title: '나의 눈부신 친구', author: '홍길동', rating: 4.5, cover: 'path/to/book-cover1.jpg' },
-        { id: 2, title: '별의 계단', author: '홍길동', rating: 4.5, cover: 'path/to/book-cover2.jpg' },
-        { id: 3, title: '늑대의 파수꾼', author: '홍길동', rating: 4.5, cover: 'path/to/book-cover3.jpg' },
-        // 더 많은 책 데이터...
-    ];
+    useEffect(() => {
+        if (searchQuery) {
+            axios.get(`http://localhost:3001/api/search?query=${searchQuery}`)
+                .then(response => {
+                    setBooks(response.data);
+                    setLoading(false);  // 로딩 상태 해제
+                })
+                .catch(error => {
+                    setError('데이터를 불러오는 중 오류가 발생했습니다.');
+                    setLoading(false);  // 로딩 상태 해제
+                });
+        } else {
+            setLoading(false);  // 검색어가 없을 경우에도 로딩 상태 해제
+        }
+    }, [searchQuery]);
+
+    if (loading) {
+        return <div>로딩 중...</div>;
+    }
+
+    if (error) {
+        return <div>{error}</div>;
+    }
+
+    console.log(books);
+    
 
     return (
         <div className="search-report-container">
@@ -32,15 +55,20 @@ const SearchReport = () => {
             <div className="book-results">
                 <h2>도서</h2>
                 <div className="books-grid">
-                    {books.map((book) => (
-                        <div key={book.id} className="book-card">
-                            <img src={book.cover} alt={book.title} className="book-cover" />
-                            <div className="book-info">
-                                <p className="book-title">&lt;{book.title}&gt;</p>
-                                <p className="book-author">{book.author} 저자 | 평점: {book.rating}</p>
+                    {books.length > 0 ? (
+                        books.map((book, index) => (
+                            <div key={index} className="book-card">
+                                <img src={`http://localhost:3001${book.book_cover}`} alt={book.book_name} className="book-cover" />
+                                
+                                <div className="book-info">
+                                    <p className="book-title">&lt;{book.book_name}&gt;</p>
+                                    <p className="book-author">{book.book_writer} 저자</p>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        ))
+                    ) : (
+                        <p>검색 결과가 없습니다.</p>
+                    )}
                 </div>
             </div>
         </div>
