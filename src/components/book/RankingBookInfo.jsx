@@ -3,7 +3,7 @@ import { FaRegStar } from "react-icons/fa6";
 
 const RankingBookInfo = () => {
   return (
-    <li className='flex flex-grow border rounded-xl'>
+    <li className='flex flex-grow border rounded-xl shadow-lg'>
       <div className='book-cover-wrapper w-[100px] h-[150px]'>
         <img src='book_cover_sample.jpg' alt="이미지" className='w-full h-full object-cover rounded-xl'/>
       </div>
