@@ -53,7 +53,6 @@ const Join = () => {
     }
   };
 
-
   // 닉네임 중복체크
   const checkNick = async () => {
     if (!memNick) {
@@ -172,12 +171,12 @@ const Join = () => {
       setJoinComplete(true);
     } catch (err) {
       console.log(err);
-      alert('서버와의 통신 중 오류가 발생했습니다.');
+      alert('회원가입에 실패했습니다. 입력한 정보를 확인해 주세요.');
     }
   };
 
   const loginRedirect = () => {
-    navigate('/login');
+    navigate('/');
   };
 
   // 타이틀 컨테이너 클릭 시 Home 페이지로 이동
