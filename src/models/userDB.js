@@ -56,3 +56,27 @@ exports.getUserId = (mem_id) => {
         });
     });
 };
+
+// 아이디 찾기
+exports.getUserByEmailAndName = (mem_email, mem_name) => {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `SELECT mem_id FROM member WHERE mem_mail = ? AND mem_name = ?`,
+      [mem_email, mem_name],
+      (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      }
+    );
+  });
+};
+
+// 사용자 삭제
+exports.deleteUser = (mem_id) => {
+  return new Promise((resolve, reject) => {
+    db.query(`DELETE FROM member WHERE mem_id = ?`, [mem_id], (err, result) => {
+      if (err) reject(err);
+      else resolve(result);
+    });
+  });
+};

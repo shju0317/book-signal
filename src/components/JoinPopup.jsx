@@ -7,7 +7,7 @@ const Popup = ({ message, buttonText, onButtonClick }) => {
     <div className="popup-overlay">
       <div className="popup">
         <h3>{message}</h3>
-        <FaCheckCircle className='popup-joinComplete' color= "green" size={40} />
+        <FaCheckCircle className='popup-joinComplete' size={50} />
         <button onClick={onButtonClick} className="popup-button">
           {buttonText}
         </button>
