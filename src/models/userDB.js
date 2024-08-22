@@ -71,3 +71,12 @@ exports.getUserByEmailAndName = (mem_email, mem_name) => {
   });
 };
 
+// 사용자 삭제
+exports.deleteUser = (mem_id) => {
+  return new Promise((resolve, reject) => {
+    db.query(`DELETE FROM member WHERE mem_id = ?`, [mem_id], (err, result) => {
+      if (err) reject(err);
+      else resolve(result);
+    });
+  });
+};

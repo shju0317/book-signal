@@ -89,11 +89,9 @@ exports.login = async (req, res) => {
     // 자동 로그인 설정에 따른 세션 만료 시간 설정
     if (autologin) {
       req.session.cookie.maxAge = 1000 * 60 * 60 * 24 * 7; // 7일간 유지
-      console.log("자동 로그인 활성화: 7일간 세션 유지");
   } else {
       req.session.cookie.maxAge = null; // 브라우저 종료 시 세션 삭제
       req.session.cookie.expires = null; // 명시적으로 expires를 null로 설정
-      console.log("자동 로그인 비활성화: 브라우저 종료 시 세션 삭제");
   }
     res.status(200).json({
       message: '로그인 성공',
@@ -172,3 +170,39 @@ exports.logout = (req, res) => {
     return res.status(200).json({ message: '로그아웃 성공' });
   });
 };
+
+// 회원탈퇴
+exports.deleteUser = async (req, res) => {
+  const { mem_id, mem_pw } = req.body;
+
+  try {
+    const getUser = await userDB.getUser(mem_id);
+    if (getUser.length === 0) {
+      return res.status(401).json({ message: '아이디 또는 비밀번호가 잘못되었습니다.' });
+    }
+
+    const isMatch = await bcrypt.compare(mem_pw, getUser[0].mem_pw);
+    if (!isMatch) {
+      return res.status(401).json({ message: '아이디 또는 비밀번호가 잘못되었습니다.' });
+    }
+
+    // 세션 파기
+    req.session.destroy(async (err) => {
+      if (err) {
+        console.error('세션 삭제 중 오류:', err);
+        return res.status(500).json({ message: '회원탈퇴 중 오류가 발생했습니다.' });
+      }
+
+      res.clearCookie('connect.sid'); // 세션 쿠키 삭제
+
+      // 사용자 삭제
+      await userDB.deleteUser(mem_id);
+
+      res.status(200).json({ message: '회원탈퇴가 완료되었습니다.' });
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: '서버 오류' });
+  }
+};
+
