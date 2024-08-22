@@ -17,6 +17,7 @@ import BookDetail from './pages/BookDetail';
 import GetReview from './pages/GetReview';
 import DeleteUser from './pages/DeleteUser'
 import SearchReport from './pages/searchReport';
+import RankingBookList from './pages/RankingBookList';
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
         <Route path='/getreview' element={<GetReview />} />
         <Route path='/deleteuser' element={<DeleteUser />} />
         <Route path='/searchreport' element={<SearchReport />} />
+        <Route path='/ranking' element={<RankingBookList />} />
       </Route>
 
       {/* RootLayout이 적용되지 않는 독립적인 경로 */}
