@@ -18,7 +18,8 @@ exports.searchBooks = (searchQuery) => {
             // 서버에 이미지가 있는지 확인
             const updatedResults = results.map(book => {
                 // 한글 파일 이름 처리
-                const decodedFileName = decodeURIComponent(book.book_cover);
+                const decodedFileName = decodeURIComponent(book.book_name);
+                console.log(decodedFileName);
 
                 // 실제 파일 경로 확인
                 const imagePath = path.join(__dirname, '../public/images', decodedFileName);
@@ -28,11 +29,12 @@ exports.searchBooks = (searchQuery) => {
 
                 if (fs.existsSync(imagePath)) {
                     // 파일이 존재할 경우 URL 경로 설정
-                    book.book_cover = `/images/${decodedFileName}`;
+                    book.book_cover = `${decodedFileName}.jpg`;
+                    console.log(book.book_cover);
                 } else {
                     // 파일이 존재하지 않을 경우 기본 이미지 설정
-                    book.book_cover = '/images/default.jpg'; // 기본 이미지 경로 설정
                     console.log('File not found, using default image');
+                    book.book_cover = 'default.jpg'; // 기본 이미지 경로 설정
                 }
                 return book;
             });

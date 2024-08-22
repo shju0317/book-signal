@@ -58,7 +58,7 @@ const SearchReport = () => {
                     {books.length > 0 ? (
                         books.map((book, index) => (
                             <div key={index} className="book-card">
-                                <img src={`http://localhost:3001${book.book_cover}`} alt={book.book_name} className="book-cover" />
+                                <img src={`/images/${book.book_name}`} alt={book.book_name} className="book-cover" />
                                 
                                 <div className="book-info">
                                     <p className="book-title">&lt;{book.book_name}&gt;</p>
