@@ -106,10 +106,6 @@ exports.login = async (req, res) => {
   }
 };
 
-
-
-
-
 // 이메일 중복 체크 함수
 exports.getUserByEmail = async (mem_email) => {
   try {

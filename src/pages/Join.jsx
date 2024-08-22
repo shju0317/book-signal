@@ -145,7 +145,7 @@ const Join = () => {
       alert('중복 확인을 완료해주세요.');
       return;
     }
-  
+
 
     try {
       const res = await fetch('http://localhost:3001/join', {
@@ -162,22 +162,22 @@ const Join = () => {
           'Content-Type': 'application/json',
         },
       });
-  
+
       if (!res.ok) {
         const errorData = await res.json();
         throw new Error(errorData.message || '가입 요청에 실패했습니다.');
       }
-  
+
       // 회원가입 성공 시 팝업 창 띄우기
       setJoinComplete(true);
     } catch (err) {
       console.log(err);
       alert('서버와의 통신 중 오류가 발생했습니다.');
     }
-        };
-  
-    const loginRedirect = () => {
-      navigate('/login');
+  };
+
+  const loginRedirect = () => {
+    navigate('/login');
   };
 
   // 타이틀 컨테이너 클릭 시 Home 페이지로 이동
@@ -345,15 +345,21 @@ const Join = () => {
           </button>
         </form>
       </div>
-    {/* 회원가입 완료 팝업 */}
-    {joinComplete && (
-      <JoinPopup
-        message="회원가입 완료"
-        buttonText="로그인"
-        onButtonClick={loginRedirect}
-      />
-    )}
-  </div>
+      <div className="footer-wrapper">
+        <div className="login-footer">
+          <Link to="/Login">이미 회원이신가요?</Link>
+        </div>
+      </div>
+      {/* 회원가입 완료 팝업 */}
+      {joinComplete && (
+        <JoinPopup
+          message="회원가입 완료"
+          buttonText="로그인"
+          onButtonClick={loginRedirect}
+        />
+      )}
+    </div>
+
   );
 };
 
