@@ -16,6 +16,7 @@
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "express": "^4.19.2",
+    "helmet": "^7.1.0",
     "install": "^0.13.0",
     "mysql2": "^3.11.0",
     "npm": "^10.8.2",
@@ -31,6 +32,7 @@
     "react-rating-stars-component": "^2.2.0",
     "react-router-dom": "^6.26.1",
     "react-scripts": "5.0.1",
+    "seeso": "^0.2.3",
     "swiper": "^11.1.9",
     "web-vitals": "^4.2.3"
   },
