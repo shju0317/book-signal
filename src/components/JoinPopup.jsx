@@ -1,11 +1,11 @@
 import React from 'react';
 import { FaCheckCircle } from 'react-icons/fa';
-import '../css/popup.css'; // 팝업 CSS
+import '../css/popup.css';
 
-const Popup = ({ message, buttonText, onButtonClick }) => {
+const JoinPopup = ({ message, buttonText, onButtonClick }) => {
   return (
     <div className="popup-overlay">
-      <div className="popup">
+      <div className="JoinPopup">
         <h3>{message}</h3>
         <FaCheckCircle className='popup-joinComplete' size={50} />
         <button onClick={onButtonClick} className="popup-button">
@@ -16,4 +16,4 @@ const Popup = ({ message, buttonText, onButtonClick }) => {
   );
 };
 
-export default Popup;
+export default JoinPopup;
