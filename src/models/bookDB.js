@@ -39,11 +39,11 @@ exports.searchBooks = (searchQuery) => {
 };
 
 
-// 랭킹 도서 목록
+/******************** 랭킹 도서 목록 ********************/
 const getBooks = (orderBy, limit = 12) => {
     return new Promise((resolve, reject) => {
       const sql = `
-        SELECT book_name, book_writer, book_cover
+        SELECT *
         FROM book_db
         ORDER BY ${orderBy}
         LIMIT ${limit}

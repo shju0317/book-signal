@@ -1,9 +1,9 @@
 import React from 'react'
 import { FaRegStar } from "react-icons/fa6";
 
-const RankingBookInfo = ({ book, ranking }) => {
+const RankingBookInfo = ({ book, ranking, onClick }) => {
   return (
-    <li className='flex flex-grow border rounded-xl shadow-lg'>
+    <li className='flex flex-grow border rounded-xl shadow-lg cursor-pointer' onClick={onClick}>
       <div className='book-cover-wrapper w-[100px] h-[150px]'>
         <img src={book?.book_cover} alt={book?.book_name || "도서 이미지"} className='w-full h-full object-cover rounded-xl'/>
       </div>

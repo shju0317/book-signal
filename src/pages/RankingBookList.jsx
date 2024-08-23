@@ -8,7 +8,7 @@ import { useLocation, useNavigate  } from 'react-router-dom';
 const RankingBookList = () => {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('popular'); // 기본 탭 설정
+  const [activeTab, setActiveTab] = useState('popular');
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -30,7 +30,7 @@ const RankingBookList = () => {
 
     axios.get(`http://localhost:3001/${endpoint}`)
       .then(response => {
-        console.log(response.data);
+        // console.log(response.data);
 
         if (Array.isArray(response.data)) {
           setBooks(response.data);
@@ -63,6 +63,10 @@ const RankingBookList = () => {
     return <div>로딩 중...</div>;
   }
 
+  const handleBookClick = (book) => {
+    navigate(`/detail`, { state: { book } }); // 도서 정보를 상태로 전달
+  };
+
 
   return (
     <div className='max-w-screen-xl m-auto mb-16'>
@@ -93,7 +97,7 @@ const RankingBookList = () => {
           {/* 도서 리스트 렌더링 */}
           {books.length > 0 ? (
             books.map((book, index) => (
-              <RankingBookInfo key={index} book={book} ranking={index + 1} />
+              <RankingBookInfo key={index} book={book} ranking={index + 1} onClick={() => handleBookClick(book)}/>
             ))
           ) : (
             <p>결과가 없습니다.</p>
