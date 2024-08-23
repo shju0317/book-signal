@@ -207,12 +207,12 @@ const Join = () => {
   };
 
   const loginRedirect = () => {
-    navigate('/');
+    navigate('/login');
   };
 
   // 타이틀 컨테이너 클릭 시 Home 페이지로 이동
   const handleTitleClick = () => {
-    navigate('/');
+    navigate('/l');
   };
 
   return (
