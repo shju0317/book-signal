@@ -21,6 +21,7 @@ import BookDetail from './pages/BookDetail';
 import DeleteUser from './pages/DeleteUser';
 import SearchReport from './pages/searchReport';
 import RankingBookList from './pages/RankingBookList';
+import EyeGazeTest from './pages/EyeGazeTest';
 
 // 로그인 상태를 관리하기 위한 Context 생성
 export const AuthContext = createContext();
@@ -38,13 +39,14 @@ function App() {
             <Route path='/mylib' element={<MyLib />} />
             <Route path='/mypage' element={<MyPage />} />
             <Route path='/chatbot' element={<Chatbot />} />
-            <Route path="/findid" element={<FindId />} />
-            <Route path="/findpw" element={<FindPw />} />
-            <Route path="/newpw" element={<NewPw />} />
             <Route path="/bookviewtest" element={<BookViewTest />} />
             <Route path='/getreview' element={<GetReview />} />
             <Route path='/deleteuser' element={<DeleteUser />} />
             <Route path='/searchreport' element={<SearchReport />} />
+            <Route path='/ranking' element={<RankingBookList />} />
+            <Route path="/ranking/popular" element={<RankingBookList />} />
+            <Route path="/ranking/best" element={<RankingBookList />} />
+            <Route path="/ranking/new" element={<RankingBookList />} />
             <Route path="/detail" element={<BookDetail />} />
           </Route>
 
@@ -58,7 +60,7 @@ function App() {
           <Route path='/getreview' element={<GetReview />} />
           <Route path='/deleteuser' element={<DeleteUser />} />
           <Route path='/searchreport' element={<SearchReport />} />
-          <Route path='/ranking' element={<RankingBookList />} />
+          <Route path='/test' element={<EyeGazeTest />} />
         </Routes>
       </ErrorBoundary>
     </AuthContext.Provider>

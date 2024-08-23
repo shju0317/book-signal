@@ -2,7 +2,10 @@ const express = require('express');
 const cors = require('cors');
 const userRoutes = require('./routes/userRoutes');
 const searchRoutes = require('./routes/searchRoutes');
+const rankingRoutes = require('./routes/rankingRoutes');
 const path = require('path');
+const helmet = require('helmet');
+
 const session = require('express-session');
 const app = express();
 
@@ -38,6 +41,17 @@ app.get('/check-session', (req, res) => {
 
 app.use('/', userRoutes);
 app.use('/api', searchRoutes);
+app.use('/ranking', rankingRoutes);
+
+// eye-gaze
+// Cross-Origin Isolation 헤더 설정
+app.use(helmet.crossOriginOpenerPolicy({ policy: 'same-origin' }));
+app.use(helmet.crossOriginEmbedderPolicy({ policy: 'require-corp' }));
+  
+// 정적 파일 서빙
+app.use(express.static('public'));
+
+
 
 app.listen(3001, () => {
     console.log('서버 실행: http://localhost:3001');
