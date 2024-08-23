@@ -45,6 +45,7 @@ function App() {
             <Route path='/getreview' element={<GetReview />} />
             <Route path='/deleteuser' element={<DeleteUser />} />
             <Route path='/searchreport' element={<SearchReport />} />
+            <Route path="/detail" element={<BookDetail />} />
           </Route>
 
           <Route path='/login' element={<Login />} />
@@ -54,7 +55,6 @@ function App() {
           <Route path="/newpw" element={<NewPw />} />
           <Route path="/bookviewer" element={<BookViewer />} />
           <Route path="/bookviewtest" element={<BookViewPDF />} />
-          <Route path="/detail" element={<BookDetail />} />
           <Route path='/getreview' element={<GetReview />} />
           <Route path='/deleteuser' element={<DeleteUser />} />
           <Route path='/searchreport' element={<SearchReport />} />
