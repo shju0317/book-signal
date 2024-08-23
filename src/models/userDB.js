@@ -57,7 +57,7 @@ exports.getUserId = (mem_id) => {
     });
 };
 
-// 아이디 찾기
+// 아이디 찾기 (이메일,이름)
 exports.getUserByEmailAndName = (mem_email, mem_name) => {
   return new Promise((resolve, reject) => {
     db.query(
@@ -70,4 +70,33 @@ exports.getUserByEmailAndName = (mem_email, mem_name) => {
     );
   });
 };
+
+// 비밀번호 찾기 (이메일,아이디)
+exports.getUserByEmailAndId = (mem_email, mem_id) => {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `SELECT * FROM member WHERE mem_mail = ? AND mem_id = ?`,
+      [mem_email, mem_id],
+      (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      }
+    );
+  });
+};
+
+// 비밀번호 업데이트 함수
+exports.updatePassword = (mem_id, newPw) => {
+  return new Promise((resolve, reject) => {
+      db.query(
+          `UPDATE member SET mem_pw = ? WHERE mem_id = ?`, 
+          [newPw, mem_id], 
+          (err, result) => {
+              if (err) reject(err);
+              else resolve(result);
+          }
+      );
+  });
+};
+
 

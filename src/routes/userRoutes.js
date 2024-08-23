@@ -60,5 +60,10 @@ router.get('/check-nick', async (req, res) => {
 // 아이디 찾기
 router.post('/find-id', userController.findId);
 
+// 비밀번호 찾기
+router.post('/find-password', userController.findPassword);
+
+// 비밀번호 재설정 경로
+router.post('/reset-password', userController.resetPassword);
 
 module.exports = router;

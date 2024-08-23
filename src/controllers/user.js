@@ -134,13 +134,14 @@ exports.getUserId = async (mem_id) => {
   }
 };
 
+// 아이디 찾기
 exports.findId = async (req, res) => {
     const { mem_email, mem_name } = req.body;
   
     try {
       const getUser = await userDB.getUserByEmailAndName(mem_email, mem_name);
       if (getUser.length === 0) {
-        return res.status(404).json({ message: '해당 정보로 가입된 아이디를 찾을 수 없습니다.' });
+        return res.status(404).json({ message: '해당 정보로 가입된 계정을 찾을 수 없습니다.' });
       }
       
       // 아이디를 성공적으로 찾은 경우
@@ -150,5 +151,36 @@ exports.findId = async (req, res) => {
       res.status(500).json({ message: '서버 오류' });
     }
   };
+// 비밀번호 설정 페이지로 이동
+  exports.findPassword = async (req, res) => {
+    const { mem_email, mem_id } = req.body;
   
+    try {
+      const getUser = await userDB.getUserByEmailAndId(mem_email, mem_id);
+      if (getUser.length === 0) {
+        return res.status(404).json({ message: '해당 이메일과 아이디에 일치하는 계정이 존재하지 않습니다.' });
+      }
+  
+  
+      res.status(200).json({ message: '비밀번호 재설정 페이지로 이동합니다.' });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: '서버 오류' });
+    }
+  };
+// 비밀번호 재설정
+exports.resetPassword = async (req, res) => {
+  const { mem_id, newPw } = req.body;
+  console.log(req.body.mem_id, req.body.newPw);
+
+  try {
+    const hashedPw = await bcrypt.hash(newPw, 12);
+    await userDB.updatePassword(mem_id, hashedPw); // 비밀번호 업데이트
+
+    res.status(200).json({ message: '비밀번호 재설정이 완료되었습니다.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: '비밀번호 재설정에 실패했습니다.' });
+  }
+};
   

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import FindIdPopup from '../components/FindIdPopup'; // 팝업 컴포넌트 임포트
-import ErrorPopup from '../components/ErrorPopup'; // 오류 팝업 컴포넌트 임포트
+import { ErrorPopup } from '../components/ErrorPopup'; 
+import FindIdPopup from '../components/FindIdPopup';
 import '../css/findid.css';
 
 const FindId = () => {
@@ -30,7 +30,6 @@ const FindId = () => {
       if (response.ok) {
         setFoundId(data.mem_id); // 찾은 아이디 설정
         setShowPopup(true); // 팝업 표시
-        setShowPopup(true);
       } else {
         setErrorMessage(data.message); // 오류 메시지 설정
         setShowErrorPopup(true); // 오류 팝업 표시
