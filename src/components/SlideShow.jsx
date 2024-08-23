@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 const SlideShow = ({ slides }) => {
-  const [currentIndex, setCurrentIndex] = useState(1); 
+  const [currentIndex, setCurrentIndex] = useState(1);
   const [isAnimating, setIsAnimating] = useState(false);
   const slideRef = useRef();
 
@@ -48,7 +48,7 @@ const SlideShow = ({ slides }) => {
     }, 7000);
 
     return () => clearInterval(interval);
-  }, [goToNext, currentIndex, isAnimating]);
+  }, [currentIndex, isAnimating]);
 
   useEffect(() => {
     if (isAnimating) {
@@ -64,86 +64,65 @@ const SlideShow = ({ slides }) => {
   }, [currentIndex, isAnimating]);
 
   const slidesWithClones = [
-    slides[slides.length - 1], 
+    slides[slides.length - 1],
     ...slides,
-    slides[0], 
+    slides[0],
   ];
 
-  // 줄 바꿈 변환 함수
-  const formatDescription = (text) => {
-    return text.split('\n').map((str, index) => (
-      <React.Fragment key={index}>
-        {str}
-        <br />
-      </React.Fragment>
-    ));
-  };
-
   return (
-    <div className="relative h-80 w-full rounded-lg overflow-hidden"> {/* overflow-hidden으로 변경 */}
+    <div className="relative h-72 w-full rounded-lg">
       <div
         ref={slideRef}
-        className="flex transition-transform duration-500 ease-in-out"
+        className="absolute inset-0 flex"
         style={{
-          width: `${(totalSlides + 2) * 100}%`, // 슬라이드 컨테이너의 전체 너비를 설정
-          transform: `translateX(-${currentIndex * (100 / (totalSlides + 2))}%)`, // 슬라이드 이동 설정
+          transform: `translateX(-${currentIndex * 100}%)`,
+          transition: 'transform 500ms ease-in-out',
         }}
       >
         {slidesWithClones.map((slide, index) => (
-          <div 
-            key={index} 
-            className="w-full flex-shrink-0 flex items-center justify-between px-20"  
-            style={{ 
-              background: slide.background,  
+          <div
+            key={index}
+            className="w-full flex-shrink-0 flex items-center justify-between px-40"
+            style={{
+              background: slide.background,
               height: '100%',
-              width: `${100 / (totalSlides + 2)}%`, // 각 슬라이드의 너비를 설정
             }}
           >
-            <div className="text-left">
-              <h2 className="text-2xl font-bold text-white">{slide.title}</h2>  
-              <p className="mt-4 text-base text-white">
-                {formatDescription(slide.description)}
-              </p> 
-              <div className="mt-6 text-gray-300">
-                {currentIndex}/{totalSlides}
-              </div>
+            <div className="flex-1 text-left">
+              <h2 className="text-xl font-bold text-white">{slide.title}</h2>
+              <p className="mt-2 text-white">{slide.description}</p>
             </div>
-            
-            <img 
-              src={slide.image} 
-              alt={slide.title} 
-              className="rounded shadow-lg w-64 h-80 object-cover" 
-              style={{ 
-                position: 'absolute', 
-                bottom: '-20px',  
-                right: '-20px',   
-                zIndex: 10 
-              }}
-            />
+            <div className="flex-shrink-0 relative" style={{ top: '40px' }}> {/* top을 사용하여 위치 조정 */}
+              <img
+                src={slide.image}
+                alt={slide.title}
+                className="rounded shadow-lg w-64 h-80 object-contain"
+              />
+            </div>
           </div>
         ))}
       </div>
 
-      {/* 왼쪽 화살표 버튼 */}
       <button
         onClick={goToPrevious}
-        className="absolute top-1/2 left-2 transform -translate-y-1/2 p-2 bg-white bg-opacity-50 rounded-full text-gray-800 hover:bg-opacity-75 z-10"
+        className="absolute top-1/2 left-0 transform -translate-y-1/2 p-3 bg-white bg-opacity-50 rounded-full text-gray-800"
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
         </svg>
       </button>
 
-      {/* 오른쪽 화살표 버튼 */}
       <button
         onClick={goToNext}
-        className="absolute top-1/2 right-2 transform -translate-y-1/2 p-2 bg-white bg-opacity-50 rounded-full text-gray-800 hover:bg-opacity-75 z-10"
+        className="absolute top-1/2 right-0 transform -translate-y-1/2 p-3 bg-white bg-opacity-50 rounded-full text-gray-800"
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
         </svg>
       </button>
     </div>
+
+
   );
 };
 
