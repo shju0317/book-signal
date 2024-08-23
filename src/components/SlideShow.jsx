@@ -85,15 +85,15 @@ const SlideShow = ({ slides }) => {
             className="w-full flex-shrink-0 flex items-center justify-between px-40"
             style={{
               background: slide.background,
-              height: '100%',
+              height: '100%'
             }}
           >
-            <div className="flex-1 text-left">
+            <div className="flex-1  text-left">
               <h2 className="text-xl font-bold text-white">{slide.title}</h2>
               <p className="mt-2 text-white">{slide.description}</p>
             </div>
             <div className="flex-shrink-0 relative" style={{ top: '40px' }}> {/* top을 사용하여 위치 조정 */}
-              <img
+              <img 
                 src={slide.image}
                 alt={slide.title}
                 className="rounded shadow-lg w-64 h-80 object-contain"
