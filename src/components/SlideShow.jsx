@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 const SlideShow = ({ slides }) => {
-  const [currentIndex, setCurrentIndex] = useState(1); 
+  const [currentIndex, setCurrentIndex] = useState(1);
   const [isAnimating, setIsAnimating] = useState(false);
   const slideRef = useRef();
 
@@ -64,9 +64,9 @@ const SlideShow = ({ slides }) => {
   }, [currentIndex, isAnimating]);
 
   const slidesWithClones = [
-    slides[slides.length - 1], 
+    slides[slides.length - 1],
     ...slides,
-    slides[0], 
+    slides[0],
   ];
 
   return (
@@ -79,20 +79,29 @@ const SlideShow = ({ slides }) => {
         }}
       >
         {slidesWithClones.map((slide, index) => (
-          <div 
-            key={index} 
-            className="w-full flex-shrink-0" 
-            style={{ 
+          <div
+            key={index}
+            className="w-full flex-shrink-0"
+            style={{
               background: slide.background,  // 인라인 스타일로 배경색 설정
-              display: 'flex', 
-              justifyContent: 'center', 
+              display: 'flex',
+              justifyContent: 'center',
               alignItems: 'center',
-              height: '100%' 
+              height: '100%'
             }}>
-            <div className="text-center text-white">
+            <div className="text-center text-white relative">
               <h2 className="text-xl font-bold">{slide.title}</h2>
               <p className="mt-2">{slide.description}</p>
-              <img src={slide.image} alt={slide.title} className="mt-4 rounded shadow-lg w-32 mx-auto" />
+              <img 
+                src={slide.image}
+                alt={slide.title}
+                className="mt-4 rounded shadow-lg w-32 mx-auto"
+                style={{
+                  position: 'relative',
+                  bottom: '-10px' 
+                }}
+              />
+              
             </div>
           </div>
         ))}
