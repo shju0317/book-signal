@@ -37,3 +37,37 @@ exports.searchBooks = (searchQuery) => {
         });
     });
 };
+
+
+// 랭킹 도서 목록
+exports.rankingBooks = ()=>{
+    return new Promise((resolve, reject) => {
+        // 발간일 순 정렬
+        const sql = `
+            SELECT book_name, book_writer, book_cover
+            FROM book_db 
+            ORDER BY book_published_at DESC 
+            LIMIT 12
+        `;
+
+        conn.query(sql, (err, results) => {
+            if (err) {  
+                reject(err);
+                return;
+            }
+
+            const updatedResults = results.map(book => {
+                book.book_cover = decodeURIComponent(book.book_cover);
+                
+                if (book.book_cover) {
+                    book.book_cover = `images/${book.book_cover}`;
+                } else {
+                    book.book_cover = 'images/default.jpg';
+                }
+                return book;
+            });
+
+            resolve(updatedResults);
+        });
+    });
+};
