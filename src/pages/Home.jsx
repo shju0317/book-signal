@@ -94,7 +94,7 @@ const Home = () => {
 
       <h2 className='flex justify-between items-end mt-6 mb-0'>
         지금, 많이 읽은 그 작품
-        <Link to="/rankingBookList" className="text-sm text-gray-400">
+        <Link to="/ranking/popular" className="text-sm text-gray-400">
           더보기
         </Link>
       </h2>
@@ -118,7 +118,7 @@ const Home = () => {
       {/* 평점 top5 */}
       <h2 className='flex justify-between items-end mt-6 mb-0'>
         평점, BEST!
-        <Link to="/rankingBookList" className="text-sm text-gray-400">
+        <Link to="/ranking/best" className="text-sm text-gray-400">
           더보기
         </Link>
       </h2>
@@ -142,7 +142,7 @@ const Home = () => {
       {/* 신작 top5 */}
       <h2 className='flex justify-between items-end mt-6 mb-0'>
         갓 나온 신작
-        <Link to="/rankingBookList" className="text-sm text-gray-400">
+        <Link to="/ranking/new" className="text-sm text-gray-400">
           더보기
         </Link>
       </h2>
