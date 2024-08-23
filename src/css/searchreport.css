@@ -32,8 +32,10 @@ h2 {
 
 .books-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* 카드의 최소 너비를 220px로 설정 */
-    gap: 40px; /* 책 카드들 사이의 간격을 40px로 설정 */
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    /* 카드의 최소 너비를 220px로 설정 */
+    gap: 40px;
+    /* 책 카드들 사이의 간격을 40px로 설정 */
 }
 
 .book-card {
@@ -47,24 +49,41 @@ h2 {
     width: 220px;
     max-width: 100%;
     display: flex;
-    flex-direction: column; /* 카드 내용이 수직으로 쌓이도록 설정 */
-    align-items: center; /* 자식 요소들이 카드 중앙에 오도록 설정 */
-    justify-content: flex-start; /* 요소들이 카드 상단부터 배치되도록 설정 */
-    height: auto; /* 자동으로 카드 높이 조정 */
+    flex-direction: column;
+    /* 카드 내용이 수직으로 쌓이도록 설정 */
+    align-items: center;
+    /* 자식 요소들이 카드 중앙에 오도록 설정 */
+    justify-content: flex-start;
+    /* 요소들이 카드 상단부터 배치되도록 설정 */
+    height: auto;
+    /* 자동으로 카드 높이 조정 */
+}
+
+/* 책 카드에 마우스 오버 시 살짝 위로 올라가는 효과 */
+.book-card:hover {
+    transform: translateY(-10px);
+    /* 마우스 오버 시 10px 위로 이동 */
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+    /* 더 큰 그림자 효과 */
 }
 
 .book-cover {
     width: 100%;
     height: auto;
-    max-width: 200px; /* 이미지의 최대 너비를 설정 */
-    max-height: 300px; /* 이미지의 최대 높이를 설정 */
-    object-fit: cover; /* 이미지가 비율을 유지하며 잘 맞도록 설정 */
+    max-width: 200px;
+    /* 이미지의 최대 너비를 설정 */
+    max-height: 300px;
+    /* 이미지의 최대 높이를 설정 */
+    object-fit: cover;
+    /* 이미지가 비율을 유지하며 잘 맞도록 설정 */
     border-radius: 10px;
-    margin-bottom: 5px; /* 사진과 제목 사이의 간격을 줄이기 위해 5px로 조정 */
+    margin-bottom: 5px;
+    /* 사진과 제목 사이의 간격을 줄이기 위해 5px로 조정 */
 }
 
 .book-info {
-    margin-top: 5px; /* 이 값도 줄일 수 있습니다, 기본 10px에서 5px로 조정 */
+    margin-top: 5px;
+    /* 이 값도 줄일 수 있습니다, 기본 10px에서 5px로 조정 */
     width: 100%;
     text-align: center;
 }
@@ -75,7 +94,8 @@ h2 {
     margin-bottom: 5px;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis; /* 제목이 길 경우 ...으로 표시 */
+    text-overflow: ellipsis;
+    /* 제목이 길 경우 ...으로 표시 */
 }
 
 .book-author {
@@ -86,4 +106,3 @@ h2 {
     margin-top: 5px;
     text-align: center;
 }
-
