@@ -1,4 +1,5 @@
 import React from 'react';
+import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 import '../css/bookDetail.css';
 import { IoMdHeartEmpty } from "react-icons/io";
@@ -7,7 +8,17 @@ import { FaRegStar } from "react-icons/fa6";
 const BookDetail = () => {
   const location = useLocation();
   const { book } = location.state || {}; // 상태에서 도서 정보 받기
-  console.log('book!!!', book);
+  // console.log('book!!!', book);
+
+  // 찜하기
+  const handleWishList = async () => {
+    try {
+      await axios.post('/wishlist', { mem_id: "test", book_idx: book.book_idx });
+      alert('찜한 도서에 추가되었습니다.');
+    } catch (error) {
+      console.error('찜한 도서 추가 실패:', error);
+    }
+  };
 
   return (
     <div className='book-info-wrapper flex flex-col gap-10 max-w-screen-xl m-auto'>
@@ -37,7 +48,7 @@ const BookDetail = () => {
           </div>
           <div className='book-info-button flex'>
             <button className='border-t border-r rounded-bl-xl flex-1'>바로 읽기</button>
-            <button className='border-t flex items-center justify-center rounded-br-xl flex-1'><IoMdHeartEmpty size={22} className='mr-2'/>내 서재에 찜하기</button>
+            <button onClick={handleWishList} className='border-t flex items-center justify-center rounded-br-xl flex-1'><IoMdHeartEmpty size={22} className='mr-2'/>내 서재에 찜하기</button>
           </div>
         </div>
       </section>

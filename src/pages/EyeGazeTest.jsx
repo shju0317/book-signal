@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import EasySeeSo from 'seeso/easy-seeso';
-// import { initializeGazeTracking } from '../utils/gaze'; // gaze.js의 경로를 맞게 설정합니다.
+// import { initializeGazeTracking } from '../utils/gaze';
 
 const EyeGazeTest = () => {
 

@@ -3,6 +3,7 @@ const cors = require('cors');
 const userRoutes = require('./routes/userRoutes');
 const searchRoutes = require('./routes/searchRoutes');
 const rankingRoutes = require('./routes/rankingRoutes');
+const wishListRoutes = require('./routes/wishListRoutes');
 const path = require('path');
 const helmet = require('helmet');
 
@@ -42,6 +43,7 @@ app.get('/check-session', (req, res) => {
 app.use('/', userRoutes);
 app.use('/api', searchRoutes);
 app.use('/ranking', rankingRoutes);
+app.use('/wishlist', wishListRoutes);
 
 // eye-gaze
 // Cross-Origin Isolation 헤더 설정
