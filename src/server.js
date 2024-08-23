@@ -8,6 +8,7 @@ const helmet = require('helmet');
 
 const session = require('express-session');
 const app = express();
+const reviewRoutes = require('./routes/reviewRoutes');
 
 // 세션 설정 (기본 설정)
 app.use(session({
@@ -52,6 +53,7 @@ app.use(helmet.crossOriginEmbedderPolicy({ policy: 'require-corp' }));
 app.use(express.static('public'));
 
 
+app.use('/', reviewRoutes);
 
 app.listen(3001, () => {
     console.log('서버 실행: http://localhost:3001');
