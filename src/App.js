@@ -23,7 +23,7 @@ import DeleteUser from './pages/DeleteUser';
 import SearchReport from './pages/searchReport';
 import RankingBookList from './pages/RankingBookList';
 import EyeGazeTest from './pages/EyeGazeTest';
-import Reader from './pages/Reader';
+import ReaderWrapper from '../src/containers/Reader';
 
 // 로그인 상태를 관리하기 위한 Context 생성
 export const AuthContext = createContext();
@@ -52,7 +52,7 @@ function App() {
             <Route path="/detail" element={<BookDetail />} />
           </Route>
           
-          <Route path="/reader" element={<Reader />} />
+          <Route path="/reader" element={<ReaderWrapper />} />
           <Route path='/login' element={<Login />} />
           <Route path='/join' element={<Join />} />
           <Route path="/findid" element={<FindId />} />
