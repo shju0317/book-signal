@@ -89,10 +89,10 @@ exports.login = async (req, res) => {
     // 자동 로그인 설정에 따른 세션 만료 시간 설정
     if (autologin) {
       req.session.cookie.maxAge = 1000 * 60 * 60 * 24 * 7; // 7일간 유지
-  } else {
+    } else {
       req.session.cookie.maxAge = null; // 브라우저 종료 시 세션 삭제
       req.session.cookie.expires = null; // 명시적으로 expires를 null로 설정
-  }
+    }
     res.status(200).json({
       message: '로그인 성공',
       user: {
@@ -139,6 +139,7 @@ exports.getUserId = async (mem_id) => {
   }
 };
 
+// 아이디 찾기
 exports.findId = async (req, res) => {
   const { mem_email, mem_name } = req.body;
 
@@ -153,6 +154,39 @@ exports.findId = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: '서버 오류' });
+  }
+};
+
+// 비밀번호 설정 페이지로 이동
+exports.findPassword = async (req, res) => {
+  const { mem_email, mem_id } = req.body;
+
+  try {
+    const getUser = await userDB.getUserByEmailAndId(mem_email, mem_id);
+    if (getUser.length === 0) {
+      return res.status(404).json({ message: '해당 이메일과 아이디에 일치하는 계정이 존재하지 않습니다.' });
+    }
+
+
+    res.status(200).json({ message: '비밀번호 재설정 페이지로 이동합니다.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: '서버 오류' });
+  }
+};
+// 비밀번호 재설정
+exports.resetPassword = async (req, res) => {
+  const { mem_id, newPw } = req.body;
+  console.log(req.body.mem_id, req.body.newPw);
+
+  try {
+    const hashedPw = await bcrypt.hash(newPw, 12);
+    await userDB.updatePassword(mem_id, hashedPw); // 비밀번호 업데이트
+
+    res.status(200).json({ message: '비밀번호 재설정이 완료되었습니다.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: '비밀번호 재설정에 실패했습니다.' });
   }
 };
 
@@ -201,4 +235,3 @@ exports.deleteUser = async (req, res) => {
     res.status(500).json({ message: '서버 오류' });
   }
 };
-

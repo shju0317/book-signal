@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaCheckCircle } from 'react-icons/fa';
-import '../css/findid.css'; // 팝업 스타일 시트
+import '../css/popup.css';
 
 const FindIdPopup = ({ memName, memId }) => {
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ const FindIdPopup = ({ memName, memId }) => {
 
   return (
     <div className="popup-overlay">
-      <div className="popup">
+      <div className="FindIdPopup">
         <h4>아이디 찾기</h4>
         <FaCheckCircle className = "popup-FindIdcomplete" size={50} />
         <p>{memName} 님의 아이디는</p>
