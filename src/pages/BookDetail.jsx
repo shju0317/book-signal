@@ -15,6 +15,7 @@ const BookDetail = () => {
     try {
       await axios.post('/wishlist', { mem_id: "test", book_idx: book.book_idx });
       alert('찜한 도서에 추가되었습니다.');
+      
     } catch (error) {
       console.error('찜한 도서 추가 실패:', error);
     }

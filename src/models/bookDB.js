@@ -87,3 +87,18 @@ const getBooks = (orderBy, limit = 12) => {
   
 
   /******************** 찜하기 ********************/
+  exports.addWishlist = (mem_id, book_idx) => {
+    return new Promise((resolve, reject) => {
+        const sql = `INSERT INTO book_wishlist (mem_id, book_idx) VALUES (?, ?)`;
+
+        conn.query(sql, [mem_id, book_idx], (err, result) => {
+            if (err) {
+                console.error('도서 찜하기 에러:', err);
+                reject(new Error('도서 찜하기에 실패했습니다.'));
+                return;
+            }
+
+            resolve({ message: '도서가 찜 목록에 추가되었습니다.' });
+        });
+    });
+};
