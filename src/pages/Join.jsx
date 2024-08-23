@@ -21,21 +21,25 @@ const Join = () => {
   const [fieldsError, setFieldsError] = useState(false); // 모든 항목 입력 메시지 상태
   const [joinComplete, setJoinComplete] = useState(false); // 회원가입 완료 상태
   const [emailValid, setEmailValid] = useState(''); // 이메일 형식 오류 상태
+  const [idCheckClicked, setIdCheckClicked] = useState(false); // 아이디 중복 체크 클릭 여부
+  const [nickCheckClicked, setNickCheckClicked] = useState(false); // 닉네임 중복 체크 클릭 여부
+  const [emailCheckClicked, setEmailCheckClicked] = useState(false); // 이메일 중복 체크 클릭 여부
   const navigate = useNavigate();
 
   // 이메일 검증 함수
   const validEmail = (email) => {
-    return email.includes('@');
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
 
-  // 이메일 중복체크
+  // 이메일 중복 체크
   const checkEmail = async () => {
     if (!memEmail) {
       setEmailCheck({ status: 'error', message: '이메일을 입력해주세요.' });
       return;
     }
     if (!validEmail(memEmail)) {
-      setEmailValid('이메일에 @를 포함해주세요.');
+      setEmailValid('이메일에 @를 포함한 올바른 이메일 형식을 입력해주세요.');
       return;
     }
     setEmailValid(''); // 오류 메시지 초기화
@@ -45,16 +49,17 @@ const Join = () => {
 
       if (data.exists) {
         setEmailCheck({ status: 'error', message: '이미 사용중인 이메일 입니다.' });
+        setEmailCheckClicked(false); // 중복 확인 실패
       } else {
         setEmailCheck({ status: 'success', message: '사용 가능한 이메일 입니다.' });
+        setEmailCheckClicked(true); // 중복 확인 성공
       }
     } catch (err) {
       console.error('Error checking Email:', err);
     }
   };
 
-
-  // 닉네임 중복체크
+  // 닉네임 중복 체크
   const checkNick = async () => {
     if (!memNick) {
       setNickCheck({ status: 'error', message: '닉네임을 입력해주세요.' });
@@ -66,15 +71,17 @@ const Join = () => {
 
       if (data.exists) {
         setNickCheck({ status: 'error', message: '이미 사용중인 닉네임 입니다.' });
+        setNickCheckClicked(false); // 중복 확인 실패
       } else {
         setNickCheck({ status: 'success', message: '사용 가능한 닉네임 입니다.' });
+        setNickCheckClicked(true); // 중복 확인 성공
       }
     } catch (err) {
       console.error('Error checking Nick:', err);
     }
   };
 
-  // 아이디 중복체크
+  // 아이디 중복 체크
   const checkId = async () => {
     if (!memId) {
       setIdCheck({ status: 'error', message: '아이디를 입력해주세요.' });
@@ -86,13 +93,31 @@ const Join = () => {
 
       if (data.exists) {
         setIdCheck({ status: 'error', message: '이미 사용중인 아이디 입니다.' });
+        setIdCheckClicked(false); // 중복 확인 실패
       } else {
         setIdCheck({ status: 'success', message: '사용 가능한 아이디 입니다.' });
+        setIdCheckClicked(true); // 중복 확인 성공
       }
     } catch (err) {
       console.error('Error checking ID:', err);
     }
   };
+
+  // 사용자가 입력값을 바꾸면 중복 체크 상태를 초기화
+  useEffect(() => {
+    setIdCheck(null);
+    setIdCheckClicked(false);
+  }, [memId]);
+
+  useEffect(() => {
+    setNickCheck(null);
+    setNickCheckClicked(false);
+  }, [memNick]);
+
+  useEffect(() => {
+    setEmailCheck(null);
+    setEmailCheckClicked(false);
+  }, [memEmail]);
 
   // 비밀번호 확인
   useEffect(() => {
@@ -137,6 +162,12 @@ const Join = () => {
       return;
     }
 
+    // 중복 확인을 완료하지 않았을 때 처리
+    if (!idCheckClicked || !nickCheckClicked || !emailCheckClicked) {
+      alert('중복 확인을 완료해주세요.');
+      return;
+    }
+
     if (
       idCheck?.status === 'error' ||
       nickCheck?.status === 'error' ||
@@ -145,7 +176,6 @@ const Join = () => {
       alert('중복 확인을 완료해주세요.');
       return;
     }
-
 
     try {
       const res = await fetch('http://localhost:3001/join', {
@@ -172,7 +202,7 @@ const Join = () => {
       setJoinComplete(true);
     } catch (err) {
       console.log(err);
-      alert('서버와의 통신 중 오류가 발생했습니다.');
+      alert('회원가입에 실패했습니다. 입력한 정보를 확인해 주세요.');
     }
   };
 
@@ -182,7 +212,7 @@ const Join = () => {
 
   // 타이틀 컨테이너 클릭 시 Home 페이지로 이동
   const handleTitleClick = () => {
-    navigate('/');
+    navigate('/l');
   };
 
   return (
@@ -359,7 +389,6 @@ const Join = () => {
         />
       )}
     </div>
-
   );
 };
 
