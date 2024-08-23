@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import MyLib from './pages/MyLib';
 import MyPage from './pages/MyPage';
 import RootLayout from './pages/RootLayout';
+import viewerLayout from 'lib/styles/viewerLayout';
 import Chatbot from './components/Chatbot';
 import Login from './pages/Login';
 import Join from './pages/Join';
@@ -22,6 +23,7 @@ import DeleteUser from './pages/DeleteUser';
 import SearchReport from './pages/searchReport';
 import RankingBookList from './pages/RankingBookList';
 import EyeGazeTest from './pages/EyeGazeTest';
+import Reader from './pages/Reader';
 
 // 로그인 상태를 관리하기 위한 Context 생성
 export const AuthContext = createContext();
@@ -49,7 +51,8 @@ function App() {
             <Route path="/ranking/new" element={<RankingBookList />} />
             <Route path="/detail" element={<BookDetail />} />
           </Route>
-
+          
+          <Route path="/reader" element={<Reader />} />
           <Route path='/login' element={<Login />} />
           <Route path='/join' element={<Join />} />
           <Route path="/findid" element={<FindId />} />
