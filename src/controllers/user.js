@@ -177,7 +177,6 @@ exports.findPassword = async (req, res) => {
 // 비밀번호 재설정
 exports.resetPassword = async (req, res) => {
   const { mem_id, newPw } = req.body;
-  console.log(req.body.mem_id, req.body.newPw);
 
   try {
     const hashedPw = await bcrypt.hash(newPw, 12);

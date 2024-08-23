@@ -1,13 +1,9 @@
 import React from 'react';
 import SlideShow from '../components/SlideShow';
-import { Link, useNavigate } from 'react-router-dom';
-import SLIDES from "../data/slides"
+import SLIDES from '../data/slides';
+import { Link } from 'react-router-dom';
 import '../css/fonts.css';
 import '../css/main.css';
-
-
-
-
 
 // 인기
 const bookBest = [
@@ -50,7 +46,7 @@ const readNow = [
 const signal = [
   { title: '제목1', gpt: '지피티추천', image: '' },
   { title: '제목2', gpt: '지피티추천', image: '' },
-  { title: '제목3', gpt: '지피티추천sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss', image: '' },
+  { title: '제목3', gpt: '지피티추천', image: '' },
 ];
 
 
@@ -62,7 +58,7 @@ const Home = () => {
       <SlideShow slides={SLIDES} />
       <br />
 
-      <h2 className='flex justify-between items-end mt-6 mb-0'>
+      <h2 className='flex justify-between items-end mt-28 mb-0'>
         지금, 많이 읽은 그 작품
         <Link to="/ranking/popular" className="text-sm text-gray-400">
           더보기
@@ -196,15 +192,7 @@ const Home = () => {
         <span className='text-gray-400'>b:ook</span>
         <div className='h-10'></div>
       </div>
-
-
     </div>
-
-
-
-
-
-
   )
 }
 
