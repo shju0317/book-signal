@@ -48,7 +48,7 @@ const SlideShow = ({ slides }) => {
     }, 7000);
 
     return () => clearInterval(interval);
-  }, [currentIndex, isAnimating]);
+  }, [goToNext, currentIndex, isAnimating]);
 
   useEffect(() => {
     if (isAnimating) {
@@ -69,6 +69,16 @@ const SlideShow = ({ slides }) => {
     slides[0], 
   ];
 
+  // 줄 바꿈 변환 함수
+  const formatDescription = (text) => {
+    return text.split('\n').map((str, index) => (
+      <React.Fragment key={index}>
+        {str}
+        <br />
+      </React.Fragment>
+    ));
+  };
+
   return (
     <div className="relative h-72 w-full rounded-lg overflow-hidden">
       <div
@@ -81,35 +91,41 @@ const SlideShow = ({ slides }) => {
         {slidesWithClones.map((slide, index) => (
           <div 
             key={index} 
-            className="w-full flex-shrink-0" 
+            className="w-full flex-shrink-0 flex items-center justify-between px-40"  // 간격을 늘림
             style={{ 
               background: slide.background,  // 인라인 스타일로 배경색 설정
-              display: 'flex', 
-              justifyContent: 'center', 
-              alignItems: 'center',
               height: '100%' 
-            }}>
-            <div className="text-center text-white">
-              <h2 className="text-xl font-bold">{slide.title}</h2>
-              <p className="mt-2">{slide.description}</p>
-              <img src={slide.image} alt={slide.title} className="mt-4 rounded shadow-lg w-32 mx-auto" />
+            }}
+          >
+            <div className="text-left">
+              <h2 className="text-2xl font-bold text-white">{slide.title}</h2>  
+              <p className="mt-4 text-base text-white">
+                {formatDescription(slide.description)}
+              </p> 
+              <div className="mt-6 text-gray-300">
+                {currentIndex}/{totalSlides}
+              </div>
             </div>
+            
+            <img src={slide.image} alt={slide.title} className="rounded shadow-lg w-64 h-120 object-cover" /> {/* 여기에서 이미지 너비를 키움 */}
           </div>
         ))}
       </div>
 
+      {/* 왼쪽 화살표 버튼 */}
       <button
         onClick={goToPrevious}
-        className="absolute top-1/2 left-0 transform -translate-y-1/2 p-3 text-white"
+        className="absolute top-1/2 left-2 transform -translate-y-1/2 p-2 bg-white bg-opacity-50 rounded-full text-gray-800 hover:bg-opacity-75"
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
         </svg>
       </button>
 
+      {/* 오른쪽 화살표 버튼 */}
       <button
         onClick={goToNext}
-        className="absolute top-1/2 right-0 transform -translate-y-1/2 p-3 text-white"
+        className="absolute top-1/2 right-2 transform -translate-y-1/2 p-2 bg-white bg-opacity-50 rounded-full text-gray-800 hover:bg-opacity-75"
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />

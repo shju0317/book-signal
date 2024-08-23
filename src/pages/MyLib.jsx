@@ -1,16 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../css/mylib.css';
+import axios from 'axios';
 
 const MyLib = () => {
   const [activeTab, setActiveTab] = useState('recent'); // 기본 활성 탭
+  const [userInfo, setUserInfo] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // 서버에서 세션 정보를 가져옴
+    axios.get('http://localhost:3001/check-session', { withCredentials: true })
+      .then(response => {
+        setUserInfo(response.data.user);
+      })
+      .catch(error => {
+        if (error.response && error.response.status === 401) {
+          alert('로그인이 필요합니다.');
+          navigate('/login'); // 로그인 페이지로 이동
+        } else {
+          console.error('세션 정보를 가져오는데 실패했습니다.', error);
+        }
+      });
+  }, [navigate]);
 
   const handleTabClick = (tabName) => {
     setActiveTab(tabName);
   };
 
+  if (!userInfo) {
+    return <p>로딩 중...</p>;
+  }
+
   return (
     <div className="mylib-container">
-      <h1 className="mylib-title">바나나 알러지 원숭이 님의 서재</h1>
+      <h1 className="mylib-title">{userInfo.mem_nick} 님의 서재</h1>
       <div className="tabs">
         <div
           className={`tab ${activeTab === 'recent' ? 'active' : ''}`}
