@@ -1,16 +1,37 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react'
 import RankingBookInfo from '../components/book/RankingBookInfo'
+import SlideShow from '../components/SlideShow'
 import axios from 'axios'
+import SLIDES from "../data/slides"
+import { useLocation, useNavigate  } from 'react-router-dom';
 
 const RankingBookList = () => {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('popular'); // 기본 탭 설정
+  const location = useLocation();
+  const navigate = useNavigate();
 
+  // 현재 탭에 따라 API 요청
   useEffect(() => {
-    axios.get('http://localhost:3001/ranking')
+    let endpoint;
+
+    switch (activeTab) {
+      case 'best':
+        endpoint = 'ranking/best';
+        break;
+      case 'new':
+        endpoint = 'ranking/new';
+        break;
+      case 'popular':
+      default:
+        endpoint = 'ranking/popular';
+    }
+
+    axios.get(`http://localhost:3001/${endpoint}`)
       .then(response => {
-        console.log(response.data); 
-        
+        console.log(response.data);
+
         if (Array.isArray(response.data)) {
           setBooks(response.data);
         } else {
@@ -23,26 +44,63 @@ const RankingBookList = () => {
         console.error('오류:', error);
         setLoading(false);
       });
-  }, []);
+  }, [activeTab]);
+
+  // URL 경로에 따라 탭 업데이트
+  useEffect(() => {
+    const path = location.pathname.split('/').pop();
+    if (['popular', 'best', 'new'].includes(path)) {
+      setActiveTab(path);
+    }
+  }, [location.pathname]);
+
+  const handleTabClick = (tab) => {
+    setActiveTab(tab);
+    navigate(`/ranking/${tab}`);
+  };
 
   if (loading) {
     return <div>로딩 중...</div>;
   }
 
+
   return (
-    <section className='max-w-screen-xl m-auto'>
-      <h2 className='sr-only'>랭킹 도서 목록</h2>
-      <ul className='flex flex-wrap justify-start gap-5'>
-        {/* 도서 리스트 렌더링 */}
-        {books.length > 0 ? (
-          books.map((book, index) => (
-            <RankingBookInfo key={index} book={book} ranking={index + 1} />
-          ))
-        ) : (
-          <p>결과가 없습니다.</p>
-        )}
+    <div className='max-w-screen-xl m-auto mb-16'>
+      <SlideShow slides={SLIDES}/>
+      <ul className='flex gap-5 text-lg font-semibold border-b py-5 mb-16'>
+      <li
+          onClick={() => handleTabClick('popular')}
+          className={`cursor-pointer ${activeTab === 'popular' ? 'text-primary border-b-2 border-b-primary' : ''}`}
+        >
+          인기 랭킹
+        </li>
+        <li
+          onClick={() => handleTabClick('best')}
+          className={`cursor-pointer ${activeTab === 'best' ? 'text-primary border-b-2 border-b-primary' : ''}`}
+        >
+          평점 베스트
+        </li>
+        <li
+          onClick={() => handleTabClick('new')}
+          className={`cursor-pointer ${activeTab === 'new' ? 'text-primary border-b-2 border-b-primary' : ''}`}
+        >
+          신작
+        </li>
       </ul>
-    </section>
+      <section>
+        <h2 className='sr-only'>랭킹 도서 목록</h2>
+        <ul className='flex flex-wrap justify-start gap-5'>
+          {/* 도서 리스트 렌더링 */}
+          {books.length > 0 ? (
+            books.map((book, index) => (
+              <RankingBookInfo key={index} book={book} ranking={index + 1} />
+            ))
+          ) : (
+            <p>결과가 없습니다.</p>
+          )}
+        </ul>
+      </section>
+    </div>
   )
 }
 

@@ -39,14 +39,14 @@ function App() {
             <Route path='/mylib' element={<MyLib />} />
             <Route path='/mypage' element={<MyPage />} />
             <Route path='/chatbot' element={<Chatbot />} />
-            <Route path="/findid" element={<FindId />} />
-            <Route path="/findpw" element={<FindPw />} />
-            <Route path="/newpw" element={<NewPw />} />
             <Route path="/bookviewtest" element={<BookViewTest />} />
             <Route path='/getreview' element={<GetReview />} />
             <Route path='/deleteuser' element={<DeleteUser />} />
             <Route path='/searchreport' element={<SearchReport />} />
             <Route path='/ranking' element={<RankingBookList />} />
+            <Route path="/ranking/popular" element={<RankingBookList />} />
+            <Route path="/ranking/best" element={<RankingBookList />} />
+            <Route path="/ranking/new" element={<RankingBookList />} />
             <Route path="/detail" element={<BookDetail />} />
           </Route>
 
