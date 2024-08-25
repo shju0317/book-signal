@@ -28,10 +28,74 @@ const MyLib = () => {
     setActiveTab(tabName);
   };
 
-  if (!userInfo) {
-    return <p>로딩 중...</p>;
-  }
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'recent':
+        return (
+          <div className="books-grid">
+            <div className="book-card">
+              <img src="" alt="Book Cover" className="book-cover" />
+              <div className="book-info">
+                <p className="book-title">&lt;최근 읽은 책 제목&gt;</p>
+                <p className="book-author">저자 이름</p>
+              </div>
+              <div className="book-heart">❤️</div>
+            </div>
+            {/* 다른 최근 읽은 책 카드들... */}
+          </div>
+        );
+      case 'favorite':
+        return (
+          <div className="books-grid">
+            <div className="book-card">
+              <img src="" alt="Book Cover" className="book-cover" />
+              <div className="book-info">
+                <p className="book-title">&lt;찜한 책 제목&gt;</p>
+                <p className="book-author">저자 이름</p>
+              </div>
+              <div className="book-heart">❤️</div>
+            </div>
+            {/* 다른 찜한 책 카드들... */}
+          </div>
+        );
+      case 'bookSignal':
+        return (
+          <div className="books-grid">
+            <div className="book-card">
+              <img src="" alt="Book Cover" className="book-cover" />
+              <div className="book-info">
+                <p className="book-title">&lt;북 시그널 책 제목&gt;</p>
+                <p className="book-author">저자 이름</p>
+              </div>
+              <div className="book-heart">❤️</div>
+            </div>
+            {/* 다른 북 시그널 책 카드들... */}
+          </div>
+        );
+      case 'completed':
+        return (
+          <div className="books-grid">
+            <div className="book-card">
+              <img src="" alt="Book Cover" className="book-cover" />
+              <div className="book-info">
+                <p className="book-title">&lt;완독한 책 제목&gt;</p>
+                <p className="book-author">저자 이름</p>
+              </div>
+              <div className="book-heart">❤️</div>
+            </div>
+            {/* 다른 완독 도서 카드들... */}
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
 
+
+
+
+
+  
   return (
     <div className="mylib-container">
       <h1 className="mylib-title">{userInfo.mem_nick} 님의 서재</h1>
@@ -62,18 +126,8 @@ const MyLib = () => {
         </div>
       </div>
 
-      <div className="books-grid">
-        {/* 책 카드 예시 */}
-        <div className="book-card">
-          <img src="" alt="Book Cover" className="book-cover" />
-          <div className="book-info">
-            <p className="book-title">&lt;나의 눈부신 친구&gt;</p>
-            <p className="book-author">히가시노 게이고</p>
-          </div>
-          <div className="book-heart">❤️</div>
-        </div>
-        {/* 다른 책 카드들... */}
-      </div>
+      {renderContent()}
+      
     </div>
   );
 };
