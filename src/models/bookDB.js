@@ -55,9 +55,9 @@ const getBooks = (orderBy, limit = 12) => {
         const updatedResults = results.map(book => {
           book.book_cover = decodeURIComponent(book.book_cover);
           if (book.book_cover) {
-            book.book_cover = `images/${book.book_cover}`;
+            book.book_cover = `/images/${book.book_cover}`;
           } else {
-            book.book_cover = 'images/default.jpg';
+            book.book_cover = '/images/default.jpg';
           }
           return book;
         });
