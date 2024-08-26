@@ -1,4 +1,5 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { Provider } from "react-redux";
 import { ReactEpubViewer } from "react-epub-viewer";
@@ -148,11 +149,37 @@ const EpubReader = ({ url }) => {
 };
 
 const Reader = () => {
-  const epubUrl = "files/김유정-동백꽃-조광.epub"; // EPUB 파일 경로 설정
+  const [epubUrl, setEpubUrl] = useState("");
+  const [ebooks, setEbooks] = useState([]);
+
+  useEffect(() => {
+    // 서버에서 EPUB 파일 목록을 가져옴
+    axios.get("http://localhost:3001/ebooks")
+      .then(response => {
+        setEbooks(response.data);
+      })
+      .catch(error => {
+        console.error("Error fetching ebooks:", error);
+      });
+  }, []);
 
   return (
     <Provider store={store}>
-      <EpubReader url={epubUrl} /> {/* ReaderWrapper 컴포넌트에 URL 전달 */}
+      <div>
+        {/* EPUB 파일 목록을 렌더링 */}
+        <ul>
+          {ebooks.map((book) => (
+            <li key={book.name}>
+              <button onClick={() => setEpubUrl(book.url)}>
+                {book.name}
+              </button>
+            </li>
+          ))}
+        </ul>
+
+        {/* 선택된 EPUB 파일을 EpubReader에 전달 */}
+        {epubUrl && <EpubReader url={epubUrl} />}
+      </div>
     </Provider>
   );
 };
