@@ -7,46 +7,46 @@ import '../css/main.css';
 
 // 인기
 const bookBest = [
-  { title: '제목1', author: '저자/옮긴이', image: '' },
-  { title: '제목2', author: '저자/옮긴이', image: '' },
-  { title: '제목3', author: '저자/옮긴이', image: '' },
-  { title: '제목4', author: '저자/옮긴이', image: '' },
-  { title: '제목5', author: '저자/옮긴이', image: '' }
+  { title: '별 헤는 밤', author: '저자/옮긴이', image: '../images/cover(10).jpg' },
+  { title: '서시', author: '저자/옮긴이', image: '../images/cover(11).jpg' },
+  { title: '광염 소나타', author: '저자/옮긴이', image: '../images/cover(24).jpg' },
+  { title: '꼬부랑 할머니', author: '저자/옮긴이', image: '../images/cover(63).jpg' },
+  { title: 'B사감과 러브레터', author: '저자/옮긴이', image: '../images/cover(28).jpg' }
 ];
 
 
 // 평점
 const reviewBest = [
-  { title: '제목1', author: '저자/옮긴이', image: '' },
-  { title: '제목2', author: '저자/옮긴이', image: '' },
-  { title: '제목3', author: '저자/옮긴이', image: '' },
-  { title: '제목4', author: '저자/옮긴이', image: '' },
-  { title: '제목5', author: '저자/옮긴이', image: '' }
+  { title: '나의 유년시절', author: '저자/옮긴이', image: '../images/cover(0).jpg' },
+  { title: '사랑하는 까닭', author: '저자/옮긴이', image: '../images/cover(19).jpg' },
+  { title: '나비의 꿈', author: '저자/옮긴이', image: '../images/cover(61).jpg' },
+  { title: '허생전', author: '저자/옮긴이', image: '../images/cover(34).jpg' },
+  { title: '향수', author: '저자/옮긴이', image: '../images/cover(15).jpg' }
 ];
 
 // 신작
 const newBook = [
-  { title: '제목1', author: '저자/옮긴이', image: '' },
-  { title: '제목2', author: '저자/옮긴이', image: '' },
-  { title: '제목3', author: '저자/옮긴이', image: '' },
-  { title: '제목4', author: '저자/옮긴이', image: '' },
-  { title: '제목5', author: '저자/옮긴이', image: '' }
+  { title: '한의 신문 제 2461호', author: '저자/옮긴이', image: '../images/cover(90).jpg' },
+  { title: 'AI 영화영상콘텐츠를 위한 AI 예술창작 사례연구', author: '저자/옮긴이', image: '../images/cover(80).jpg' },
+  { title: '자율주행차량 상황 정보 알림 시스템', author: '저자/옮긴이', image: '../images/cover(88).jpg' },
+  { title: '머신러닝 기반 메모리 성능', author: '저자/옮긴이', image: '../images/cover(86).jpg' },
+  { title: '아이트래킹 연구 활성화를 위한 모바일 아이트래커의 활용', author: '저자/옮긴이', image: '../images/cover(83).jpg' }
 ];
 
 // 최근읽은
 const readNow = [
-  { title: '제목1', author: '저자/옮긴이', image: '' },
-  { title: '제목2', author: '저자/옮긴이', image: '' },
-  { title: '제목3', author: '저자/옮긴이', image: '' },
-  { title: '제목4', author: '저자/옮긴이', image: '' },
-  { title: '제목5', author: '저자/옮긴이', image: '' }
+  { title: '누이 마음아 나를 보아라', author: '저자/옮긴이', image: '../images/cover(2).jpg' },
+  { title: '진달래꽃', author: '저자/옮긴이', image: '../images/cover(3).jpg' },
+  { title: '해협의 로맨티시즘', author: '저자/옮긴이', image: '../images/cover(4).jpg' },
+  { title: '님의 손길', author: '저자/옮긴이', image: '../images/cover(8).jpg' },
+  { title: '운수 좋은 날', author: '저자/옮긴이', image: '../images/cover(17).jpg' }
 ];
 
 // 추천시그널
 const signal = [
-  { title: '제목1', gpt: '지피티추천', image: '' },
-  { title: '제목2', gpt: '지피티추천', image: '' },
-  { title: '제목3', gpt: '지피티추천', image: '' },
+  { title: '봄·봄', gpt: '지피티추천', image: '../images/cover(21).jpg' },
+  { title: '약한 자의 슬픔2', gpt: '지피티추천', image: '../images/cover(22).jpg' },
+  { title: '탁류', gpt: '지피티추천', image: '../images/cover(35).jpg' },
 ];
 
 
@@ -58,7 +58,7 @@ const Home = () => {
       <SlideShow slides={SLIDES} />
       <br />
 
-      <h2 className='flex justify-between items-end mt-28 mb-0'>
+      <h2 className='flex justify-between items-end mt-28 mb-0 text-black'>
         지금, 많이 읽은 그 작품
         <Link to="/ranking/popular" className="text-sm text-gray-400">
           더보기
@@ -82,7 +82,7 @@ const Home = () => {
       <br />
 
       {/* 평점 top5 */}
-      <h2 className='flex justify-between items-end mt-6 mb-0'>
+      <h2 className='flex justify-between items-end mt-6 mb-0 text-black'>
         평점, BEST!
         <Link to="/ranking/best" className="text-sm text-gray-400">
           더보기
@@ -106,7 +106,7 @@ const Home = () => {
 
 
       {/* 신작 top5 */}
-      <h2 className='flex justify-between items-end mt-6 mb-0'>
+      <h2 className='flex justify-between items-end mt-6 mb-0 text-black'>
         갓 나온 신작
         <Link to="/ranking/new" className="text-sm text-gray-400">
           더보기
@@ -129,7 +129,7 @@ const Home = () => {
       <br />
 
       {/* 최근읽은 도서 */}
-      <h2 className='flex justify-between items-end mt-6 mb-0'>
+      <h2 className='flex justify-between items-end mt-6 mb-0 text-black'>
         최근 읽은 도서
         <Link to="/mylib" className="text-sm text-gray-400">
           더보기
@@ -152,7 +152,7 @@ const Home = () => {
       <br />
 
       {/* 추천시그널 */}
-      <h2 className='flex justify-between items-end mt-6 mb-0'>
+      <h2 className='flex justify-between items-end mt-6 mb-0 text-black'>
         닉네임 님에게 보내는 추천 시그널
       </h2>
       <br />
