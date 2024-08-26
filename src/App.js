@@ -22,7 +22,8 @@ import BookDetail from './pages/BookDetail';
 import DeleteUser from './pages/DeleteUser';
 import SearchReport from './pages/searchReport';
 import RankingBookList from './pages/RankingBookList';
-import EyeGazeTest from './pages/EyeGazeTest';
+// import EyeGazeTest from './pages/EyeGazeTest';
+import EyeGaze from './pages/EyeGaze';
 import Reader from './pages/Reader';
 
 // 로그인 상태를 관리하기 위한 Context 생성
@@ -63,7 +64,7 @@ function App() {
           <Route path='/getreview' element={<GetReview />} />
           <Route path='/deleteuser' element={<DeleteUser />} />
           <Route path='/searchreport' element={<SearchReport />} />
-          <Route path='/test' element={<EyeGazeTest />} />
+          <Route path='/test' element={<EyeGaze />} />
         </Routes>
       </ErrorBoundary>
     </AuthContext.Provider>
