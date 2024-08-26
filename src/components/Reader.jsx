@@ -148,7 +148,7 @@ const EpubReader = ({ url }) => {
 };
 
 const Reader = () => {
-  const epubUrl = "files/Alices Adventures in Wonderland.epub"; // EPUB 파일 경로 설정
+  const epubUrl = "files/김유정-동백꽃-조광.epub"; // EPUB 파일 경로 설정
 
   return (
     <Provider store={store}>

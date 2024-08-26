@@ -1,17 +1,18 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { useSelector } from 'react-redux';
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { useSelector } from 'react-redux'
 // components
-import Wrapper from 'components/contextMenu/Wrapper';
-import ColorItem from 'components/contextMenu/ColorItem';
-import Item from 'components/contextMenu/Item';
+import Wrapper from 'components/contextMenu/Wrapper'
+import ColorItem from 'components/contextMenu/ColorItem'
+import Item from 'components/contextMenu/Item'
 // utils
-import { getParagraphCfi } from 'lib/utils/commonUtil';
+import { getParagraphCfi } from 'lib/utils/commonUtil'
 // slices
-import { contextmenuWidth } from 'lib/styles/viewerLayout';
+import { contextmenuWidth } from 'lib/styles/viewerLayout'
 // types
-import { RootState } from 'slices';
-import Highlight, { Color } from 'types/highlight';
-import Selection from 'types/selection';
+import { RootState } from 'slices'
+import Highlight, { Color } from 'types/highlight'
+import Selection from 'types/selection'
+
 
 const ContextMenu = ({ 
   active,
@@ -28,9 +29,11 @@ const ContextMenu = ({
   const menuRef = useRef<HTMLDivElement | null>(null);
 
   const [highlight, setHighlight] = useState<Highlight | null>(null);
+  
   const [display, setDisplay] = useState<boolean>(false);
   const [isEraseBtn, setIsEraseBtn] = useState<boolean>(false);
   const [isReverse, setIsReverse] = useState<boolean>(false);
+  
   const [height, setHeight] = useState<number>(0);
   const [y, setY] = useState<number>(selection.y);
 
@@ -44,6 +47,7 @@ const ContextMenu = ({
                         } />
   );
 
+  
   /** Remove highlight */
   const onRemoveHighlight_ = useCallback(() => {
     if (!highlight) return;
@@ -57,25 +61,25 @@ const ContextMenu = ({
   /** 
    * Remove contextmenu
    * @param e Mouse Event
+   * @param e.path
    */
-  const onRemove = useCallback((e: MouseEvent) => {
+  const onRemove = useCallback(({ path }: any) => {
     if (!menuRef.current) return;
 
-    const path = e.composedPath ? e.composedPath() : []; // composedPath()를 사용하여 이벤트 경로 가져오기
-    if (Array.isArray(path) && path.includes(menuRef.current)) return; // path가 배열인지 확인
-
+    if ([...path].includes(menuRef.current)) return;
     onContextmMenuRemove();
   }, [menuRef, onContextmMenuRemove]);
-
+  
   /** 
    * Arrow event
    * @param e Keyboard Event
+   * @param e.key
    */
-  const onKeyPress = useCallback((e: KeyboardEvent) => {
-    if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
-      onContextmMenuRemove();
-    }
+  const onKeyPress = useCallback(({ key }: any) => {
+    key && key === "ArrowLeft" && onContextmMenuRemove();
+    key && key === "ArrowRight" && onContextmMenuRemove();
   }, [onContextmMenuRemove]);
+
 
   /** Check whether the menu button is visible */
   useEffect(() => {
@@ -90,7 +94,11 @@ const ContextMenu = ({
     const highlight_ = filtered[0];
     setHighlight(highlight_);
 
-    setIsEraseBtn(selection.update);
+    if (selection.update) {
+      setIsEraseBtn(true);
+    } else {
+      setIsEraseBtn(false);
+    }
   }, [
     active,
     highlights, 
@@ -123,9 +131,8 @@ const ContextMenu = ({
     };
 
     return () => {
-      node && node.removeEventListener('mousedown', onRemove);
+      node && node.removeEventListener('mousedown', onContextmMenuRemove);
       node && node.removeEventListener('keyup', onKeyPress);
-      document.removeEventListener('mousedown', onRemove);
       document.removeEventListener('keyup', onKeyPress);
     }
   }, [
@@ -149,7 +156,7 @@ const ContextMenu = ({
     const { innerHeight } = window;
     
     if (selection.y + defaultHeight > innerHeight) {
-      y_ = selection.y - selection.height - defaultHeight;
+      y_ = selection.y - selection.height - (defaultHeight);
       if (y_ < 0) {
         setHeight(defaultHeight + y_ - 8);
         y_ = 8;
@@ -171,21 +178,20 @@ const ContextMenu = ({
     setHeight
   ]);
 
-  return (
-    <>
-      {display && <Wrapper x={selection.x} 
-                           y={y} 
-                           width={contextmenuWidth}
-                           height={height}
-                           isReverse={isReverse}
-                           ref={menuRef}>
-        <div>
-          {ColorList}
-          {isEraseBtn && <Item text="Remove" onClick={onRemoveHighlight_} />}
-        </div>
-      </Wrapper>}
-    </>
-  );
+
+  return (<>
+    {display && <Wrapper x={selection.x} 
+                         y={y} 
+                         width={contextmenuWidth}
+                         height={height}
+                         isReverse={isReverse}
+                         ref={menuRef}>
+      <div>
+        {ColorList}
+        {isEraseBtn && <Item text="Remove" onClick={onRemoveHighlight_} />}
+      </div>
+    </Wrapper>}
+  </>);
 }
 
 interface Props {
@@ -198,4 +204,4 @@ interface Props {
   onContextmMenuRemove: () => void;
 }
 
-export default ContextMenu;
+export default ContextMenu
