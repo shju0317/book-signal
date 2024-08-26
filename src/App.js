@@ -22,6 +22,7 @@ import DeleteUser from './pages/DeleteUser';
 import SearchReport from './pages/searchReport';
 import RankingBookList from './pages/RankingBookList';
 import EyeGazeTest from './pages/EyeGazeTest';
+import Modal from './components/Modal';
 
 // 로그인 상태를 관리하기 위한 Context 생성
 export const AuthContext = createContext();
@@ -48,6 +49,7 @@ function App() {
             <Route path="/ranking/best" element={<RankingBookList />} />
             <Route path="/ranking/new" element={<RankingBookList />} />
             <Route path="/detail" element={<BookDetail />} />
+            <Route path="/modal" element={<Modal />} />
           </Route>
 
           <Route path='/login' element={<Login />} />
