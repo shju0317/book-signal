@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import '../css/join.css';
 import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import JoinPopup from '../components/JoinPopup'; // 팝업 컴포넌트 불러오기
@@ -12,7 +13,6 @@ const Join = () => {
   const [memNick, setMemNick] = useState('');
   const [memBirth, setMemBirth] = useState('');
   const [memEmail, setMemEmail] = useState('');
-
   const [emailCheck, setEmailCheck] = useState(null);
   const [nickCheck, setNickCheck] = useState(null);
   const [idCheck, setIdCheck] = useState(null);
@@ -202,7 +202,7 @@ const Join = () => {
       setJoinComplete(true);
     } catch (err) {
       console.log(err);
-      alert('입력한 값을 확인해주세요.');
+      alert('회원가입에 실패했습니다. 입력한 정보를 확인해 주세요.');
     }
   };
 
@@ -210,9 +210,14 @@ const Join = () => {
     navigate('/login');
   };
 
+  // 타이틀 컨테이너 클릭 시 Home 페이지로 이동
+  const handleTitleClick = () => {
+    navigate('/');
+  };
+
   return (
     <div className="page-container">
-      <div className="title-container">
+      <div className="title-container" onClick={handleTitleClick} style={{ cursor: 'pointer' }}>
         <h1 className="title-book">북</h1>
         <h1 className="title-signal">시그널</h1>
       </div>
@@ -369,6 +374,11 @@ const Join = () => {
             회원가입
           </button>
         </form>
+      </div>
+      <div className="footer-wrapper">
+        <div className="login-footer">
+          <Link to="/Login">이미 회원이신가요?</Link>
+        </div>
       </div>
       {/* 회원가입 완료 팝업 */}
       {joinComplete && (

@@ -65,7 +65,7 @@ exports.login = async (req, res) => {
     const getUser = await userDB.getUser(mem_id);
     if (getUser.length === 0) {
       return res.status(401).json({
-        message: '*아이디 또는 비밀번호가 잘못 되었습니다.<br />아이디와 비밀번호를 정확히 입력해주세요.'
+        message: '*아이디 또는 비밀번호가 잘못되었습니다.<br />아이디와 비밀번호를 정확히 입력해주세요.'
       });
     }
 
@@ -73,28 +73,33 @@ exports.login = async (req, res) => {
 
     if (!isMatch) {
       return res.status(401).json({
-        message: '*아이디 또는 비밀번호가 잘못 되었습니다.<br />아이디와 비밀번호를 정확히 입력해주세요.'
+        message: '*아이디 또는 비밀번호가 잘못되었습니다.<br />아이디와 비밀번호를 정확히 입력해주세요.'
       });
     }
 
-    // 로그인 성공 시 세션에 사용자 정보 저장 - 아이디, 닉네임, 이메일, 포인트, 이름
+    // 세션에 사용자 정보 저장
     req.session.user = {
-      id: getUser[0].mem_id,
-      nick: getUser[0].mem_nick,
+      mem_id: getUser[0].mem_id,
+      mem_nick: getUser[0].mem_nick,
       email: getUser[0].mem_mail,
       point: getUser[0].mem_point,
       name: getUser[0].mem_name,
-      autoLogin: autologin // 자동 로그인 여부 저장
     };
 
-    // 자동 로그인 설정에 따른 세션 유지 기간 설정
+    // 자동 로그인 설정에 따른 세션 만료 시간 설정
     if (autologin) {
       req.session.cookie.maxAge = 1000 * 60 * 60 * 24 * 7; // 7일간 유지
     } else {
-      req.session.cookie.expires = false; // 브라우저 종료 시 세션 삭제
+      req.session.cookie.maxAge = null; // 브라우저 종료 시 세션 삭제
+      req.session.cookie.expires = null; // 명시적으로 expires를 null로 설정
     }
-
-    res.status(200).json({ message: '로그인 성공' });
+    res.status(200).json({
+      message: '로그인 성공',
+      user: {
+        mem_id: getUser[0].mem_id,
+        mem_nick: getUser[0].mem_nick
+      }
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: '서버 오류' });
@@ -136,42 +141,42 @@ exports.getUserId = async (mem_id) => {
 
 // 아이디 찾기
 exports.findId = async (req, res) => {
-    const { mem_email, mem_name } = req.body;
-  
-    try {
-      const getUser = await userDB.getUserByEmailAndName(mem_email, mem_name);
-      if (getUser.length === 0) {
-        return res.status(404).json({ message: '해당 정보로 가입된 계정을 찾을 수 없습니다.' });
-      }
-      
-      // 아이디를 성공적으로 찾은 경우
-      res.status(200).json({ mem_id: getUser[0].mem_id ,mem_name : getUser[0].mem_name});
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: '서버 오류' });
+  const { mem_email, mem_name } = req.body;
+
+  try {
+    const getUser = await userDB.getUserByEmailAndName(mem_email, mem_name);
+    if (getUser.length === 0) {
+      return res.status(404).json({ message: '해당 정보로 가입된 아이디를 찾을 수 없습니다.' });
     }
-  };
+
+    // 아이디를 성공적으로 찾은 경우
+    res.status(200).json({ mem_id: getUser[0].mem_id, mem_name: getUser[0].mem_name });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: '서버 오류' });
+  }
+};
+
 // 비밀번호 설정 페이지로 이동
-  exports.findPassword = async (req, res) => {
-    const { mem_email, mem_id } = req.body;
-  
-    try {
-      const getUser = await userDB.getUserByEmailAndId(mem_email, mem_id);
-      if (getUser.length === 0) {
-        return res.status(404).json({ message: '해당 이메일과 아이디에 일치하는 계정이 존재하지 않습니다.' });
-      }
-  
-  
-      res.status(200).json({ message: '비밀번호 재설정 페이지로 이동합니다.' });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: '서버 오류' });
+exports.findPassword = async (req, res) => {
+  const { mem_email, mem_id } = req.body;
+
+  try {
+    const getUser = await userDB.getUserByEmailAndId(mem_email, mem_id);
+    if (getUser.length === 0) {
+      return res.status(404).json({ message: '해당 이메일과 아이디에 일치하는 계정이 존재하지 않습니다.' });
     }
-  };
+
+
+    res.status(200).json({ message: '비밀번호 재설정 페이지로 이동합니다.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: '서버 오류' });
+  }
+};
 // 비밀번호 재설정
 exports.resetPassword = async (req, res) => {
   const { mem_id, newPw } = req.body;
-  console.log(req.body.mem_id, req.body.newPw);
 
   try {
     const hashedPw = await bcrypt.hash(newPw, 12);
@@ -183,4 +188,49 @@ exports.resetPassword = async (req, res) => {
     res.status(500).json({ message: '비밀번호 재설정에 실패했습니다.' });
   }
 };
-  
+
+// 로그아웃
+exports.logout = (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).json({ message: '로그아웃 실패' });
+    }
+    res.clearCookie('connect.sid'); // 세션 쿠키 삭제
+    return res.status(200).json({ message: '로그아웃 성공' });
+  });
+};
+
+// 회원탈퇴
+exports.deleteUser = async (req, res) => {
+  const { mem_id, mem_pw } = req.body;
+
+  try {
+    const getUser = await userDB.getUser(mem_id);
+    if (getUser.length === 0) {
+      return res.status(401).json({ message: '아이디 또는 비밀번호가 잘못되었습니다.' });
+    }
+
+    const isMatch = await bcrypt.compare(mem_pw, getUser[0].mem_pw);
+    if (!isMatch) {
+      return res.status(401).json({ message: '아이디 또는 비밀번호가 잘못되었습니다.' });
+    }
+
+    // 세션 파기
+    req.session.destroy(async (err) => {
+      if (err) {
+        console.error('세션 삭제 중 오류:', err);
+        return res.status(500).json({ message: '회원탈퇴 중 오류가 발생했습니다.' });
+      }
+
+      res.clearCookie('connect.sid'); // 세션 쿠키 삭제
+
+      // 사용자 삭제
+      await userDB.deleteUser(mem_id);
+
+      res.status(200).json({ message: '회원탈퇴가 완료되었습니다.' });
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: '서버 오류' });
+  }
+};

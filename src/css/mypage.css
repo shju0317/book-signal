@@ -1,0 +1,180 @@
+/* 전체 페이지 래퍼 */
+.mypage-container {
+    display: flex;
+    flex-direction: row;
+    max-width: 1024px;
+    /* 중앙에 정렬되도록 최대 너비 설정 */
+    width: 100%;
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    /* 콘텐츠가 넘칠 경우 숨기기 */
+    margin: 20px auto;
+    min-height: 80vh;
+    /* 페이지 세로 길이를 늘리기 위해 min-height 설정 */
+}
+
+/* 사용자 정보 섹션 */
+.user-info {
+    flex: 1;
+    padding: 20px;
+    border-right: 1px solid #eee;
+    /* 오른쪽 경계선 추가 */
+    background-color: #F9F9F9;
+}
+
+.user-info h2 {
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+/* 공통 아이콘과 텍스트 그룹 스타일 */
+.info-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.icon {
+    margin-right: 10px;
+    /* 아이콘과 텍스트 사이의 간격 */
+    font-size: 1.5rem;
+    color: #333;
+}
+
+/* 텍스트 스타일 */
+.user-info p {
+    font-size: 1rem;
+    color: #555;
+    margin: 0;
+    /* 아이콘과 동일한 라인에 정확히 맞추기 위해 margin 제거 */
+}
+
+/* 포인트 정보 스타일 */
+.user-info .points {
+    font-weight: bold;
+    color: #F57E53;
+    /* 강조를 위한 색상 */
+}
+
+.user-info button {
+    margin-top: 20px;
+    padding: 10px 15px;
+    background-color: #ddd;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+/* 리뷰 섹션 */
+.review-section {
+    flex: 2;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+/* 스크롤 가능한 리뷰 목록 */
+.reviews-list {
+    max-height: 600px; /* 스크롤 영역의 최대 높이 설정 */
+    overflow-y: auto;
+    padding-right: 10px;
+    scrollbar-width: thin;
+    scrollbar-color: #ccc transparent;
+}
+
+.reviews-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.reviews-list::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px;
+}
+
+.reviews-list::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+
+.review-item {
+    display: flex;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.book-cover {
+    width: 100px;
+    height: 150px;
+    margin-right: 20px;
+    object-fit: cover;
+    border-radius: 5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.review-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.review-content h4 {
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.review-content p {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.review-content button {
+    align-self: flex-end;
+    margin-top: auto;
+    padding: 5px 10px;
+    background-color: #ff6b6b;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    
+}
+
+.review-content button:hover {
+    background-color: #ff4c4c;
+}
+
+/* 아이콘 스타일 */
+.preview-icon {
+    font-size: 4rem;
+    /* 아이콘 크기 조정 */
+    margin-bottom: 10px;
+    /* 아래 여백 추가 */
+    color: #888;
+}
+
+/* 리뷰 플레이스홀더 */
+.review-placeholder {
+    text-align: center;
+    color: #888;
+    font-size: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    /* 컨테이너 높이 전체 차지 */
+}
+
+/* 리뷰 아이템의 이미지 크기 조정 */
+.review-item .book-cover {
+    width: 50%; /* 가로 크기를 50%로 설정 */
+    height: auto; /* 비율 유지하면서 높이 자동 조정 */
+    max-width: 100px; /* 이미지의 최대 너비 설정 (필요에 따라 조정 가능) */
+    margin-right: 20px; /* 이미지와 텍스트 사이 간격 추가 */
+  }

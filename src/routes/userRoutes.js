@@ -8,6 +8,12 @@ router.post('/join', userController.join);
 // 로그인   
 router.post('/login', userController.login);  
 
+// 로그아웃
+router.post('/logout', userController.logout);
+
+// 회원탈퇴
+router.post('/deleteuser', userController.deleteUser);
+
 // 이메일 중복 체크
 router.get('/check-email', async (req, res) => {
     const { mem_email } = req.query;

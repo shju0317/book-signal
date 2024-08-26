@@ -13,12 +13,17 @@
     font-style: normal;
 }
 
+.findid-container{
+    background-color: #fcf4ef;
+    width: 100%;
+    min-height: 100vh;
+}
+
 /* 컨테이너 설정 */
 .findid-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 50px;
 }
 
 /* 타이틀 컨테이너 */
@@ -56,7 +61,6 @@
     text-align: left;
     font-size: 1.5rem;
     margin-bottom: 20px;
-    margin-left: 15px;
 }
 
 /* 폼 레이아웃 */
