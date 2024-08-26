@@ -39,6 +39,10 @@ exports.join = async (req, res) => {
       mem_point: 0,
       enroll_at: new Date()
     });
+    
+    // 회원가입이 완료된 후 기본 세팅값을 설정
+    await userDB.createUserSetting(mem_id);
+
     res.status(200).json({ message: '가입 성공' });
   } catch (err) {
     console.error(err);
