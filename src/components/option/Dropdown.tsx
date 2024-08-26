@@ -1,13 +1,13 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
-import styled from 'styled-components'
+import { useState, useEffect, useRef, useCallback } from 'react';
+import styled from 'styled-components';
 // components
-import OptionWrapper from 'components/option/OptionWrapper'
-import OptionTitle from 'components/option/OptionTitle'
-import DropdownValue from 'components/option/DropdownValue'
-import DropdownItemWrapper from 'components/option/DropdownItemWrapper'
-import DropdownItem from 'components/option/DropdownItem'
+import OptionWrapper from 'components/option/OptionWrapper';
+import OptionTitle from 'components/option/OptionTitle';
+import DropdownValue from 'components/option/DropdownValue';
+import DropdownItemWrapper from 'components/option/DropdownItemWrapper';
+import DropdownItem from 'components/option/DropdownItem';
 // types
-import { BookFontFamily } from 'types/book'
+import { BookFontFamily } from 'types/book';
 
 const Dropdown = ({
   title,
@@ -23,9 +23,13 @@ const Dropdown = ({
   const onToggle = useCallback(() => setVisible(!visible), [visible]);
 
   /** Close dropdown */
-  const onClose = useCallback((e: any) => {
-    if (!ref || !ref.current) return;
-    if (![...e.path].includes(ref.current)) {
+  const onClose = useCallback((e: MouseEvent) => {
+    if (!ref.current) return;
+
+    // e.path 대신 e.composedPath()를 사용하여 이벤트 경로를 가져옵니다.
+    const path = e.composedPath();
+    
+    if (!path.includes(ref.current)) {
       onToggle();
     }
   }, [ref, onToggle]);
@@ -76,4 +80,4 @@ interface Props {
   onSelect: (font: BookFontFamily) => void;
 }
 
-export default Dropdown
+export default Dropdown;

@@ -13,7 +13,6 @@ import { RootState } from 'slices'
 import Highlight, { Color } from 'types/highlight'
 import Selection from 'types/selection'
 
-
 const ContextMenu = ({ 
   active,
   viewerRef, 
@@ -29,11 +28,9 @@ const ContextMenu = ({
   const menuRef = useRef<HTMLDivElement | null>(null);
 
   const [highlight, setHighlight] = useState<Highlight | null>(null);
-  
   const [display, setDisplay] = useState<boolean>(false);
   const [isEraseBtn, setIsEraseBtn] = useState<boolean>(false);
   const [isReverse, setIsReverse] = useState<boolean>(false);
-  
   const [height, setHeight] = useState<number>(0);
   const [y, setY] = useState<number>(selection.y);
 
@@ -47,13 +44,14 @@ const ContextMenu = ({
                         } />
   );
 
-  
   /** Remove highlight */
   const onRemoveHighlight_ = useCallback(() => {
     if (!highlight) return;
 
     onRemoveHighlight(highlight.key, highlight.cfiRange);
-    onContextmMenuRemove();
+    if (typeof onContextmMenuRemove === 'function') {
+      onContextmMenuRemove();
+    }
     
     setIsEraseBtn(false);
   }, [highlight, onRemoveHighlight, onContextmMenuRemove]);
@@ -61,25 +59,28 @@ const ContextMenu = ({
   /** 
    * Remove contextmenu
    * @param e Mouse Event
-   * @param e.path
    */
-  const onRemove = useCallback(({ path }: any) => {
+  const onRemove = useCallback((e: MouseEvent) => {
     if (!menuRef.current) return;
 
-    if ([...path].includes(menuRef.current)) return;
-    onContextmMenuRemove();
+    const path = e.composedPath();
+
+    if (path.includes(menuRef.current)) return;
+    if (typeof onContextmMenuRemove === 'function') {
+      onContextmMenuRemove();
+    }
   }, [menuRef, onContextmMenuRemove]);
-  
+
   /** 
    * Arrow event
    * @param e Keyboard Event
    * @param e.key
    */
-  const onKeyPress = useCallback(({ key }: any) => {
-    key && key === "ArrowLeft" && onContextmMenuRemove();
-    key && key === "ArrowRight" && onContextmMenuRemove();
+  const onKeyPress = useCallback(({ key }: KeyboardEvent) => {
+    if ((key === "ArrowLeft" || key === "ArrowRight") && typeof onContextmMenuRemove === 'function') {
+      onContextmMenuRemove();
+    }
   }, [onContextmMenuRemove]);
-
 
   /** Check whether the menu button is visible */
   useEffect(() => {
@@ -178,20 +179,21 @@ const ContextMenu = ({
     setHeight
   ]);
 
-
-  return (<>
-    {display && <Wrapper x={selection.x} 
-                         y={y} 
-                         width={contextmenuWidth}
-                         height={height}
-                         isReverse={isReverse}
-                         ref={menuRef}>
-      <div>
-        {ColorList}
-        {isEraseBtn && <Item text="Remove" onClick={onRemoveHighlight_} />}
-      </div>
-    </Wrapper>}
-  </>);
+  return (
+    <>
+      {display && <Wrapper x={selection.x} 
+                           y={y} 
+                           width={contextmenuWidth}
+                           height={height}
+                           isReverse={isReverse}
+                           ref={menuRef}>
+        <div>
+          {ColorList}
+          {isEraseBtn && <Item text="Remove" onClick={onRemoveHighlight_} />}
+        </div>
+      </Wrapper>}
+    </>
+  );
 }
 
 interface Props {
@@ -201,7 +203,7 @@ interface Props {
   onAddHighlight: (color: string) => void;
   onRemoveHighlight: (key: string, cfiRange: string) => void;
   onUpdateHighlight: (highlight: Highlight | null, color: string) => void;
-  onContextmMenuRemove: () => void;
+  onContextmMenuRemove: () => void; // This should remain a function type
 }
 
-export default ContextMenu
+export default ContextMenu;
