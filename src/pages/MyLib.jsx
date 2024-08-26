@@ -2,10 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../css/mylib.css';
 import axios from 'axios';
+import Modal from '../components/Modal'; // 사용자 정의 Modal 가져오기
 
 const MyLib = () => {
   const [activeTab, setActiveTab] = useState('recent'); // 기본 활성 탭
-  const [userInfo, setUserInfo] = useState(undefined); // 초기값을 undefined로 설정
+  const [userInfo, setUserInfo] = useState(null);
+  const [selectedBook, setSelectedBook] = useState(null); // 모달 관련 상태
+  const [isModalOpen, setIsModalOpen] = useState(false); // 모달 관련 상태
+  const [backgroundImage, setBackgroundImage] = useState(''); // 모달 배경 이미지 상태
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,6 +37,14 @@ const MyLib = () => {
 
   const handleTabClick = (tabName) => {
     setActiveTab(tabName);
+  };
+
+  const handleBookClick = (book, image) => {
+    if (activeTab === 'bookSignal') {
+      setSelectedBook(book);
+      setBackgroundImage(image);
+      setIsModalOpen(true);
+    }
   };
 
   const renderContent = () => {
@@ -68,12 +80,35 @@ const MyLib = () => {
         );
       case 'bookSignal':
         return (
-          <div className="books-grid">
-            <div className="book-card">
-              <img src="" alt="Book Cover" className="book-cover" />
-              <div className="book-info">
-                <p className="book-title">&lt;북 시그널 책 제목&gt;</p>
-                <p className="book-author">저자 이름</p>
+          <div className="signal-grid">
+            <div
+              className="signal-card"
+              style={{ backgroundImage: `url('/path/to/image1.png')` }}
+              onClick={() => handleBookClick('북 시그널 책 제목 1', '/path/to/image1.png')}
+            >
+              <div className="signal-text">
+                <p>시간은 흐르고,<br/>우리는 그 속에서 끊임없이 변화한다.</p>
+                <p>홍길동, {'<나의 눈부신 친구>'}</p>
+              </div>
+            </div>
+            <div
+              className="signal-card"
+              style={{ backgroundImage: `url('/path/to/image2.png')` }}
+              onClick={() => handleBookClick('북 시그널 책 제목 2', '/path/to/image2.png')}
+            >
+              <div className="signal-text">
+                <p>시간은 흐르고,<br/>우리는 그 속에서 끊임없이 변화한다.</p>
+                <p>홍길동, {'<나의 눈부신 친구>'}</p>
+              </div>
+            </div>
+            <div
+              className="signal-card"
+              style={{ backgroundImage: `url('/path/to/image3.png')` }}
+              onClick={() => handleBookClick('북 시그널 책 제목 3', '/path/to/image3.png')}
+            >
+              <div className="signal-text">
+                <p>시간은 흐르고,<br/>우리는 그 속에서 끊임없이 변화한다.</p>
+                <p>홍길동, {'<나의 눈부신 친구>'}</p>
               </div>
             </div>
           </div>
@@ -97,7 +132,7 @@ const MyLib = () => {
 
   return (
     <div className="mylib-container">
-      {userInfo && <h1 className="mylib-title">{userInfo.mem_nick} 님의 서재</h1>}
+      <h1 className="mylib-title">{userInfo?.mem_nick} 님의 서재</h1>
       <div className="tabs">
         <div
           className={`tab ${activeTab === 'recent' ? 'active' : ''}`}
@@ -126,6 +161,15 @@ const MyLib = () => {
       </div>
 
       {renderContent()}
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        backgroundImage={backgroundImage}
+      >
+        <h2>{selectedBook}</h2>
+        <p>책 세부 정보 표시</p>
+      </Modal>
     </div>
   );
 };
