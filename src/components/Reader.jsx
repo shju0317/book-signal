@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Provider } from "react-redux";
 import { ReactEpubViewer } from "react-epub-viewer";
+import { useLocation } from "react-router-dom";
 // containers
 import Header from "containers/Header";
 import Footer from "containers/Footer";
@@ -152,7 +153,13 @@ const EpubReader = ({ url }) => {
 };
 
 const Reader = () => {
-  const epubUrl = "files/김유정-동백꽃-조광.epub"; // EPUB 파일 경로 설정
+
+  const location = useLocation();
+  const { bookPath } = location.state || {};
+
+  const epubUrl =  `book_file/${bookPath}.epub`; // EPUB 파일 경로 설정
+  console.log(epubUrl);
+  
 
   return (
     <Provider store={store}>
