@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
 import '../css/bookDetail.css';
@@ -7,11 +7,34 @@ import { FaRegStar } from "react-icons/fa6";
 
 const BookDetail = () => {
   const navigate = useNavigate();
-  const location = useLocation();  // useLocation()을 호출하여 사용
-  const { book } = location.state || {};  // location 객체에서 book 객체를 받아옴
+  const location = useLocation();
+  const { book } = location.state || {};
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    // 컴포넌트가 마운트될 때 로그인 상태 확인
+    axios.get('http://localhost:3001/check-session', { withCredentials: true })
+      .then(response => {
+        if (response.status === 200) {
+          setIsLoggedIn(true);
+        } else {
+          setIsLoggedIn(false);
+        }
+      })
+      .catch(error => {
+        console.error('로그인 상태 확인 중 오류 발생:', error);
+        setIsLoggedIn(false);
+      });
+  }, []);
 
   const handleWishList = async () => {
+    if (!isLoggedIn) {
+      alert('로그인이 필요합니다.');
+      navigate('/login');
+      return;
+    }
+
     try {
       if (isWishlisted) {
         await axios.post('http://localhost:3001/wishlist/remove', { mem_id: "test", book_idx: book.book_idx });
@@ -27,20 +50,21 @@ const BookDetail = () => {
   };
 
   const handleReadBook = async () => {
+    if (!isLoggedIn) {
+      alert('로그인이 필요합니다.');
+      navigate('/login');
+      return;
+    }
 
     const bookNameWithoutSpaces = book.book_name.replace(/\s+/g, '');
 
     try {
-       // POST 요청을 보내고, book_name 데이터를 본문으로 전달
-        const response = await axios.post('http://localhost:3001/getBookPath', {
-          book_name: encodeURIComponent(bookNameWithoutSpaces)
+      const response = await axios.post('http://localhost:3001/getBookPath', {
+        book_name: encodeURIComponent(bookNameWithoutSpaces)
       });
 
       const bookPath = response.data.book_path;
-
       navigate('/reader', { state: { bookPath } });
-      console.log(bookPath);
-      
     } catch (error) {
       console.error('책 경로를 가져오는 중 오류 발생:', error);
       alert('책 경로를 가져오지 못했습니다.');
@@ -99,6 +123,6 @@ const BookDetail = () => {
       </section>
     </div>
   );
-}
+};
 
 export default BookDetail;

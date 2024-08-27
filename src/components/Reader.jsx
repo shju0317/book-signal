@@ -158,7 +158,6 @@ const Reader = () => {
   const { bookPath } = location.state || {};
 
   const epubUrl =  `book_file/${bookPath}.epub`; // EPUB 파일 경로 설정
-  console.log(epubUrl);
   
 
   return (
