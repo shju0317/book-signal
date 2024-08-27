@@ -85,7 +85,7 @@ const SlideShow = ({ slides }) => {
             className="w-full rounded-lg  flex-shrink-0 flex items-center justify-between px-40"
             style={{
               background: slide.background,
-              height: '100%',
+              height: '100%'
             }}
           >
             <div className="flex-1 text-left">

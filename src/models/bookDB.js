@@ -55,9 +55,9 @@ const getBooks = (orderBy, limit = 12) => {
         const updatedResults = results.map(book => {
           book.book_cover = decodeURIComponent(book.book_cover);
           if (book.book_cover) {
-            book.book_cover = `images/${book.book_cover}`;
+            book.book_cover = `/images/${book.book_cover}`;
           } else {
-            book.book_cover = 'images/default.jpg';
+            book.book_cover = '/images/default.jpg';
           }
           return book;
         });
@@ -83,3 +83,55 @@ const getBooks = (orderBy, limit = 12) => {
     return getBooks('book_published_at DESC');
   };
   
+
+  /******************** 찜하기 ********************/
+  // 찜한 도서 여부 확인
+  exports.checkWishlist = (mem_id, book_idx) => {
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT COUNT(*) AS count FROM book_wishlist WHERE mem_id = ? AND book_idx = ?`;
+
+        conn.query(sql, [mem_id, book_idx], (err, results) => {
+            if (err) {
+                console.error('찜한 도서 여부 확인 에러:', err);
+                reject(new Error('찜한 도서 여부 확인에 실패했습니다.'));
+                return;
+            }
+
+            resolve(results[0].count > 0);
+        });
+    });
+  };
+
+  // 찜하기
+  exports.addWishlist = (mem_id, book_idx) => {
+    return new Promise((resolve, reject) => {
+        const sql = `INSERT INTO book_wishlist (mem_id, book_idx) VALUES (?, ?)`;
+
+        conn.query(sql, [mem_id, book_idx], (err, result) => {
+            if (err) {
+                console.error('도서 찜하기 에러:', err);
+                reject(new Error('도서 찜하기에 실패했습니다.'));
+                return;
+            }
+
+            resolve({ message: '도서가 찜 목록에 추가되었습니다.' });
+        });
+    });
+};
+
+// 찜한 도서 제거
+exports.removeWishlist = (mem_id, book_idx) => {
+  return new Promise((resolve, reject) => {
+      const sql = `DELETE FROM book_wishlist WHERE mem_id = ? AND book_idx = ?`;
+
+      conn.query(sql, [mem_id, book_idx], (err, result) => {
+          if (err) {
+              console.error('찜한 도서 제거 에러:', err);
+              reject(new Error('찜한 도서 제거에 실패했습니다.'));
+              return;
+          }
+
+          resolve({ message: '도서가 찜 목록에서 제거되었습니다.' });
+      });
+  });
+};

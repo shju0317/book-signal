@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import MyLib from './pages/MyLib';
 import MyPage from './pages/MyPage';
 import RootLayout from './pages/RootLayout';
+import viewerLayout from 'lib/styles/viewerLayout';
 import Chatbot from './components/Chatbot';
 import Login from './pages/Login';
 import Join from './pages/Join';
@@ -22,9 +23,20 @@ import DeleteUser from './pages/DeleteUser';
 import SearchReport from './pages/searchReport';
 import RankingBookList from './pages/RankingBookList';
 import EyeGazeTest from './pages/EyeGazeTest';
+import Modal from './components/Modal';
+import ReaderWrapper from '../src/containers/Reader';
+import Reader from 'components/Reader';
 
 // 로그인 상태를 관리하기 위한 Context 생성
 export const AuthContext = createContext();
+
+const consoleWarn = console.warn;
+console.warn = (...args) => {
+  if (args[0].includes('ResizeObserver loop completed with undelivered notifications')) {
+    return;
+  }
+  consoleWarn(...args);
+};
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);  // 로그인 상태 관리
@@ -48,8 +60,12 @@ function App() {
             <Route path="/ranking/best" element={<RankingBookList />} />
             <Route path="/ranking/new" element={<RankingBookList />} />
             <Route path="/detail" element={<BookDetail />} />
+            <Route path="/modal" element={<Modal />} />
+            <Route path="/reader" element={<Reader />} />
+
           </Route>
 
+          <Route path="/readerwrapper" element={<ReaderWrapper />} />
           <Route path='/login' element={<Login />} />
           <Route path='/join' element={<Join />} />
           <Route path="/findid" element={<FindId />} />
