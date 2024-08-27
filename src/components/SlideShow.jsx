@@ -70,7 +70,7 @@ const SlideShow = ({ slides }) => {
   ];
 
   return (
-    <div className="relative h-72 w-full rounded-lg">
+    <div className="relative h-72 overflow-x-clip">
       <div
         ref={slideRef}
         className="absolute inset-0 flex"
@@ -82,30 +82,35 @@ const SlideShow = ({ slides }) => {
         {slidesWithClones.map((slide, index) => (
           <div
             key={index}
-            className="w-full flex-shrink-0 flex items-center justify-between px-40"
+            className="w-full rounded-lg  flex-shrink-0 flex items-center justify-between px-40"
             style={{
               background: slide.background,
               height: '100%'
             }}
           >
-            <div className="flex-1  text-left">
-              <h2 className="text-xl font-bold text-white">{slide.title}</h2>
-              <p className="mt-2 text-white">{slide.description}</p>
+            <div className="flex-1 text-left">
+              <h2 className="text-[35px] font-bold mb-7 text-white">{slide.title}</h2>
+              <p className="mt-2 text-2xl text-white leading-relaxed" 
+              dangerouslySetInnerHTML={{ __html: slide.description.replace(/\n/g, '<br />') }}/>
             </div>
-            <div className="flex-shrink-0 relative" style={{ top: '40px' }}> {/* top을 사용하여 위치 조정 */}
-              <img 
+            <div className="flex-shrink-0 relative flex " style={{ top: '44px', width: '256px', height: '320px', perspective: '1000px'}}>
+              <img
                 src={slide.image}
                 alt={slide.title}
-                className="rounded shadow-lg w-64 h-80 object-contain"
+                className="rounded  object-cover"
+                style={{ height: '100%', width: '100%' ,
+                  boxShadow: '10px 15px 15px rgba(0, 0, 0, 0.6)',
+                  transition: 'transform 0.3s ease, box-shadow 0.3s ease',}}
               />
             </div>
+
           </div>
         ))}
       </div>
 
       <button
         onClick={goToPrevious}
-        className="absolute top-1/2 left-0 transform -translate-y-1/2 p-3 bg-white bg-opacity-50 rounded-full text-gray-800"
+        className="ml-7 absolute top-1/2 left-0 transform -translate-y-1/2 p-3 bg-white bg-opacity-20 rounded-full text-white"
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
@@ -114,7 +119,7 @@ const SlideShow = ({ slides }) => {
 
       <button
         onClick={goToNext}
-        className="absolute top-1/2 right-0 transform -translate-y-1/2 p-3 bg-white bg-opacity-50 rounded-full text-gray-800"
+        className="mr-7 absolute top-1/2 right-0 transform -translate-y-1/2 p-3 bg-white bg-opacity-20 rounded-full text-white"
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />

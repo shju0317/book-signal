@@ -1,0 +1,66 @@
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  h2{
+    color: white;
+  }
+  .modal-content {
+    background-size: cover;
+    background-position: center;
+    padding: 20px;
+    border-radius: 8px;
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    height: 800px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
+    padding: 20px;
+  }
+  
+.modal-download,
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 40px; /* 두 버튼 간의 간격을 위해 오른쪽으로 이동 */
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: white;
+}
+
+.modal-download {
+  top: 50px;
+  right: 70px;
+}
+
+.modal-close {
+  top: 50px;
+  right: 40px; 
+}
+  
+  .modal-text {
+    margin-top: 40px;
+    font-size: 20px;
+    line-height: 1.5;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    border-radius: 8px;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+  }
+  

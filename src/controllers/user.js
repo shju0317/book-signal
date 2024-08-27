@@ -39,12 +39,20 @@ exports.join = async (req, res) => {
       mem_point: 0,
       enroll_at: new Date()
     });
+
+    // 회원가입이 완료된 후 기본 세팅값을 설정
+    const settingResult = await userDB.createUserSetting(mem_id);
+    if (!settingReslt) {
+      throw new Error('기본 세팅값 설정 중 오류가 발생했습니다.');
+    }
+
     res.status(200).json({ message: '가입 성공' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: '서버 오류' });
   }
 };
+
 
 // 암호화 비교
 const hashCompare = async (inputValue, hash) => {

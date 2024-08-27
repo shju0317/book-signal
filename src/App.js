@@ -23,6 +23,7 @@ import DeleteUser from './pages/DeleteUser';
 import SearchReport from './pages/searchReport';
 import RankingBookList from './pages/RankingBookList';
 import EyeGazeTest from './pages/EyeGazeTest';
+import Modal from './components/Modal';
 import ReaderWrapper from '../src/containers/Reader';
 import Reader from 'components/Reader';
 
@@ -51,10 +52,11 @@ function App() {
             <Route path="/ranking/best" element={<RankingBookList />} />
             <Route path="/ranking/new" element={<RankingBookList />} />
             <Route path="/detail" element={<BookDetail />} />
+            <Route path="/modal" element={<Modal />} />
             <Route path="/reader" element={<Reader />} />
 
           </Route>
-          
+
           <Route path="/readerwrapper" element={<ReaderWrapper />} />
           <Route path='/login' element={<Login />} />
           <Route path='/join' element={<Join />} />
