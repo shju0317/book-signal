@@ -96,8 +96,7 @@ exports.popularBooks = () => {
 
 // 평점 베스트 도서 목록
 exports.bestBooks = () => {
-  // return getBooks('book_rating DESC');
-  return getBooks('book_published_at DESC');
+  return getBooks('book_avg DESC');
 };
 
 // 신작 도서 목록
