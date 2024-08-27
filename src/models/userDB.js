@@ -141,7 +141,10 @@ exports.getRecentBooks = (mem_id) => {
       ON 
           book_reading.book_name = book_db.book_name 
       WHERE 
-          book_reading.mem_id = ?;
+          book_reading.mem_id = ?
+      ORDER BY 
+          book_reading.book_latest DESC;
+          ;
     `;
 
     db.query(query, [mem_id], (err, results) => {
@@ -200,7 +203,6 @@ exports.getCompletedBooks = (mem_id) => {
 // book_reading 테이블에 새로운 독서 기록을 추가하는 함수
 exports.addReadingRecord = (mem_id, book_name) => {
   return new Promise((resolve, reject) => {
-    // book_db 테이블에서 book_idx를 가져오는 쿼리
     const getBookIdxQuery = `
       SELECT book_idx FROM book_db WHERE book_name = ?;
     `;
@@ -214,21 +216,45 @@ exports.addReadingRecord = (mem_id, book_name) => {
       } else {
         const book_idx = results[0].book_idx;
 
-        // 새로운 독서 기록을 삽입하는 쿼리
-        const insertReadingQuery = `
-          INSERT INTO book_reading (mem_id, book_idx, book_name, book_summ, book_latest, book_rp, book_mark)
-          VALUES (?, ?, ?, '', NOW(), 1, 1);
+        const checkExistingRecordQuery = `
+          SELECT * FROM book_reading WHERE mem_id = ? AND book_idx = ?;
         `;
 
-        db.query(insertReadingQuery, [mem_id, book_idx, book_name], (err, result) => {
+        db.query(checkExistingRecordQuery, [mem_id, book_idx], (err, existingRecords) => {
           if (err) {
-            console.error('독서 기록 삽입 에러:', err);
+            console.error('기존 독서 기록 확인 에러:', err);
             reject(err);
+          } else if (existingRecords.length > 0) {
+            const updateBookLatestQuery = `
+              UPDATE book_reading SET book_latest = NOW() WHERE mem_id = ? AND book_idx = ?;
+            `;
+
+            db.query(updateBookLatestQuery, [mem_id, book_idx], (err, result) => {
+              if (err) {
+                console.error('book_latest 업데이트 에러:', err);
+                reject(err);
+              } else {
+                resolve(result);
+              }
+            });
           } else {
-            resolve(result);
+            const insertReadingQuery = `
+              INSERT INTO book_reading (mem_id, book_idx, book_name, book_summ, book_latest, book_rp, book_mark)
+              VALUES (?, ?, ?, '', NOW(), 1, 1);
+            `;
+
+            db.query(insertReadingQuery, [mem_id, book_idx, book_name], (err, result) => {
+              if (err) {
+                console.error('독서 기록 삽입 에러:', err);
+                reject(err);
+              } else {
+                resolve(result);
+              }
+            });
           }
         });
       }
     });
   });
 };
+

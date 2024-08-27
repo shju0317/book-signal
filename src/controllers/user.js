@@ -245,14 +245,14 @@ exports.deleteUser = async (req, res) => {
 
 // 최근 읽은 도서 가져오기
 exports.getRecentBooks = async (req, res) => {
-  try {
-    const mem_id = req.session.user.mem_id; // 현재 로그인한 사용자의 mem_id
-    const recentBooks = await userDB.getRecentBooks(mem_id);
+  const mem_id = req.session.user.mem_id; // 현재 로그인한 사용자의 mem_id
 
+  try {
+    const recentBooks = await userDB.getRecentBooks(mem_id);
     res.status(200).json(recentBooks);
-  } catch (err) {
-    console.error('Error fetching recent books:', err);
-    res.status(500).json({ message: '서버 오류' });
+  } catch (error) {
+    console.error('최근 읽은 도서 가져오기 실패:', error);
+    res.status(500).json({ message: '최근 읽은 도서를 가져오는 중 오류가 발생했습니다.' });
   }
 };
 
