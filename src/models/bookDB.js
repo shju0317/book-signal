@@ -38,7 +38,6 @@ exports.searchBooks = (searchQuery) => {
 
 // book_path를 가져오는 함수
 exports.getBookPath = (bookName) => {
-  console.log(bookName);
   return new Promise((resolve, reject) => {
     const sql = `SELECT book_path FROM book_db WHERE book_path = ?`;
 
