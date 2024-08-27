@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Provider } from "react-redux";
 import { ReactEpubViewer } from "react-epub-viewer";
-// 추가 컴포넌트와 설정 가져오기
+// containers
 import Header from "containers/Header";
 import Footer from "containers/Footer";
 import Nav from "containers/menu/Nav";
@@ -10,14 +10,18 @@ import Option from "containers/menu/Option";
 import Learning from "containers/menu/Note";
 import ContextMenu from "containers/commons/ContextMenu";
 import Snackbar from "containers/commons/Snackbar";
+// components
 import ViewerWrapper from "components/commons/ViewerWrapper";
+import LoadingView from "LoadingView";
+// slices
 import store from "slices";
 import { updateBook, updateCurrentPage, updateToc } from "slices/book";
+// hooks
 import useMenu from "lib/hooks/useMenu";
 import useHighlight from "lib/hooks/useHighlight";
+// styles
 import "lib/styles/readerStyle.css";
 import viewerLayout from "lib/styles/viewerLayout";
-import LoadingView from "LoadingView";
 
 const EpubReader = ({ url }) => {
   const dispatch = useDispatch();
