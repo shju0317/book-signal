@@ -47,6 +47,7 @@ app.use('/', userRoutes);
 app.use('/api', searchRoutes);
 app.use('/ranking', rankingRoutes);
 app.use('/wishlist', wishListRoutes);
+app.use('/', reviewRoutes);
 
 // eye-gaze
 // Cross-Origin Isolation 헤더 설정
@@ -56,7 +57,7 @@ app.use(helmet.crossOriginEmbedderPolicy({ policy: 'require-corp' }));
 // 정적 파일 서빙
 app.use(express.static('public'));
 
-app.use('/', reviewRoutes);
+
 
 // 서버 실행
 app.listen(3001, () => {

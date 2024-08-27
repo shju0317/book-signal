@@ -31,3 +31,31 @@ exports.deleteReview = (reviewId) => {
     });
   });
 };
+
+// 리뷰 데이터 삽입
+exports.addReview = (data) => {
+  return new Promise((resolve, reject) => {
+      const sql = `INSERT INTO book_end (mem_id, book_idx, book_name, book_score, book_review) VALUES (?, ?, ?, ?, ?)`;
+      conn.query(sql, [data.mem_id, data.book_idx, data.book_name, data.book_score, data.book_review], (err, result) => {
+          if (err) {
+              reject(err);
+          } else {
+              resolve(result);
+          }
+      });
+  });
+};
+
+// 포인트 업데이트
+exports.updateMemberPoints = (mem_id, points) => {
+  return new Promise((resolve, reject) => {
+      const sql = `UPDATE member SET mem_point = mem_point + ? WHERE mem_id = ?`;
+      conn.query(sql, [points, mem_id], (err, result) => {
+          if (err) {
+              reject(err);
+          } else {
+              resolve(result);
+          }
+      });
+  });
+};

@@ -1,5 +1,6 @@
 const reviewDB = require('../models/reviewDB');
 
+// 리뷰 불러오기
 exports.getUserReviews = async (req, res) => {
    const mem_id = req.params.mem_id;
   try {
@@ -25,5 +26,32 @@ exports.deleteReview = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: '리뷰 삭제에 실패했습니다.' });
+  }
+};
+
+exports.addReview = async (req, res) => {
+  const { mem_id, book_idx, book_name, book_score, book_review } = req.body;
+
+  if (!mem_id || !book_idx || !book_name || !book_score || !book_review) {
+      return res.status(400).json({ message: '필수 정보가 누락되었습니다.' });
+  }
+
+  try {
+      // 리뷰를 book_end 테이블에 저장
+      await reviewDB.addReview({
+          mem_id,
+          book_idx,
+          book_name,
+          book_score,
+          book_review
+      });
+
+      // member 테이블의 포인트 15점 증가
+      await reviewDB.updateMemberPoints(mem_id, 15);
+
+      res.status(200).json({ message: '리뷰 등록 성공, 포인트가 15점 추가되었습니다.' });
+  } catch (err) {
+      console.error('리뷰 등록 중 오류:', err);
+      res.status(500).json({ message: '리뷰 등록에 실패했습니다.' });
   }
 };
