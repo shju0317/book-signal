@@ -12,7 +12,6 @@ const RankingBookList = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // 현재 탭에 따라 API 요청
   useEffect(() => {
     let endpoint;
 
@@ -46,7 +45,6 @@ const RankingBookList = () => {
       });
   }, [activeTab]);
 
-  // URL 경로에 따라 탭 업데이트
   useEffect(() => {
     const path = location.pathname.split('/').pop();
     if (['popular', 'best', 'new'].includes(path)) {
