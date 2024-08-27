@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import '../css/fonts.css';
 import '../css/main.css';
 
+
 // 인기
 const bookBest = [
   { title: '제목1', author: '저자/옮긴이', image: '' },
@@ -57,7 +58,9 @@ const Home = () => {
       <br />
       <SlideShow slides={SLIDES} />
       <br />
-
+      <div>
+      <Link to="/tts">TTS 테스트로 이동</Link>
+    </div>
       <h2 className='flex justify-between items-end mt-28 mb-0 text-black'>
         지금, 많이 읽은 그 작품
         <Link to="/ranking/popular" className="text-sm text-gray-400">

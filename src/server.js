@@ -10,6 +10,7 @@ const session = require('express-session');
 const app = express();
 const reviewRoutes = require('./routes/reviewRoutes');
 const fs = require('fs'); // 파일 시스템 접근을 위한 모듈 추가
+const tts = require('./tts'); // TTS 기능 추가
 
 // 세션 설정 (기본 설정)
 app.use(session({
@@ -49,6 +50,28 @@ app.use('/ranking', rankingRoutes);
 app.use('/wishlist', wishListRoutes);
 app.use('/', reviewRoutes);
 
+// TTS 기능 추가
+app.post('/tts', async (req, res) => {
+    const { text } = req.body;
+    try {
+        const audioContent = await tts.convertTextToSpeech(text);
+
+        // 음성 데이터를 클라이언트에 스트림으로 전송
+        res.set({
+            'Content-Type': 'audio/mp3',
+            'Content-Disposition': 'inline', // 다운로드가 아닌 바로 재생
+        });
+
+        res.send(audioContent);
+    } catch (error) {
+        res.status(500).json({ message: 'TTS 변환 실패', error: error.message });
+    }
+});
+
+
+
+app.use('/output.mp3', express.static(path.join(__dirname, 'output.mp3')));
+
 // eye-gaze
 // Cross-Origin Isolation 헤더 설정
 app.use(helmet.crossOriginOpenerPolicy({ policy: 'same-origin' }));
@@ -56,8 +79,6 @@ app.use(helmet.crossOriginEmbedderPolicy({ policy: 'require-corp' }));
 
 // 정적 파일 서빙
 app.use(express.static('public'));
-
-
 
 // 서버 실행
 app.listen(3001, () => {

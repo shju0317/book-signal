@@ -26,6 +26,7 @@ import EyeGazeTest from './pages/EyeGazeTest';
 import Modal from './components/Modal';
 import ReaderWrapper from '../src/containers/Reader';
 import Reader from 'components/Reader';
+import TssTest from './pages/TssTest';
 
 // 로그인 상태를 관리하기 위한 Context 생성
 export const AuthContext = createContext();
@@ -69,6 +70,7 @@ function App() {
           <Route path='/deleteuser' element={<DeleteUser />} />
           <Route path='/searchreport' element={<SearchReport />} />
           <Route path='/test' element={<EyeGazeTest />} />
+          <Route path="/tts" element={<TssTest />} />
         </Routes>
       </ErrorBoundary>
     </AuthContext.Provider>
