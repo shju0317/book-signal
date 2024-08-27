@@ -1,9 +1,8 @@
-import React, { useState, useRef, useEffect } from "react";
-import axios from "axios";
+import React, { useState, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Provider } from "react-redux";
 import { ReactEpubViewer } from "react-epub-viewer";
-// 추가 컴포넌트와 설정 가져오기
+// containers
 import Header from "containers/Header";
 import Footer from "containers/Footer";
 import Nav from "containers/menu/Nav";
@@ -11,14 +10,18 @@ import Option from "containers/menu/Option";
 import Learning from "containers/menu/Note";
 import ContextMenu from "containers/commons/ContextMenu";
 import Snackbar from "containers/commons/Snackbar";
+// components
 import ViewerWrapper from "components/commons/ViewerWrapper";
+import LoadingView from "LoadingView";
+// slices
 import store from "slices";
 import { updateBook, updateCurrentPage, updateToc } from "slices/book";
+// hooks
 import useMenu from "lib/hooks/useMenu";
 import useHighlight from "lib/hooks/useHighlight";
+// styles
 import "lib/styles/readerStyle.css";
 import viewerLayout from "lib/styles/viewerLayout";
-import LoadingView from "LoadingView";
 
 const EpubReader = ({ url }) => {
   const dispatch = useDispatch();
@@ -149,37 +152,11 @@ const EpubReader = ({ url }) => {
 };
 
 const Reader = () => {
-  const [epubUrl, setEpubUrl] = useState("");
-  const [ebooks, setEbooks] = useState([]);
-
-  useEffect(() => {
-    // 서버에서 EPUB 파일 목록을 가져옴
-    axios.get("http://localhost:3001/ebooks")
-      .then(response => {
-        setEbooks(response.data);
-      })
-      .catch(error => {
-        console.error("Error fetching ebooks:", error);
-      });
-  }, []);
+  const epubUrl = "files/김유정-동백꽃-조광.epub"; // EPUB 파일 경로 설정
 
   return (
     <Provider store={store}>
-      <div>
-        {/* EPUB 파일 목록을 렌더링 */}
-        <ul>
-          {ebooks.map((book) => (
-            <li key={book.name}>
-              <button onClick={() => setEpubUrl(book.url)}>
-                {book.name}
-              </button>
-            </li>
-          ))}
-        </ul>
-
-        {/* 선택된 EPUB 파일을 EpubReader에 전달 */}
-        {epubUrl && <EpubReader url={epubUrl} />}
-      </div>
+      <EpubReader url={epubUrl} /> {/* ReaderWrapper 컴포넌트에 URL 전달 */}
     </Provider>
   );
 };
