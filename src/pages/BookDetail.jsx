@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 import '../css/bookDetail.css';
 import { IoMdHeartEmpty } from "react-icons/io";
@@ -7,7 +8,40 @@ import { FaRegStar } from "react-icons/fa6";
 const BookDetail = () => {
   const location = useLocation();
   const { book } = location.state || {}; // 상태에서 도서 정보 받기
-  console.log('book!!!', book);
+  const [isWishlisted, setIsWishlisted] = useState(false);
+  
+  // 사용자가 이미 이 도서를 찜했는지 확인
+  useEffect(() => {
+    const checkWishlist = async () => {
+      try {
+        const response = await axios.post('http://localhost:3001/wishlist/check', {
+          mem_id: "test", 
+          book_idx: book.book_idx
+        });
+        setIsWishlisted(response.data.isWishlisted); // 서버로부터 찜 여부 확인
+      } catch (error) {
+        console.error('찜 목록 확인 실패:', error);
+      }
+    };
+
+    checkWishlist();
+  }, [book.book_idx]);
+
+  // 찜하기/찜 해제 버튼 클릭
+  const handleWishList = async () => {
+    try {
+      if (isWishlisted) {
+        await axios.post('http://localhost:3001/wishlist/remove', { mem_id: "test", book_idx: book.book_idx });
+        alert('찜한 도서에서 제거되었습니다.');
+      } else {
+        await axios.post('http://localhost:3001/wishlist', { mem_id: "test", book_idx: book.book_idx });
+        alert('찜한 도서에 추가되었습니다.');
+      }
+      setIsWishlisted(!isWishlisted); // 상태 반전
+    } catch (error) {
+      console.error('찜한 도서 처리 실패:', error);
+    }
+  };
 
   return (
     <div className='book-info-wrapper flex flex-col gap-10 max-w-screen-xl m-auto'>
@@ -36,8 +70,10 @@ const BookDetail = () => {
             </div>
           </div>
           <div className='book-info-button flex'>
-            <button className='border-t border-r rounded-bl-xl flex-1'>바로 읽기</button>
-            <button className='border-t flex items-center justify-center rounded-br-xl flex-1'><IoMdHeartEmpty size={22} className='mr-2'/>내 서재에 찜하기</button>
+            <button className='border-t border-r rounded-bl-xl flex-1 text-primary'>바로 읽기</button>
+            <button onClick={handleWishList} className={`border-t flex items-center justify-center rounded-br-xl flex-1 ${isWishlisted ? 'bg-primary text-white' : 'text-primary'}`}>
+              <IoMdHeartEmpty size={22} className='mr-2'/>내 서재에 찜하기
+            </button>
           </div>
         </div>
       </section>
