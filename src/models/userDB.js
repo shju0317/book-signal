@@ -34,6 +34,24 @@ exports.createUserSetting = (mem_id) => {
   });
 };
 
+// 회원 세팅 테이블 자동 생성
+exports.createUserSetting = (mem_id) => {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `INSERT INTO setting (mem_id, font, font_size, dark) VALUES (?, NULL, '16', 'light')`,
+      [mem_id],
+      (err, result) => {
+        if (err) {
+          console.error('Database Error:', err); // 에러 메시지 출력
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      }
+    );
+  });
+};
+
 // 사용자 정보 조회
 exports.getUser = (mem_id) => {
   return new Promise((resolve, reject) => {
