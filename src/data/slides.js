@@ -1,7 +1,7 @@
 const SLIDES = [
   {
     title: "<나의 눈부신 친구>",
-    description: "곱추린 듯 다음 페이지를 넘기고 싶은 이야기. \n  그러나 결코 끝나지 않기를 바라0는 이야기",
+    description: "곱추린 듯 다음 페이지를 넘기고 싶은 이야기. \n  그러나 결코 끝나지 않기를 바라는 이야기",
     image: '/img/CO(1).jpg',
     background: "linear-gradient(to right, #556A82, #738BA3)" 
   },
