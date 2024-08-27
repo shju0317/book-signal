@@ -6,7 +6,6 @@ import Home from './pages/Home';
 import MyLib from './pages/MyLib';
 import MyPage from './pages/MyPage';
 import RootLayout from './pages/RootLayout';
-import viewerLayout from 'lib/styles/viewerLayout';
 import Chatbot from './components/Chatbot';
 import Login from './pages/Login';
 import Join from './pages/Join';
@@ -29,6 +28,14 @@ import Reader from 'components/Reader';
 
 // 로그인 상태를 관리하기 위한 Context 생성
 export const AuthContext = createContext();
+
+const consoleWarn = console.warn;
+console.warn = (...args) => {
+  if (args[0].includes('ResizeObserver loop completed with undelivered notifications')) {
+    return;
+  }
+  consoleWarn(...args);
+};
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);  // 로그인 상태 관리

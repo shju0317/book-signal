@@ -107,7 +107,7 @@ exports.newBooks = () => {
 
 
 /******************** 찜하기 ********************/
-// 찜한 도서 여부 확인
+// 사용자가 이미 찜한 도서인지 확인
 exports.checkWishlist = (mem_id, book_idx) => {
   return new Promise((resolve, reject) => {
     const sql = `SELECT COUNT(*) AS count FROM book_wishlist WHERE mem_id = ? AND book_idx = ?`;
@@ -124,7 +124,7 @@ exports.checkWishlist = (mem_id, book_idx) => {
   });
 };
 
-// 찜하기
+// 도서 찜하기 추가
 exports.addWishlist = (mem_id, book_idx) => {
   return new Promise((resolve, reject) => {
     const sql = `INSERT INTO book_wishlist (mem_id, book_idx) VALUES (?, ?)`;

@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
 import '../css/bookDetail.css';
 import { IoMdHeartEmpty } from "react-icons/io";
-import { FaRegStar } from "react-icons/fa6";
+import { TiStarFullOutline } from "react-icons/ti";
 
 const BookDetail = () => {
   const navigate = useNavigate();
@@ -11,6 +11,7 @@ const BookDetail = () => {
   const { book } = location.state || {};
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [memId, setMemId] = useState(null); // 사용자 ID 상태 추가
 
   useEffect(() => {
     // 컴포넌트가 마운트될 때 로그인 상태 확인
@@ -18,6 +19,9 @@ const BookDetail = () => {
       .then(response => {
         if (response.status === 200) {
           setIsLoggedIn(true);
+          setMemId(response.data.user.mem_id); // 사용자 ID 설정
+          // 찜한 상태 확인
+          checkWishlistStatus(response.data.user.mem_id, book.book_idx);
         } else {
           setIsLoggedIn(false);
         }
@@ -26,7 +30,17 @@ const BookDetail = () => {
         console.error('로그인 상태 확인 중 오류 발생:', error);
         setIsLoggedIn(false);
       });
-  }, []);
+  }, [book.book_idx]);
+
+  // 사용자가 이미 찜한 도서인지 확인
+  const checkWishlistStatus = async (memId, bookIdx) => {
+    try {
+      const response = await axios.post('http://localhost:3001/wishlist/check', { mem_id: memId, book_idx: bookIdx });
+      setIsWishlisted(response.data.isWishlisted);
+    } catch (error) {
+      console.error('찜한 도서 상태 확인 실패:', error);
+    }
+  };
 
   const handleWishList = async () => {
     if (!isLoggedIn) {
@@ -37,10 +51,10 @@ const BookDetail = () => {
 
     try {
       if (isWishlisted) {
-        await axios.post('http://localhost:3001/wishlist/remove', { mem_id: "test", book_idx: book.book_idx });
+        await axios.post('http://localhost:3001/wishlist/remove', { mem_id: memId, book_idx: book.book_idx });
         alert('찜한 도서에서 제거되었습니다.');
       } else {
-        await axios.post('http://localhost:3001/wishlist', { mem_id: "test", book_idx: book.book_idx });
+        await axios.post('http://localhost:3001/wishlist', { mem_id: memId, book_idx: book.book_idx });
         alert('찜한 도서에 추가되었습니다.');
       }
       setIsWishlisted(!isWishlisted);
@@ -90,8 +104,8 @@ const BookDetail = () => {
               <span className='mr-2'>이 책을 읽은 독자</span>{book.book_views}
               <p className='flex ml-3 items-center'>
                 <span className='sr-only'>평점</span>
-                <FaRegStar />
-                <strong className='ml-1'>4.5</strong>
+                <TiStarFullOutline />
+                <strong className='ml-1'>{book.book_avg}</strong>
               </p>
             </div>
           </div>
