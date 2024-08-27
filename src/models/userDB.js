@@ -196,3 +196,39 @@ exports.getCompletedBooks = (mem_id) => {
     });
   });
 };
+
+// book_reading 테이블에 새로운 독서 기록을 추가하는 함수
+exports.addReadingRecord = (mem_id, book_name) => {
+  return new Promise((resolve, reject) => {
+    // book_db 테이블에서 book_idx를 가져오는 쿼리
+    const getBookIdxQuery = `
+      SELECT book_idx FROM book_db WHERE book_name = ?;
+    `;
+
+    db.query(getBookIdxQuery, [book_name], (err, results) => {
+      if (err) {
+        console.error('book_idx 가져오기 에러:', err);
+        reject(err);
+      } else if (results.length === 0) {
+        reject(new Error('해당 책을 찾을 수 없습니다.'));
+      } else {
+        const book_idx = results[0].book_idx;
+
+        // 새로운 독서 기록을 삽입하는 쿼리
+        const insertReadingQuery = `
+          INSERT INTO book_reading (mem_id, book_idx, book_name, book_summ, book_latest, book_rp, book_mark)
+          VALUES (?, ?, ?, '', NOW(), 1, 1);
+        `;
+
+        db.query(insertReadingQuery, [mem_id, book_idx, book_name], (err, result) => {
+          if (err) {
+            console.error('독서 기록 삽입 에러:', err);
+            reject(err);
+          } else {
+            resolve(result);
+          }
+        });
+      }
+    });
+  });
+};

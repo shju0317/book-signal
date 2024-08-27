@@ -282,3 +282,15 @@ exports.getCompletedBooks = async (req, res) => {
   }
 };
 
+// 독서 기록을 추가하는 컨트롤러 함수
+exports.addReadingRecord = async (req, res) => {
+  const { mem_id, book_name } = req.body;
+
+  try {
+    const result = await userDB.addReadingRecord(mem_id, book_name);
+    res.status(200).json({ message: '독서 기록이 성공적으로 추가되었습니다.', result });
+  } catch (error) {
+    console.error('독서 기록 추가 에러:', error);
+    res.status(500).json({ message: '독서 기록을 추가하는 중 오류가 발생했습니다.', error: error.message });
+  }
+};

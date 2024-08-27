@@ -81,4 +81,7 @@ router.get('/wishlist-books', userController.getWishlistBooks);
 // 완독 도서 가져오기
 router.get('/completed-books', userController.getCompletedBooks);
 
+// 독서 기록을 추가하는 라우트
+router.post('/add-reading-record', userController.addReadingRecord);
+
 module.exports = router;

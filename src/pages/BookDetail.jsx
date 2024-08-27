@@ -70,9 +70,13 @@ const BookDetail = () => {
       return;
     }
 
-    const bookNameWithoutSpaces = book.book_name.replace(/\s+/g, '');
-
     try {
+      // 독서 기록을 데이터베이스에 추가
+      await axios.post('http://localhost:3001/add-reading-record', { mem_id: memId, book_name: book.book_name });
+
+      // 책의 경로를 가져와서 리더 페이지로 이동
+      const bookNameWithoutSpaces = book.book_name.replace(/\s+/g, '');
+
       const response = await axios.post('http://localhost:3001/getBookPath', {
         book_name: encodeURIComponent(bookNameWithoutSpaces)
       });
@@ -80,10 +84,11 @@ const BookDetail = () => {
       const bookPath = response.data.book_path;
       navigate('/reader', { state: { bookPath } });
     } catch (error) {
-      console.error('책 경로를 가져오는 중 오류 발생:', error);
-      alert('책 경로를 가져오지 못했습니다.');
+      console.error('책 읽기 처리 중 에러:', error);
+      alert('책을 읽는 중에 문제가 발생했습니다.');
     }
   };
+
 
   return (
     <div className='book-info-wrapper flex flex-col gap-10 max-w-screen-xl m-auto'>
