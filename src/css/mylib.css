@@ -29,21 +29,31 @@
 
 .tab.active {
     color: #F57E53;
-    /* 활성 탭 색상 */
     font-weight: bold;
     border-bottom: 2px solid #F57E53;
-    /* 활성 탭 하단 강조선 */
 }
 
 /* 책 그리드 */
-.mylib-books-grid {
+.mylib-books-grid,
+.mylib-completed-books-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
+    /* 한 줄에 5개씩 배치 */
     gap: 40px;
+    /* 책 사이의 간격 */
+}
+
+/* 책 항목 */
+.mylib-book-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
 }
 
 /* 책 카드 */
-.mylib-book-card {
+.mylib-book-card,
+.mylib-completed-book-card {
     margin-top: 15px;
     background-color: #fff;
     border-radius: 10px;
@@ -53,20 +63,28 @@
     border: 1px solid #e0e0e0;
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
     width: 230px;
-    max-width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
+}
+
+/* 일반 책 카드 */
+.mylib-book-card {
     height: 400px;
 }
 
+/* 완독 도서 카드 */
+.mylib-completed-book-card {
+    height: 400px;
+    /* 높이를 조정 */
+}
+
 /* Hover 효과 추가 */
-.mylib-book-card:hover {
+.mylib-book-card:hover,
+.mylib-completed-book-card:hover {
     transform: translateY(-10px);
-    /* 마우스 오버 시 살짝 위로 올라가도록 설정 */
     box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
-    /* 그림자 효과를 조금 더 진하게 */
 }
 
 /* 책 커버 이미지 */
@@ -94,13 +112,23 @@
     color: #777;
 }
 
-/* 하트 아이콘 */
-.book-heart {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 1.5rem;
-    color: #F57E53;
+/* 리뷰 쓰기 버튼 */
+.write-review-button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: #F57E53;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 75%;
+    /* 버튼 너비를 카드와 맞춤 */
+    text-align: center;
+}
+
+.write-review-button:hover {
+    background-color: #e04b2f;
 }
 
 /* 북 시그널 전용 스타일링 */
@@ -116,13 +144,9 @@
     background-size: cover;
     background-position: center;
     height: 200px;
-    /* 높이 유지 */
     width: 100%;
-    /* 가로 너비를 전체로 */
     max-width: 1280px;
-    /* 최대 너비 설정 */
     margin: 0 auto;
-    /* 중앙 정렬 */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -131,7 +155,6 @@
     cursor: pointer;
     transition: transform 0.3s;
     border-radius: 10px;
-    /* 모서리 둥글게 */
 }
 
 .signal-card:hover {
@@ -146,7 +169,6 @@
     line-height: 1.5;
     width: 100%;
     height: 100%;
-
 }
 
 .mylib-no-readingbooks-message {

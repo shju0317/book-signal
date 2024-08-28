@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import '../css/mylib.css';
 import axios from 'axios';
 import Modal from '../components/Modal';
+import GetReview from './GetReview'; // GetReview 컴포넌트 import
 
 const MyLib = () => {
   const [activeTab, setActiveTab] = useState('recent'); // 기본 활성 탭
@@ -13,6 +14,8 @@ const MyLib = () => {
   const [selectedBook, setSelectedBook] = useState(null); // 모달 관련 상태
   const [isModalOpen, setIsModalOpen] = useState(false); // 모달 관련 상태
   const [backgroundImage, setBackgroundImage] = useState(''); // 모달 배경 이미지 상태
+  const [reviewModalOpen, setReviewModalOpen] = useState(false); // 리뷰 모달 상태
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -72,6 +75,16 @@ const MyLib = () => {
     navigate(`/detail`, { state: { book } }); // 선택한 책의 전체 객체를 상태로 전달하여 이동
   };
 
+  const openReviewModal = (book) => {
+    setSelectedBook(book);
+    setReviewModalOpen(true);
+  };
+
+  const closeReviewModal = () => {
+    setReviewModalOpen(false);
+    setSelectedBook(null);
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case 'recent':
@@ -114,49 +127,26 @@ const MyLib = () => {
       case 'bookSignal':
         return (
           <div className="signal-grid">
-            <div
-              className="signal-card"
-              style={{ backgroundImage: `url('/path/to/image1.png')` }}
-              onClick={() => handleBookClick('북 시그널 책 제목 1', '/path/to/image1.png')}
-            >
-              <div className="signal-text">
-                <p>시간은 흐르고,<br />우리는 그 속에서 끊임없이 변화한다.</p>
-                <p>홍길동, {'<나의 눈부신 친구>'}</p>
-              </div>
-            </div>
-            <div
-              className="signal-card"
-              style={{ backgroundImage: `url('/path/to/image2.png')` }}
-              onClick={() => handleBookClick('북 시그널 책 제목 2', '/path/to/image2.png')}
-            >
-              <div className="signal-text">
-                <p>시간은 흐르고,<br />우리는 그 속에서 끊임없이 변화한다.</p>
-                <p>홍길동, {'<나의 눈부신 친구>'}</p>
-              </div>
-            </div>
-            <div
-              className="signal-card"
-              style={{ backgroundImage: `url('/path/to/image3.png')` }}
-              onClick={() => handleBookClick('북 시그널 책 제목 3', '/path/to/image3.png')}
-            >
-              <div className="signal-text">
-                <p>시간은 흐르고,<br />우리는 그 속에서 끊임없이 변화한다.</p>
-                <p>홍길동, {'<나의 눈부신 친구>'}</p>
-              </div>
-            </div>
+            {/* 북 시그널 콘텐츠 */}
           </div>
         );
+
       case 'completed':
         return (
-          <div className="mylib-books-grid">
+          <div className="mylib-completed-books-grid">
             {completedBooks.length > 0 ? (
               completedBooks.map((book, index) => (
-                <div className="mylib-book-card" key={index} onClick={() => handleBookClick(book)}>
-                  <img src={book.book_cover} alt={`${book.book_name} Cover`} className="mylib-book-cover" />
-                  <div className="book-info">
-                    <p className="book-title">{book.book_name}</p>
-                    <p className="book-author">{book.book_writer}</p>
+                <div className="mylib-book-item" key={index}>
+                  <div className="mylib-completed-book-card" onClick={() => handleBookClick(book)}>
+                    <img src={book.book_cover} alt={`${book.book_name} Cover`} className="mylib-book-cover" />
+                    <div className="book-info">
+                      <p className="book-title">{book.book_name}</p>
+                      <p className="book-author">{book.book_writer}</p>
+                    </div>
                   </div>
+                  <button className="write-review-button" onClick={() => openReviewModal(book)}>
+                    리뷰 작성 및 수정
+                  </button>
                 </div>
               ))
             ) : (
@@ -200,6 +190,14 @@ const MyLib = () => {
       </div>
 
       {renderContent()}
+
+      {/* GetReview 모달 */}
+      {selectedBook && (
+        <GetReview
+          book={selectedBook}
+          onReviewSubmit={closeReviewModal}
+        />
+      )}
 
       <Modal
         isOpen={isModalOpen}
