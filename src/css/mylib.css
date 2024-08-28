@@ -55,11 +55,12 @@
 }
 
 /* 책 커버 이미지 */
-.book-cover {
+.mylib-book-cover {
     width: 100%;
     height: auto;
     border-radius: 10px;
     margin-bottom: 10px;
+    margin-left: 10px;
 }
 
 /* 책 정보 */
