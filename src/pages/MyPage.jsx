@@ -42,16 +42,29 @@ const MyPage = () => {
   };
 
   const handleDeleteReview = (reviewId) => {
-    axios.delete(`http://localhost:3001/review/${reviewId}`)
+    const mem_id = userInfo.mem_id;
+
+    axios.delete(`http://localhost:3001/review/${reviewId}`, {
+      data: { mem_id },
+      withCredentials: true
+    })
       .then(() => {
-        // 리뷰 삭제 후 상태 업데이트
         setReviews(prevReviews => prevReviews.filter(review => review.end_idx !== reviewId));
+
+        // 최신 유저 데이터 다시 가져오기
+        return axios.get('http://localhost:3001/check-session', { withCredentials: true });
+      })
+      .then(response => {
+        if (response.data.user) {
+          setUserInfo(response.data.user); // 최신 포인트 반영
+        }
         alert('리뷰가 성공적으로 삭제되었습니다.');
       })
       .catch(error => {
         console.error('리뷰 삭제에 실패했습니다.', error);
       });
   };
+
 
   if (!userInfo) {
     return <p>로딩 중...</p>;

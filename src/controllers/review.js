@@ -23,18 +23,24 @@ exports.getUserReviews = async (req, res) => {
 };
 
 
-// 리뷰 삭제 기능
 exports.deleteReview = async (req, res) => {
   const { reviewId } = req.params;
+  const { mem_id } = req.body; // 요청 바디에서 mem_id 가져오기
 
   try {
-    await reviewDB.deleteReview(reviewId);
+    const result = await reviewDB.deleteReview(reviewId, mem_id);
+
+    if (result.message === '리뷰가 이미 삭제되었습니다.') {
+      return res.status(400).json({ message: '이미 삭제된 리뷰입니다.' });
+    }
     res.status(200).json({ message: '리뷰가 성공적으로 삭제되었습니다.' });
   } catch (error) {
-    console.error(error);
+    console.error('리뷰 삭제 중 오류 발생:', error);
     res.status(500).json({ message: '리뷰 삭제에 실패했습니다.' });
   }
 };
+
+
 
 // 리뷰 등록
 exports.addReview = async (req, res) => {
@@ -74,6 +80,4 @@ exports.addReview = async (req, res) => {
     res.status(500).json({ message: '리뷰 등록에 실패했습니다.' });
   }
 };
-
-
 

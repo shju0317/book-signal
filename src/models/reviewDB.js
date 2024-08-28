@@ -22,34 +22,49 @@ exports.getUserReviewsWithBooks = (mem_id) => {
 // 리뷰 삭제 기능
 exports.deleteReview = (reviewId, mem_id) => {
   return new Promise((resolve, reject) => {
-    const query = `DELETE FROM book_end WHERE end_idx = ?`;
+    // 먼저 해당 리뷰의 book_score과 book_review가 null이 아닌지 확인
+    const checkReviewQuery = `SELECT book_score, book_review FROM book_end WHERE end_idx = ?`;
 
-    // 트랜잭션 시작
-    db.beginTransaction((transactionErr) => {
-      if (transactionErr) {
-        return reject(transactionErr);
+    db.query(checkReviewQuery, [reviewId], (err, results) => {
+      if (err) {
+        return reject(err);
       }
 
-      db.query(query, [reviewId], (err, results) => {
-        if (err) {
-          return db.rollback(() => reject(err)); // 오류 발생 시 롤백
+      const review = results[0];
+      if (!review.book_score && !review.book_review) {
+        return resolve({ message: '리뷰가 이미 삭제되었습니다.' });
+      }
+
+      const updateReviewQuery = `UPDATE book_end SET book_score = NULL, book_review = NULL WHERE end_idx = ?`;
+
+      // 트랜잭션 시작
+      db.beginTransaction((transactionErr) => {
+        if (transactionErr) {
+          return reject(transactionErr);
         }
 
-        // 리뷰 삭제가 성공적일 경우, 포인트를 15점 깎는 쿼리 실행
-        const updatePointsQuery = `UPDATE member SET mem_point = mem_point - 15 WHERE mem_id = ?`;
-
-        db.query(updatePointsQuery, [mem_id], (updateErr, updateResults) => {
-          if (updateErr) {
-            return db.rollback(() => reject(updateErr)); // 오류 발생 시 롤백
+        // 리뷰 정보 업데이트
+        db.query(updateReviewQuery, [reviewId], (err, results) => {
+          if (err) {
+            return db.rollback(() => reject(err)); // 오류 발생 시 롤백
           }
 
-          // 트랜잭션 커밋
-          db.commit((commitErr) => {
-            if (commitErr) {
-              return db.rollback(() => reject(commitErr)); // 커밋 오류 발생 시 롤백
+          // 포인트 차감
+          const updatePointsQuery = `UPDATE member SET mem_point = mem_point - 15 WHERE mem_id = ?`;
+
+          db.query(updatePointsQuery, [mem_id], (updateErr, updateResults) => {
+            if (updateErr) {
+              return db.rollback(() => reject(updateErr)); // 오류 발생 시 롤백
             }
 
-            resolve(updateResults); // 모든 작업이 성공적으로 완료됨
+            // 트랜잭션 커밋
+            db.commit((commitErr) => {
+              if (commitErr) {
+                return db.rollback(() => reject(commitErr)); // 커밋 오류 발생 시 롤백
+              }
+
+              resolve(updateResults); // 모든 작업이 성공적으로 완료됨
+            });
           });
         });
       });
