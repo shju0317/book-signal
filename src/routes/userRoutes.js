@@ -30,7 +30,6 @@ router.get('/check-email', async (req, res) => {
   }
 });
 
-
 // 아이디 중복 체크
 router.get('/check-id', async (req, res) => {
   const { mem_id } = req.query;
