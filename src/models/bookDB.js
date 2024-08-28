@@ -49,9 +49,11 @@ const getBooks = (orderBy, limit = 12) => {
   
       conn.query(sql, (err, results) => {
         if (err) {
+          console.error('DB 쿼리 실행 중 오류 발생:', err);
           reject(err);
           return;
         }
+        resolve(results);
         const updatedResults = results.map(book => {
           book.book_cover = decodeURIComponent(book.book_cover);
           if (book.book_cover) {
@@ -61,7 +63,6 @@ const getBooks = (orderBy, limit = 12) => {
           }
           return book;
         });
-  
         resolve(updatedResults);
       });
     });
@@ -74,15 +75,29 @@ const getBooks = (orderBy, limit = 12) => {
   
   // 평점 베스트 도서 목록
   exports.bestBooks = () => {
-    // return getBooks('book_rating DESC');
-    return getBooks('book_published_at DESC');
+    return getBooks('book_avg DESC');
   };
   
   // 신작 도서 목록
   exports.newBooks = () => {
     return getBooks('book_published_at DESC');
   };
+
   
+   // 메인 인기 top6
+   exports.popularBooksMain = () => {
+    return getBooks('book_views DESC', 6);
+  };
+
+  // 메인 평점 top6
+  exports.bestBooksMain = () => {
+    return getBooks('book_avg DESC', 6);
+  };
+
+  // 메인 신작 top6
+  exports.newBooksMain = () => {
+    return getBooks('book_published_at DESC', 6);
+  };
 
   /******************** 찜하기 ********************/
   // 찜한 도서 여부 확인

@@ -1,49 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import SlideShow from '../components/SlideShow';
 import SLIDES from '../data/slides';
-import { Link } from 'react-router-dom';
+import { Link} from 'react-router-dom';
+import axios from 'axios';
 import '../css/fonts.css';
 import '../css/main.css';
-
-// 인기
-const bookBest = [
-  { title: '별 헤는 밤', author: '저자/옮긴이', image: '../images/cover(10).jpg' },
-  { title: '서시', author: '저자/옮긴이', image: '../images/cover(11).jpg' },
-  { title: '광염 소나타', author: '저자/옮긴이', image: '../images/cover(24).jpg' },
-  { title: '꼬부랑 할머니', author: '저자/옮긴이', image: '../images/cover(63).jpg' },
-  { title: 'B사감과 러브레터', author: '저자/옮긴이', image: '../images/cover(28).jpg' },
-  { title: '진달래꽃', author: '저자/옮긴이', image: '../images/cover(77).jpg' }
-];
-
-// 평점
-const reviewBest = [
-  { title: '나의 유년시절', author: '저자/옮긴이', image: '../images/cover(0).jpg' },
-  { title: '사랑하는 까닭', author: '저자/옮긴이', image: '../images/cover(19).jpg' },
-  { title: '나비의 꿈', author: '저자/옮긴이', image: '../images/cover(61).jpg' },
-  { title: '허생전', author: '저자/옮긴이', image: '../images/cover(34).jpg' },
-  { title: '향수', author: '저자/옮긴이', image: '../images/cover(15).jpg' },
-  { title: 'B사감과 러브레터', author: '저자/옮긴이', image: '../images/cover(25).jpg' }
-];
-
-// 신작
-const newBook = [
-  { title: '한의 신문 제 2461호', author: '저자/옮긴이', image: '../images/cover(90).jpg' },
-  { title: 'AI 영화영상콘텐츠를 위한 AI 예술창작 사례연구', author: '저자/옮긴이', image: '../images/cover(80).jpg' },
-  { title: '자율주행차량 상황 정보 알림 시스템', author: '저자/옮긴이', image: '../images/cover(88).jpg' },
-  { title: '머신러닝 기반 메모리 성능', author: '저자/옮긴이', image: '../images/cover(86).jpg' },
-  { title: '아이트래킹 연구 활성화를 위한 모바일 아이트래커의 활용', author: '저자/옮긴이', image: '../images/cover(83).jpg' },
-  { title: 'B사감과 러브레터', author: '저자/옮긴이', image: '../images/cover(99).jpg' }
-];
-
-// 최근읽은
-const readNow = [
-  { title: '누이 마음아 나를 보아라', author: '저자/옮긴이', image: '../images/cover(2).jpg' },
-  { title: '진달래꽃', author: '저자/옮긴이', image: '../images/cover(3).jpg' },
-  { title: '해협의 로맨티시즘', author: '저자/옮긴이', image: '../images/cover(4).jpg' },
-  { title: '님의 손길', author: '저자/옮긴이', image: '../images/cover(8).jpg' },
-  { title: '운수 좋은 날', author: '저자/옮긴이', image: '../images/cover(17).jpg' },
-  { title: 'B사감과 러브레터', author: '저자/옮긴이', image: '../images/cover(84).jpg' }
-];
 
 // 추천시그널
 const signal = [
@@ -53,6 +14,25 @@ const signal = [
 ];
 
 const Home = () => {
+  const [newBooks, setNewBooks] = useState([]);
+  const [bestBooks, setBestBooks] = useState([]);
+  const [popularBooks, setPopularBooks] = useState([]);
+
+
+  useEffect(() => {
+    axios.get(`http://localhost:3001/main`)
+      .then(response => {
+        const { newBooks, bestBooks, popularBooks } = response.data;
+        setNewBooks(newBooks);
+        setBestBooks(bestBooks);
+        setPopularBooks(popularBooks);
+      })
+      .catch(error => {
+        console.error('오류:', error.response ? error.response.data : error.message);
+      });
+  }, []);
+
+
   return (
     <div className='main-div'>
       {/* 슬라이드 */}
@@ -62,7 +42,6 @@ const Home = () => {
       <br />
       <br />
 
-      {/* 본문 */}
       {/* 인기top5 */}
       <h2 className='main-title'>
         지금, 많이 읽은 그 작품
@@ -72,14 +51,14 @@ const Home = () => {
       </h2>
       <br />
       <div className='main-book-container'>
-        {bookBest.map((book, index) => (
-          <div key={index} className="main-book-card">
+        {popularBooks.map((book, index) => (
+          <div key={index} className="main-book-card" >
             <div className="main-book-cover">
-              <img src={book.image} alt={`${book.title} Cover`} className="h-full w-full rounded-md shadow-lg" />
+              <img src={book.book_cover} alt={`${book.book_name} Cover`} className="h-full w-full rounded-md shadow-lg" />
             </div>
             <div className="main-book-info">
-              <p className="main-book-title">{book.title}</p>
-              <p className="main-book-author">{book.author}</p>
+              <p className="main-book-title">{book.book_name}</p>
+              <p className="main-book-author">{book.book_writer}</p>
             </div>
           </div>
         ))}
@@ -95,14 +74,14 @@ const Home = () => {
       </h2>
       <br />
       <div className='main-book-container'>
-        {reviewBest.map((book, index) => (
-          <div key={index} className='main-book-card'>
+        {bestBooks.map((book, index) => (
+          <div key={index} className="main-book-card" >
             <div className="main-book-cover">
-              <img src={book.image} alt={`${book.title} Cover`} className="h-full w-full rounded-md" />
+              <img src={book.book_cover} alt={`${book.book_name} Cover`} className="h-full w-full rounded-md shadow-lg" />
             </div>
             <div className="main-book-info">
-              <p className="main-book-title">{book.title}</p>
-              <p className="main-book-author">{book.author}</p>
+              <p className="main-book-title">{book.book_name}</p>
+              <p className="main-book-author">{book.book_writer}</p>
             </div>
           </div>
         ))}
@@ -118,14 +97,14 @@ const Home = () => {
       </h2>
       <br />
       <div className='main-book-container'>
-        {newBook.map((book, index) => (
+        {newBooks.map((book, index) => (
           <div key={index} className="main-book-card">
             <div className="main-book-cover">
-              <img src={book.image} alt={`${book.title} Cover`} className="h-full w-full rounded-md" />
+              <img src={book.book_cover} alt={`${book.book_name} Cover`} className="h-full w-full rounded-md shadow-lg" />
             </div>
             <div className="main-book-info">
-              <p className="main-book-title">{book.title}</p>
-              <p className="main-book-author">{book.author}</p>
+              <p className="main-book-title">{book.book_name}</p>
+              <p className="main-book-author">{book.book_writer}</p>
             </div>
           </div>
         ))}
@@ -136,7 +115,7 @@ const Home = () => {
         닉네임 님에게 보내는 추천 시그널
       </h2>
       <br />
-      <div className="bg-[#FCF4EF] h-auto pt-3 pb-5 rounded-xl">
+      <div className="bg-[#FFEEE4] h-auto pt-3 pb-5 rounded-xl">
         <br />
         <div className='flex justify-center gap-4 max-w-5xl mx-auto'>
           {signal.map((book, index) => (
@@ -148,7 +127,7 @@ const Home = () => {
               {/* 사진 */}
               <img
                 src={book.image}
-                alt={`${book.title} Cover`}
+                alt={`${book.book_name} Cover`}
                 className="z-20 rounded-lg shadow-lg"
                 style={{ width: '230px', height: '310px' }}
               />
