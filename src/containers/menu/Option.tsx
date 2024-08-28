@@ -27,12 +27,11 @@ const Option = ({
   const [lineHeight, setLineHeight] = useState<number>(bookStyle.lineHeight);
   const [marginHorizontal, setMarginHorizontal] = useState<number>(bookStyle.marginHorizontal);
   const [marginVertical, setMarginVertical] = useState<number>(bookStyle.marginVertical);
-  const [isScrollHorizontal, setIsScrollHorizontal] = useState<boolean>(true);
+  const [isScrollHorizontal, setIsScrollHorizontal] = useState<boolean>(true); // Default: ScrollHorizontal
   const [viewType, setViewType] = useState<ViewType>({
     active: true,
-    spread: true
+    spread: false // Default: One Page View
   });
-
 
   /** Change font family */
   const onSelectFontFamily = (font: BookFontFamily) => setFontFamily(font);
@@ -62,7 +61,7 @@ const Option = ({
    * Select view direction
    * @param type Direction
    */
-   const onClickDirection = (type: "Horizontal" | "Vertical") => {
+  const onClickDirection = (type: "Horizontal" | "Vertical") => {
     if (type === "Horizontal") {
       setIsScrollHorizontal(true);
       setViewType({ ...viewType, active: true });
@@ -100,10 +99,7 @@ const Option = ({
     }
   }
 
-
   /* Save userdata */
-  // TODO Fix the infinite re-rendering issue, when inlcude `onBookStyleChange` to dependencies array.
-  /* eslint-disable */
   useEffect(() => {
     const timer = window.setTimeout(() => { 
       onBookStyleChange({
@@ -123,19 +119,18 @@ const Option = ({
     marginHorizontal, 
     marginVertical
   ]);
-  /* eslint-enable */
 
   /** Re-register close event, when after set */
   useEffect(() => emitEvent(), [bookStyle, emitEvent]);
 
-  
   return (<>
     {control.display && <Wrapper title="Setting"
                                  show={control.open}
                                  onClose={onToggle}
                                  ref={ref}>
       <OptionLayout>
-        <ControlIconBtnWrapper title="View Direction">
+        {/* 첫 번째 메뉴: ScrollHorizontal 기본값, 화면에 표시하지 않음 */}
+        {false && <ControlIconBtnWrapper title="View Direction">
           <ControlIconBtn type="ScrollHorizontal"
                           alt="Horizontal View"
                           active={true}
@@ -146,8 +141,10 @@ const Option = ({
                           active={true}
                           isSelected={!isScrollHorizontal}
                           onClick={() => onClickDirection("Vertical")} />
-        </ControlIconBtnWrapper>
-        <ControlIconBtnWrapper title="View Spread">
+        </ControlIconBtnWrapper>}
+
+        {/* 두 번째 메뉴: One Page View 기본값 설정, 화면에 표시하지 않음 */}
+        {false && <ControlIconBtnWrapper title="View Spread">
           <ControlIconBtn type="BookOpen" 
                           alt="Two Page View"
                           active={viewType.active}
@@ -158,11 +155,15 @@ const Option = ({
                           active={viewType.active}
                           isSelected={!viewType.spread}
                           onClick={() => onClickViewType(false)} />
-        </ControlIconBtnWrapper>
+        </ControlIconBtnWrapper>}
+
+        {/* 세 번째 메뉴: 변경 없음 */}
         <OptionDropdown title="Font"
                         defaultValue={fontFamily}
                         valueList={["Origin", "Roboto"]}
                         onSelect={onSelectFontFamily} />
+        
+        {/* 네 번째 메뉴: 변경 없음 */}
         <OptionSlider active={true}
                       title="Size"
                       minValue={8}
@@ -170,6 +171,8 @@ const Option = ({
                       defaultValue={fontSize}
                       step={1}
                       onChange={(e) => onChangeSlider("FontSize", e)} />
+
+        {/* 다섯 번째 메뉴: 변경 없음 */}
         <OptionSlider active={true}
                       title="Line height"
                       minValue={1}
@@ -177,20 +180,25 @@ const Option = ({
                       defaultValue={lineHeight}
                       step={0.1}
                       onChange={(e) => onChangeSlider("LineHeight", e)} />
+        
+        {/* 여섯 번째 메뉴: 화면의 가운데 정렬 */}
         <OptionSlider active={true}
                       title="Horizontal margin"
                       minValue={0}
                       maxValue={100}
                       defaultValue={marginHorizontal}
                       step={1}
-                      onChange={(e) => onChangeSlider("MarginHorizontal", e)} />
-        <OptionSlider active={bookFlow === "paginated"}
+                      onChange={(e) => onChangeSlider("MarginHorizontal", e)}
+                      />
+
+        {/* 마지막 메뉴: 화면에 표시하지 않음 */}
+        {false && <OptionSlider active={bookFlow === "paginated"}
                       title="Vertical margin"
                       minValue={0}
                       maxValue={100}
                       defaultValue={marginVertical}
                       step={1}
-                      onChange={(e) => onChangeSlider("MarginVertical", e)} />
+                      onChange={(e) => onChangeSlider("MarginVertical", e)} />}
       </OptionLayout>
     </Wrapper>}
   </>);

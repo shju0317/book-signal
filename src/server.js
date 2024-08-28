@@ -5,6 +5,7 @@ const searchRoutes = require('./routes/searchRoutes');
 const rankingRoutes = require('./routes/rankingRoutes');
 const wishListRoutes = require('./routes/wishListRoutes');
 const bookRoutes = require('./routes/bookRoutes');
+const mainRoutes = require('./routes/mainRoutes');
 const path = require('path');
 const helmet = require('helmet');
 
@@ -47,6 +48,7 @@ app.use('/api', searchRoutes);
 app.use('/ranking', rankingRoutes);
 app.use('/wishlist', wishListRoutes);
 app.use('/getBookPath', bookRoutes);
+app.use('/main', mainRoutes);
 
 // eye-gaze
 // Cross-Origin Isolation 헤더 설정
