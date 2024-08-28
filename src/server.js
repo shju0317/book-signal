@@ -85,12 +85,6 @@ app.use(helmet.crossOriginEmbedderPolicy({ policy: 'require-corp' }));
 // 정적 파일 서빙
 app.use(express.static('public'));
 
-<<<<<<< HEAD
-// 서버 실행
-=======
-app.use('/', reviewRoutes);
-
->>>>>>> origin/chaerin
 app.listen(3001, () => {
     console.log('서버 실행: http://localhost:3001');
 });

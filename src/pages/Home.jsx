@@ -3,6 +3,7 @@ import SlideShow from '../components/SlideShow';
 import SLIDES from '../data/slides';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 import '../css/fonts.css';
 import '../css/main.css';
 
