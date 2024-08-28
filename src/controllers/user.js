@@ -294,3 +294,4 @@ exports.addReadingRecord = async (req, res) => {
     res.status(500).json({ message: '독서 기록을 추가하는 중 오류가 발생했습니다.', error: error.message });
   }
 };
+

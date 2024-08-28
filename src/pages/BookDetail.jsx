@@ -13,7 +13,15 @@ const BookDetail = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [memId, setMemId] = useState(null); // 사용자 ID 상태 추가
 
+
   useEffect(() => {
+
+    if (!book) {
+      console.error("책 정보가 전달되지 않았습니다.");
+      navigate('/');  // 책 정보가 없으면 홈으로 리다이렉트
+      return;
+    }
+
     // 컴포넌트가 마운트될 때 로그인 상태 확인
     axios.get('http://localhost:3001/check-session', { withCredentials: true })
       .then(response => {
@@ -72,7 +80,7 @@ const BookDetail = () => {
 
     try {
       // 독서 기록을 데이터베이스에 추가
-      await axios.post('http://localhost:3001/add-reading-record', { mem_id: memId, book_name: book.book_name });
+      await axios.post('http://localhost:3001/addReadingRecord', { mem_id: memId, book_name: book.book_name });
 
       // 책의 경로를 가져와서 리더 페이지로 이동
       const bookNameWithoutSpaces = book.book_name.replace(/\s+/g, '');
@@ -87,6 +95,8 @@ const BookDetail = () => {
       console.error('책 읽기 처리 중 에러:', error);
       alert('책을 읽는 중에 문제가 발생했습니다.');
     }
+
+    
   };
 
 
