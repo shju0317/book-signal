@@ -88,15 +88,52 @@ exports.getUserByEmailAndName = (mem_email, mem_name) => {
   });
 };
 
+// 회원탈퇴
+// 연관된 데이터 삭제
+exports.deleteRelatedData = (mem_id) => {
+  return new Promise((resolve, reject) => {
+    const queries = [
+      `DELETE FROM book_end WHERE mem_id = ?`,
+      `DELETE FROM book_extract_data WHERE mem_id = ?`,
+      `DELETE FROM book_eyegaze WHERE mem_id = ?`,
+      `DELETE FROM book_reading WHERE mem_id = ?`,
+      `DELETE FROM book_wishlist WHERE mem_id = ?`,
+      `DELETE FROM setting WHERE mem_id = ?`
+    ];
+
+    Promise.all(queries.map(query => {
+      return new Promise((resolve, reject) => {
+        db.query(query, [mem_id], (err, result) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(result);
+          }
+        });
+      });
+    }))
+      .then(() => resolve())
+      .catch(err => {
+        console.error('관련 데이터 삭제 중 오류 발생:', err);
+        reject(err);
+      });
+  });
+};
+
 // 사용자 삭제
 exports.deleteUser = (mem_id) => {
   return new Promise((resolve, reject) => {
     db.query(`DELETE FROM member WHERE mem_id = ?`, [mem_id], (err, result) => {
-      if (err) reject(err);
-      else resolve(result);
+      if (err) {
+        console.error('사용자 삭제 중 오류 발생:', err);
+        reject(err);
+      } else {
+        resolve(result);
+      }
     });
   });
 };
+
 
 // 비밀번호 찾기 (이메일,아이디)
 exports.getUserByEmailAndId = (mem_email, mem_id) => {

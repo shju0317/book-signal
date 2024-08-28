@@ -208,11 +208,12 @@ exports.logout = (req, res) => {
   });
 };
 
-// 회원탈퇴
+// 회원탈퇴 컨트롤러 함수
 exports.deleteUser = async (req, res) => {
   const { mem_id, mem_pw } = req.body;
 
   try {
+    // 사용자 인증
     const getUser = await userDB.getUser(mem_id);
     if (getUser.length === 0) {
       return res.status(401).json({ message: '아이디 또는 비밀번호가 잘못되었습니다.' });
@@ -223,25 +224,17 @@ exports.deleteUser = async (req, res) => {
       return res.status(401).json({ message: '아이디 또는 비밀번호가 잘못되었습니다.' });
     }
 
-    // 세션 파기
-    req.session.destroy(async (err) => {
-      if (err) {
-        console.error('세션 삭제 중 오류:', err);
-        return res.status(500).json({ message: '회원탈퇴 중 오류가 발생했습니다.' });
-      }
+    // 회원 탈퇴 및 연관 데이터 삭제
+    await userDB.deleteRelatedData(mem_id);
+    await userDB.deleteUser(mem_id);
 
-      res.clearCookie('connect.sid'); // 세션 쿠키 삭제
-
-      // 사용자 삭제
-      await userDB.deleteUser(mem_id);
-
-      res.status(200).json({ message: '회원탈퇴가 완료되었습니다.' });
-    });
+    res.status(200).json({ message: '회원탈퇴가 완료되었습니다.' });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: '서버 오류' });
+    console.error('회원탈퇴 중 서버 오류:', err);
+    res.status(500).json({ message: '서버 오류가 발생했습니다.' });
   }
 };
+
 
 // 최근 읽은 도서 가져오기
 exports.getRecentBooks = async (req, res) => {
@@ -295,3 +288,137 @@ exports.addReadingRecord = async (req, res) => {
   }
 };
 
+// userDB.js
+exports.addReadingRecord = (mem_id, book_name) => {
+  return new Promise((resolve, reject) => {
+    const getBookIdxQuery = `
+      SELECT book_idx FROM book_db WHERE book_name = ?;
+    `;
+
+    conn.query(getBookIdxQuery, [book_name], (err, results) => {
+      if (err) {
+        console.error('book_idx 가져오기 에러:', err);
+        reject(err);
+      } else if (results.length === 0) {
+        reject(new Error('해당 책을 찾을 수 없습니다.'));
+      } else {
+        const book_idx = results[0].book_idx;
+
+        // book_reading 테이블에 조회 기록 추가 및 book_views 증가
+        exports.incrementBookViews(mem_id, book_idx)
+          .then(resolve)
+          .catch(reject);
+      }
+    });
+  });
+};
+
+// 완독 도서를 가져오는 함수
+exports.getCompletedBooks = (mem_id) => {
+  return new Promise((resolve, reject) => {
+    const sql = `
+      SELECT book_db.book_name, book_db.book_cover, book_db.book_writer
+      FROM book_end
+      JOIN book_db ON book_end.book_idx = book_db.book_idx
+      WHERE book_end.mem_id = ?;
+    `;
+
+    db.query(sql, [mem_id], (err, results) => {
+      if (err) {
+        console.error('완독 도서 가져오기 에러:', err);
+        reject(new Error('완독 도서를 가져오는 중 오류가 발생했습니다.'));
+      } else {
+        resolve(results);
+      }
+    });
+  });
+};
+
+// 최근 읽은 도서 가져오기
+exports.getRecentBooks = (mem_id) => {
+  return new Promise((resolve, reject) => {
+    const query = `
+      SELECT 
+          book_db.book_name, 
+          book_db.book_writer, 
+          book_db.book_cover,
+          book_reading.book_latest
+      FROM 
+          book_reading 
+      JOIN 
+          book_db 
+      ON 
+          book_reading.book_name = book_db.book_name 
+      WHERE 
+          book_reading.mem_id = ?
+      ORDER BY 
+          book_reading.book_latest DESC
+      LIMIT 1;
+    `;
+
+    db.query(query, [mem_id], (err, results) => {
+      if (err) {
+        console.error('Error fetching recent books:', err);
+        reject(err);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+};
+
+
+exports.incrementBookViews = (mem_id, book_idx) => {
+  return new Promise((resolve, reject) => {
+    const checkIfViewedQuery = `
+      SELECT COUNT(*) AS count 
+      FROM book_reading 
+      WHERE mem_id = ? AND book_idx = ?
+    `;
+
+    conn.query(checkIfViewedQuery, [mem_id, book_idx], (err, results) => {
+      if (err) {
+        console.error('책 조회 확인 중 오류 발생:', err);
+        reject(new Error('책 조회 확인에 실패했습니다.'));
+        return;
+      }
+
+      const hasViewed = results[0].count > 0;
+
+      if (!hasViewed) {
+        // 조회하지 않았다면 조회수 증가 및 로그에 기록
+        const incrementViewsQuery = `
+          UPDATE book_db 
+          SET book_views = book_views + 1 
+          WHERE book_idx = ?
+        `;
+
+        conn.query(incrementViewsQuery, [book_idx], (err) => {
+          if (err) {
+            console.error('책 조회수 증가 중 오류 발생:', err);
+            reject(new Error('책 조회수 증가에 실패했습니다.'));
+            return;
+          }
+
+          const logViewQuery = `
+            INSERT INTO book_reading (mem_id, book_idx, book_name, book_summ, book_latest, book_rp, book_mark)
+            VALUES (?, ?, (SELECT book_name FROM book_db WHERE book_idx = ?), '', NOW(), 1, 1)
+          `;
+
+          conn.query(logViewQuery, [mem_id, book_idx, book_idx], (err) => {
+            if (err) {
+              console.error('책 조회 로그 기록 중 오류 발생:', err);
+              reject(new Error('책 조회 로그 기록에 실패했습니다.'));
+              return;
+            }
+
+            resolve();
+          });
+        });
+      } else {
+        // 이미 조회한 경우
+        resolve();
+      }
+    });
+  });
+};
