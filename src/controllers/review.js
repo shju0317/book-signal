@@ -29,6 +29,7 @@ exports.deleteReview = async (req, res) => {
   }
 };
 
+// 리뷰 등록
 exports.addReview = async (req, res) => {
   const { mem_id, book_idx, book_name, book_score, book_review } = req.body;
 

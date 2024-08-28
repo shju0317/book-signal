@@ -1,3 +1,5 @@
+require('dotenv').config({ path: './src/tts.env' });
+console.log('GOOGLE_APPLICATION_CREDENTIALS:', process.env.GOOGLE_APPLICATION_CREDENTIALS); // 환경 변수 출력 확인
 const express = require('express');
 const cors = require('cors');
 const userRoutes = require('./routes/userRoutes');
@@ -59,7 +61,7 @@ app.post('/tts', async (req, res) => {
         // 음성 데이터를 클라이언트에 스트림으로 전송
         res.set({
             'Content-Type': 'audio/mp3',
-            'Content-Disposition': 'inline', // 다운로드가 아닌 바로 재생
+            'Content-Disposition': 'inline', // 바로 재생
         });
 
         res.send(audioContent);
@@ -68,9 +70,7 @@ app.post('/tts', async (req, res) => {
     }
 });
 
-
-
-app.use('/output.mp3', express.static(path.join(__dirname, 'output.mp3')));
+;
 
 // eye-gaze
 // Cross-Origin Isolation 헤더 설정

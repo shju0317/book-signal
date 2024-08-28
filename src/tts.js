@@ -1,11 +1,12 @@
+require('dotenv').config(); // dotenv 패키지를 로드 환경변수 사용
 const textToSpeech = require('@google-cloud/text-to-speech');
 const fs = require('fs');
 const util = require('util');
 const path = require('path');
 
-// Google Cloud TTS 클라이언트 생성
+// Google Cloud TTS 클라이언트 생성 (환경변수를 사용하여 JSON 키 파일 경로 설정)
 const client = new textToSpeech.TextToSpeechClient({
-    keyFilename: path.join(__dirname, 'config', 'project-tts-433810-c08f02942439.json'),
+    keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
   });
   
 
@@ -19,14 +20,13 @@ async function convertTextToSpeech(text) {
 
 
   try {
-    // TTS API 호출
     const [response] = await client.synthesizeSpeech(request);
-    // 음성 데이터를 바로 반환 (파일 저장하지 않음)
+    // 음성 데이터 (response.audioContent)를 그대로 반환
     return response.audioContent;
-  } catch (err) {
+} catch (err) {
     console.error('ERROR:', err);
-    throw err;
-  }
+    throw err;  // 에러를 호출자에게 전달
+}
 }
 
 module.exports = { convertTextToSpeech };
