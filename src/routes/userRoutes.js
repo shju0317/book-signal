@@ -82,7 +82,18 @@ router.get('/wishlist-books', userController.getWishlistBooks);
 router.get('/completed-books', userController.getCompletedBooks);
 
 // 독서 기록을 추가하는 라우트
-router.post('/add-reading-record', userController.addReadingRecord);
+router.post('/addReadingRecord', userController.addReadingRecord);
+
+router.post('/increment-book-views', async (req, res) => {
+  const { mem_id, book_idx } = req.body;
+  try {
+    await userController.incrementBookViews(mem_id, book_idx);
+    res.status(200).send({ message: 'Book views updated successfully' });
+  } catch (error) {
+    console.error('Error updating book views:', error);
+    res.status(500).send({ error: 'Error updating book views' });
+  }
+});
 
 module.exports = router;
 

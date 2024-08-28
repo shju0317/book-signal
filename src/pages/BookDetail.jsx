@@ -80,7 +80,7 @@ const BookDetail = () => {
 
     try {
       // 독서 기록을 데이터베이스에 추가
-      await axios.post('http://localhost:3001/add-reading-record', { mem_id: memId, book_name: book.book_name });
+      await axios.post('http://localhost:3001/addReadingRecord', { mem_id: memId, book_name: book.book_name });
 
       // 책의 경로를 가져와서 리더 페이지로 이동
       const bookNameWithoutSpaces = book.book_name.replace(/\s+/g, '');
@@ -96,6 +96,7 @@ const BookDetail = () => {
       alert('책을 읽는 중에 문제가 발생했습니다.');
     }
 
+    
   };
 
 

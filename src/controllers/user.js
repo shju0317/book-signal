@@ -42,7 +42,7 @@ exports.join = async (req, res) => {
 
     // 회원가입이 완료된 후 기본 세팅값을 설정
     const settingResult = await userDB.createUserSetting(mem_id);
-    if (!settingReslt) {
+    if (!settingResult) {
       throw new Error('기본 세팅값 설정 중 오류가 발생했습니다.');
     }
 
@@ -294,3 +294,4 @@ exports.addReadingRecord = async (req, res) => {
     res.status(500).json({ message: '독서 기록을 추가하는 중 오류가 발생했습니다.', error: error.message });
   }
 };
+

@@ -126,38 +126,6 @@ exports.updatePassword = (mem_id, newPw) => {
   });
 };
 
-// 최근 읽은 도서 가져오기
-exports.getRecentBooks = (mem_id) => {
-  return new Promise((resolve, reject) => {
-    const query = `
-      SELECT 
-          book_db.book_name, 
-          book_db.book_writer, 
-          book_db.book_cover 
-      FROM 
-          book_reading 
-      JOIN 
-          book_db 
-      ON 
-          book_reading.book_name = book_db.book_name 
-      WHERE 
-          book_reading.mem_id = ?
-      ORDER BY 
-          book_reading.book_latest DESC;
-          ;
-    `;
-
-    db.query(query, [mem_id], (err, results) => {
-      if (err) {
-        console.error('Error fetching recent books:', err);
-        reject(err);
-      } else {
-        resolve(results);
-      }
-    });
-  });
-};
-
 // 찜한 도서를 가져오는 함수
 exports.getWishlistBooks = (mem_id) => {
   return new Promise((resolve, reject) => {
@@ -178,6 +146,43 @@ exports.getWishlistBooks = (mem_id) => {
     });
   });
 };
+
+// 최근 읽은 도서 가져오기
+exports.getRecentBooks = (mem_id) => {
+  return new Promise((resolve, reject) => {
+    const query = `
+      SELECT 
+          book_db.book_name, 
+          book_db.book_writer, 
+          book_db.book_cover,
+          MAX(book_reading.book_latest) AS book_latest
+      FROM 
+          book_reading 
+      JOIN 
+          book_db 
+      ON 
+          book_reading.book_name = book_db.book_name 
+      WHERE 
+          book_reading.mem_id = ?
+      GROUP BY 
+          book_db.book_name, 
+          book_db.book_writer, 
+          book_db.book_cover
+      ORDER BY 
+          book_latest DESC
+    `;
+
+    db.query(query, [mem_id], (err, results) => {
+      if (err) {
+        console.error('Error fetching recent books:', err);
+        reject(err);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+};
+
 
 // 완독 도서를 가져오는 함수
 exports.getCompletedBooks = (mem_id) => {
@@ -200,7 +205,7 @@ exports.getCompletedBooks = (mem_id) => {
   });
 };
 
-// book_reading 테이블에 새로운 독서 기록을 추가하는 함수
+// 독서 기록을 추가하는 함수
 exports.addReadingRecord = (mem_id, book_name) => {
   return new Promise((resolve, reject) => {
     const getBookIdxQuery = `
@@ -216,44 +221,70 @@ exports.addReadingRecord = (mem_id, book_name) => {
       } else {
         const book_idx = results[0].book_idx;
 
-        const checkExistingRecordQuery = `
-          SELECT * FROM book_reading WHERE mem_id = ? AND book_idx = ?;
+        // book_reading 테이블에 조회 기록 추가 및 book_views 증가
+        exports.incrementBookViews(mem_id, book_idx)
+          .then(resolve)
+          .catch(reject);
+      }
+    });
+  });
+};
+
+// 책 조회수 증가 및 로그 기록
+exports.incrementBookViews = (mem_id, book_idx) => {
+  return new Promise((resolve, reject) => {
+    const checkIfViewedQuery = `
+      SELECT COUNT(*) AS count 
+      FROM book_reading 
+      WHERE mem_id = ? AND book_idx = ?
+    `;
+
+    db.query(checkIfViewedQuery, [mem_id, book_idx], (err, results) => {
+      if (err) {
+        console.error('책 조회 확인 중 오류 발생:', err);
+        reject(new Error('책 조회 확인에 실패했습니다.'));
+        return;
+      }
+
+      const hasViewed = results[0].count > 0;
+
+      const incrementViewsQuery = hasViewed ? Promise.resolve() : new Promise((resolve, reject) => {
+        // 조회수가 증가되지 않았을 때만 book_views 증가
+        const updateViewsQuery = `
+          UPDATE book_db 
+          SET book_views = book_views + 1 
+          WHERE book_idx = ?
         `;
 
-        db.query(checkExistingRecordQuery, [mem_id, book_idx], (err, existingRecords) => {
+        db.query(updateViewsQuery, [book_idx], (err) => {
           if (err) {
-            console.error('기존 독서 기록 확인 에러:', err);
-            reject(err);
-          } else if (existingRecords.length > 0) {
-            const updateBookLatestQuery = `
-              UPDATE book_reading SET book_latest = NOW() WHERE mem_id = ? AND book_idx = ?;
-            `;
-
-            db.query(updateBookLatestQuery, [mem_id, book_idx], (err, result) => {
-              if (err) {
-                console.error('book_latest 업데이트 에러:', err);
-                reject(err);
-              } else {
-                resolve(result);
-              }
-            });
+            console.error('책 조회수 증가 중 오류 발생:', err);
+            reject(new Error('책 조회수 증가에 실패했습니다.'));
           } else {
-            const insertReadingQuery = `
-              INSERT INTO book_reading (mem_id, book_idx, book_name, book_summ, book_latest, book_rp, book_mark)
-              VALUES (?, ?, ?, '', NOW(), 1, 1);
-            `;
-
-            db.query(insertReadingQuery, [mem_id, book_idx, book_name], (err, result) => {
-              if (err) {
-                console.error('독서 기록 삽입 에러:', err);
-                reject(err);
-              } else {
-                resolve(result);
-              }
-            });
+            resolve();
           }
         });
-      }
+      });
+
+      // book_views 증가 이후 또는 이미 조회된 경우에만 logViewQuery 실행
+      incrementViewsQuery
+        .then(() => {
+          const logViewQuery = `
+            INSERT INTO book_reading (mem_id, book_idx, book_name, book_summ, book_latest, book_rp, book_mark)
+            VALUES (?, ?, (SELECT book_name FROM book_db WHERE book_idx = ?), '', NOW(), 1, 1)
+          `;
+
+          db.query(logViewQuery, [mem_id, book_idx, book_idx], (err) => {
+            if (err) {
+              console.error('책 조회 로그 기록 중 오류 발생:', err);
+              reject(new Error('책 조회 로그 기록에 실패했습니다.'));
+              return;
+            }
+
+            resolve();
+          });
+        })
+        .catch(reject);
     });
   });
 };

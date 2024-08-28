@@ -171,3 +171,9 @@ exports.removeWishlist = (mem_id, book_idx) => {
     });
   });
 };
+
+
+
+
+
+
