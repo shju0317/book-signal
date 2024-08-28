@@ -24,7 +24,8 @@ import SearchReport from './pages/searchReport';
 import RankingBookList from './pages/RankingBookList';
 // import EyeGazeTest from './pages/EyeGazeTest';
 import EyeGaze from './pages/EyeGaze';
-import Reader from './pages/Reader';
+import ReaderWrapper from '../src/containers/Reader';
+import Reader from 'components/Reader';
 
 // 로그인 상태를 관리하기 위한 Context 생성
 export const AuthContext = createContext();
@@ -51,9 +52,11 @@ function App() {
             <Route path="/ranking/best" element={<RankingBookList />} />
             <Route path="/ranking/new" element={<RankingBookList />} />
             <Route path="/detail" element={<BookDetail />} />
+            <Route path="/reader" element={<Reader />} />
+
           </Route>
           
-          <Route path="/reader" element={<Reader />} />
+          <Route path="/readerwrapper" element={<ReaderWrapper />} />
           <Route path='/login' element={<Login />} />
           <Route path='/join' element={<Join />} />
           <Route path="/findid" element={<FindId />} />

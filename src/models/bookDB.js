@@ -1,7 +1,4 @@
-const { log } = require('console');
 const conn = require('../config/database');
-const fs = require('fs');
-const path = require('path');
 
 // 도서 정보 검색 함수
 exports.searchBooks = (searchQuery) => {
@@ -19,12 +16,10 @@ exports.searchBooks = (searchQuery) => {
             const updatedResults = results.map(book => {
                 // book_cover가 URI 인코딩된 상태라면 디코딩
                 book.book_cover = decodeURIComponent(book.book_cover);
-                console.log('여기야?', book.book_cover);
 
                 if (book.book_cover) {
                     // 파일이 존재할 경우 URL 경로 설정
                     book.book_cover = `images/${book.book_cover}`;
-                    console.log('여기네', book.book_cover);
                 } else {
                     // 파일이 존재하지 않을 경우 기본 이미지 설정
                     book.book_cover = 'default.jpg'; // 기본 이미지 경로 설정
@@ -57,9 +52,9 @@ const getBooks = (orderBy, limit = 12) => {
         const updatedResults = results.map(book => {
           book.book_cover = decodeURIComponent(book.book_cover);
           if (book.book_cover) {
-            book.book_cover = `images/${book.book_cover}`;
+            book.book_cover = `/images/${book.book_cover}`;
           } else {
-            book.book_cover = 'images/default.jpg';
+            book.book_cover = '/images/default.jpg';
           }
           return book;
         });
@@ -135,5 +130,25 @@ exports.removeWishlist = (mem_id, book_idx) => {
 
           resolve({ message: '도서가 찜 목록에서 제거되었습니다.' });
       });
+  });
+};
+
+/******************** 시선 추적 시간 저장 ********************/
+exports.saveGazeTime = (book_idx, mem_id, book_text, gaze_duration) => {
+  return new Promise((resolve, reject) => {
+    const sql = `
+      INSERT INTO book_eyegaze (book_idx, mem_id, book_text, gaze_duration, gaze_recorded_at)
+      VALUES (?, ?, ?, ?, NOW())
+    `;
+
+    conn.query(sql, [book_idx, mem_id, book_text, gaze_duration], (err, result) => {
+      if (err) {
+        console.error('Error saving gaze time:', err);
+        reject(err);
+        return;
+      }
+
+      resolve(result);
+    });
   });
 };

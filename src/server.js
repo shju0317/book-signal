@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const userRoutes = require('./routes/userRoutes');
+const gazeRoutes = require('./routes/gazeRoutes');
 const searchRoutes = require('./routes/searchRoutes');
 const rankingRoutes = require('./routes/rankingRoutes');
 const wishListRoutes = require('./routes/wishListRoutes');
@@ -42,14 +43,15 @@ app.get('/check-session', (req, res) => {
 });
 
 app.use('/', userRoutes);
+app.use('/gaze', gazeRoutes);
 app.use('/api', searchRoutes);
 app.use('/ranking', rankingRoutes);
 app.use('/wishlist', wishListRoutes);
 
 // eye-gaze
 // Cross-Origin Isolation 헤더 설정
-app.use(helmet.crossOriginOpenerPolicy({ policy: 'same-origin' }));
-app.use(helmet.crossOriginEmbedderPolicy({ policy: 'require-corp' }));
+// app.use(helmet.crossOriginOpenerPolicy({ policy: 'same-origin' }));
+// app.use(helmet.crossOriginEmbedderPolicy({ policy: 'require-corp' }));
   
 // 정적 파일 서빙
 app.use(express.static('public'));

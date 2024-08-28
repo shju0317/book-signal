@@ -4,8 +4,9 @@ import * as styles from 'lib/styles/styles'
 
 const ViewerWrapper = styled.div`
   position: relative;
-  width: 100vw;
-  height: 100vh;
+  // width: 100%;
+  width: 70vw;
+  height: 80vh;
   overflow-x: hidden;
   display: flex;
   flex-direction: column;

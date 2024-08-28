@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 const SlideShow = ({ slides }) => {
-  const [currentIndex, setCurrentIndex] = useState(1); 
+  const [currentIndex, setCurrentIndex] = useState(1);
   const [isAnimating, setIsAnimating] = useState(false);
   const slideRef = useRef();
 
@@ -64,35 +64,40 @@ const SlideShow = ({ slides }) => {
   }, [currentIndex, isAnimating]);
 
   const slidesWithClones = [
-    slides[slides.length - 1], 
+    slides[slides.length - 1],
     ...slides,
-    slides[0], 
+    slides[0],
   ];
 
   return (
-    <div className="relative h-72 w-full rounded-lg overflow-hidden">
+    <div className="relative h-72 w-full rounded-lg">
       <div
         ref={slideRef}
         className="absolute inset-0 flex"
         style={{
           transform: `translateX(-${currentIndex * 100}%)`,
+          transition: 'transform 500ms ease-in-out',
         }}
       >
         {slidesWithClones.map((slide, index) => (
-          <div 
-            key={index} 
-            className="w-full flex-shrink-0" 
-            style={{ 
-              background: slide.background,  // 인라인 스타일로 배경색 설정
-              display: 'flex', 
-              justifyContent: 'center', 
-              alignItems: 'center',
-              height: '100%' 
-            }}>
-            <div className="text-center text-white">
-              <h2 className="text-xl font-bold">{slide.title}</h2>
-              <p className="mt-2">{slide.description}</p>
-              <img src={slide.image} alt={slide.title} className="mt-4 rounded shadow-lg w-32 mx-auto" />
+          <div
+            key={index}
+            className="w-full flex-shrink-0 flex items-center justify-between px-40"
+            style={{
+              background: slide.background,
+              height: '100%'
+            }}
+          >
+            <div className="flex-1  text-left">
+              <h2 className="text-xl font-bold text-white">{slide.title}</h2>
+              <p className="mt-2 text-white">{slide.description}</p>
+            </div>
+            <div className="flex-shrink-0 relative" style={{ top: '40px' }}> {/* top을 사용하여 위치 조정 */}
+              <img 
+                src={slide.image}
+                alt={slide.title}
+                className="rounded shadow-lg w-64 h-80 object-contain"
+              />
             </div>
           </div>
         ))}
@@ -100,7 +105,7 @@ const SlideShow = ({ slides }) => {
 
       <button
         onClick={goToPrevious}
-        className="absolute top-1/2 left-0 transform -translate-y-1/2 p-3 text-white"
+        className="absolute top-1/2 left-0 transform -translate-y-1/2 p-3 bg-white bg-opacity-50 rounded-full text-gray-800"
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
@@ -109,13 +114,15 @@ const SlideShow = ({ slides }) => {
 
       <button
         onClick={goToNext}
-        className="absolute top-1/2 right-0 transform -translate-y-1/2 p-3 text-white"
+        className="absolute top-1/2 right-0 transform -translate-y-1/2 p-3 bg-white bg-opacity-50 rounded-full text-gray-800"
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
         </svg>
       </button>
     </div>
+
+
   );
 };
 
