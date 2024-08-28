@@ -263,3 +263,21 @@ exports.addReadingRecord = async (req, res) => {
     res.status(500).json({ message: '독서 기록을 추가하는 중 오류가 발생했습니다.', error: error.message });
   }
 };
+
+// 사용자 정보 가져오기
+exports.getUserInfo = async (req, res) => {
+  const mem_id = req.params.mem_id;
+
+  try {
+    const userInfo = await userDB.getUser(mem_id);
+    if (userInfo.length === 0) {
+      return res.status(404).json({ message: '사용자 정보를 찾을 수 없습니다.' });
+    }
+    res.status(200).json(userInfo[0]);
+  } catch (err) {
+    console.error('사용자 정보 가져오기 오류:', err);
+    res.status(500).json({ message: '서버 오류' });
+  }
+};
+
+

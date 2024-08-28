@@ -13,19 +13,21 @@ const MyPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get('http://localhost:3001/check-session', { withCredentials: true })
-      .then(response => {
-        if (response.data.user) {
-          setUserInfo(response.data.user);
-          return axios.get(`http://localhost:3001/review/${response.data.user.mem_id}`, { withCredentials: true });
+    // 사용자 정보와 리뷰 정보를 가져오는 함수
+    const fetchData = async () => {
+      try {
+        const sessionResponse = await axios.get('http://localhost:3001/check-session', { withCredentials: true });
+        if (sessionResponse.data.user) {
+          const userInfoResponse = await axios.get(`http://localhost:3001/user-info/${sessionResponse.data.user.mem_id}`, { withCredentials: true });
+          console.log('사용자 정보:', userInfoResponse.data);
+          setUserInfo(userInfoResponse.data);
+
+          const reviewsResponse = await axios.get(`http://localhost:3001/review/${sessionResponse.data.user.mem_id}`, { withCredentials: true });
+          setReviews(reviewsResponse.data);
         } else {
           throw new Error('로그인되지 않음');
         }
-      })
-      .then(response => {
-        setReviews(response.data);
-      })
-      .catch(error => {
+      } catch (error) {
         if (error.response && error.response.status === 401) {
           alert('로그인이 필요합니다.');
           navigate('/login');
@@ -34,37 +36,36 @@ const MyPage = () => {
         } else {
           console.error('데이터를 가져오는데 실패했습니다.', error);
         }
-      });
+      }
+    };
+
+    fetchData();
   }, [navigate]);
 
   const handleDeleteUser = () => {
     navigate('/deleteuser'); // 회원탈퇴 페이지로 이동
   };
 
-  const handleDeleteReview = (reviewId) => {
+  const handleDeleteReview = async (reviewId) => {
     const mem_id = userInfo.mem_id;
 
-    axios.delete(`http://localhost:3001/review/${reviewId}`, {
-      data: { mem_id },
-      withCredentials: true
-    })
-      .then(() => {
-        setReviews(prevReviews => prevReviews.filter(review => review.end_idx !== reviewId));
-
-        // 최신 유저 데이터 다시 가져오기
-        return axios.get('http://localhost:3001/check-session', { withCredentials: true });
-      })
-      .then(response => {
-        if (response.data.user) {
-          setUserInfo(response.data.user); // 최신 포인트 반영
-        }
-        alert('리뷰가 성공적으로 삭제되었습니다.');
-      })
-      .catch(error => {
-        console.error('리뷰 삭제에 실패했습니다.', error);
+    try {
+      await axios.delete(`http://localhost:3001/review/${reviewId}`, {
+        data: { mem_id },
+        withCredentials: true
       });
-  };
+      setReviews(prevReviews => prevReviews.filter(review => review.end_idx !== reviewId));
 
+      // 최신 유저 데이터 다시 가져오기
+      const updatedUserInfo = await axios.get('http://localhost:3001/user-info/' + mem_id, { withCredentials: true });
+      if (updatedUserInfo.data) {
+        setUserInfo(updatedUserInfo.data); // 최신 포인트 반영
+      }
+      alert('리뷰가 성공적으로 삭제되었습니다.');
+    } catch (error) {
+      console.error('리뷰 삭제에 실패했습니다.', error);
+    }
+  };
 
   if (!userInfo) {
     return <p>로딩 중...</p>;
@@ -82,12 +83,12 @@ const MyPage = () => {
         <br />
         <div className='info-group'>
           <MdEmail className='icon' />
-          <p>이메일: {userInfo.email}</p>
+          <p>이메일: {userInfo.mem_email}</p>
         </div>
         <br />
         <div className='info-group'>
           <PiHandCoinsDuotone className='icon' />
-          <p>포인트: <span className="points">{userInfo.point}</span>점</p>
+          <p>포인트: <span className="points">{userInfo.mem_point}</span>점</p>
         </div>
         <br />
         <button onClick={handleDeleteUser}>회원탈퇴</button>
@@ -106,7 +107,7 @@ const MyPage = () => {
           <div className="reviews-list">
             {reviews.map((review) => (
               <div key={review.end_idx} className="review-item">
-                <img src={`/images/${review.book_cover}`} alt={review.book_name} className="book-cover" /> {/* 도서 이미지 */}
+                <img src={`/images/${review.book_cover}`} alt={review.book_name} className="book-cover" />
                 <div className="review-content">
                   <h4>{review.book_name}</h4>
                   <p>★ {review.book_score}</p>
