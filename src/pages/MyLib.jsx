@@ -84,7 +84,7 @@ const MyLib = () => {
             {recentBooks.length > 0 ? (
               recentBooks.map((book, index) => (
                 <div className="book-card" key={index}>
-                  <img src={`/images/${book.book_cover}`} alt={`${book.book_name} Cover`} className="book-cover" />
+                  <img src={`/images/${book.book_cover}`} alt={`${book.book_name} Cover`} className="mylib-book-cover" />
                   <div className="book-info">
                     <p className="book-title">{book.book_name}</p>
                     <p className="book-author">{book.book_writer}</p>
@@ -102,7 +102,7 @@ const MyLib = () => {
             {wishlistBooks.length > 0 ? (
               wishlistBooks.map((book, index) => (
                 <div className="book-card" key={index}>
-                  <img src={`/images/${book.book_cover}`} alt={`${book.book_name} Cover`} className="book-cover" />
+                  <img src={`/images/${book.book_cover}`} alt={`${book.book_name} Cover`} className="mylib-book-cover" />
                   <div className="book-info">
                     <p className="book-title">{book.book_name}</p>
                     <p className="book-author">{book.book_writer}</p>

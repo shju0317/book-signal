@@ -161,7 +161,7 @@ exports.getRecentBooks = (mem_id) => {
       JOIN 
           book_db 
       ON 
-          book_reading.book_name = book_db.book_name 
+          book_reading.book_idx = book_db.book_idx
       WHERE 
           book_reading.mem_id = ?
       GROUP BY 
