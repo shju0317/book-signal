@@ -68,13 +68,9 @@ const MyLib = () => {
     setActiveTab(tabName);
   };
 
-  const handleBookClick = (book, image) => {
-    if (activeTab === 'bookSignal') {
-      setSelectedBook(book);
-      setBackgroundImage(image);
-      setIsModalOpen(true);
-    }
-  };
+  const handleBookClick = (book) => {
+    navigate(`/detail`, { state: { book } }); // 선택한 책의 전체 객체를 상태로 전달하여 이동
+  };  
 
   const renderContent = () => {
     switch (activeTab) {
@@ -83,8 +79,8 @@ const MyLib = () => {
           <div className="books-grid">
             {recentBooks.length > 0 ? (
               recentBooks.map((book, index) => (
-                <div className="book-card" key={index}>
-                  <img src={`/images/${book.book_cover}`} alt={`${book.book_name} Cover`} className="mylib-book-cover" />
+                <div className="book-card" key={index} >
+                  <img src={book.book_cover} alt={`${book.book_name} Cover`} className="mylib-book-cover" />
                   <div className="book-info">
                     <p className="book-title">{book.book_name}</p>
                     <p className="book-author">{book.book_writer}</p>
@@ -101,8 +97,8 @@ const MyLib = () => {
           <div className="books-grid">
             {wishlistBooks.length > 0 ? (
               wishlistBooks.map((book, index) => (
-                <div className="book-card" key={index}>
-                  <img src={`/images/${book.book_cover}`} alt={`${book.book_name} Cover`} className="mylib-book-cover" />
+                <div className="book-card" key={index} onClick={() => handleBookClick(book)}>
+                  <img src={book.book_cover} alt={`${book.book_name} Cover`} className="mylib-book-cover" />
                   <div className="book-info">
                     <p className="book-title">{book.book_name}</p>
                     <p className="book-author">{book.book_writer}</p>
@@ -114,6 +110,7 @@ const MyLib = () => {
             )}
           </div>
         );
+
       case 'bookSignal':
         return (
           <div className="signal-grid">
@@ -154,8 +151,8 @@ const MyLib = () => {
           <div className="books-grid">
             {completedBooks.length > 0 ? (
               completedBooks.map((book, index) => (
-                <div className="book-card" key={index}>
-                  <img src={`/images/${book.book_cover}`} alt={`${book.book_name} Cover`} className="mylib-book-cover" />
+                <div className="book-card" key={index} onClick={() => handleBookClick(book)}>
+                  <img src={book.book_cover} alt={`${book.book_name} Cover`} className="mylib-book-cover" />
                   <div className="book-info">
                     <p className="book-title">{book.book_name}</p>
                     <p className="book-author">{book.book_writer}</p>
@@ -172,7 +169,6 @@ const MyLib = () => {
     }
   };
 
-  
   return (
     <div className="mylib-container">
       <h1 className="mylib-title">{userInfo?.mem_nick} 님의 서재</h1>

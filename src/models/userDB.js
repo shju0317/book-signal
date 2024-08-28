@@ -1,18 +1,21 @@
 const db = require('../config/database'); // 데이터베이스 연결 설정
 
-// 회원가입                     
+// 회원가입
 exports.join = (data) => {
   return new Promise((resolve, reject) => {
-    db.query(`INSERT INTO member (mem_id, mem_pw, mem_name, mem_nick, mem_birth, mem_mail, mem_point, enroll_at) VALUES (?, ?, ?, ?, ?, ?, 0, NOW())`,
+    db.query(
+      `INSERT INTO member (mem_id, mem_pw, mem_name, mem_nick, mem_birth, mem_mail, mem_point, enroll_at) 
+       VALUES (?, ?, ?, ?, ?, ?, 0, NOW())`,
       [data.mem_id, data.mem_pw, data.mem_name, data.mem_nick, data.mem_birth, data.mem_mail],
       (err, result) => {
         if (err) {
-          console.error('Database Error:', err); // 에러 메시지 출력
+          console.error('Database Error:', err);
           reject(err);
         } else {
           resolve(result);
         }
-      });
+      }
+    );
   });
 };
 
@@ -24,7 +27,7 @@ exports.createUserSetting = (mem_id) => {
       [mem_id],
       (err, result) => {
         if (err) {
-          console.error('Database Error:', err); // 에러 메시지 출력
+          console.error('Database Error:', err);
           reject(err);
         } else {
           resolve(result);
@@ -38,8 +41,11 @@ exports.createUserSetting = (mem_id) => {
 exports.getUser = (mem_id) => {
   return new Promise((resolve, reject) => {
     db.query(`SELECT * FROM member WHERE mem_id = ?`, [mem_id], (err, result) => {
-      if (err) reject(err);
-      else resolve(result);
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
     });
   });
 };
@@ -48,8 +54,11 @@ exports.getUser = (mem_id) => {
 exports.getUserByEmail = (mem_email) => {
   return new Promise((resolve, reject) => {
     db.query(`SELECT * FROM member WHERE mem_mail = ?`, [mem_email], (err, result) => {
-      if (err) reject(err);
-      else resolve(result);
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
     });
   });
 };
@@ -58,8 +67,11 @@ exports.getUserByEmail = (mem_email) => {
 exports.getUserByNick = (mem_nick) => {
   return new Promise((resolve, reject) => {
     db.query(`SELECT * FROM member WHERE mem_nick = ?`, [mem_nick], (err, result) => {
-      if (err) reject(err);
-      else resolve(result);
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
     });
   });
 };
@@ -68,28 +80,33 @@ exports.getUserByNick = (mem_nick) => {
 exports.getUserId = (mem_id) => {
   return new Promise((resolve, reject) => {
     db.query(`SELECT * FROM member WHERE mem_id = ?`, [mem_id], (err, result) => {
-      if (err) reject(err);
-      else resolve(result);
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
     });
   });
 };
 
-// 아이디 찾기 (이메일,이름)
+// 아이디 찾기 (이메일, 이름)
 exports.getUserByEmailAndName = (mem_email, mem_name) => {
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT mem_id FROM member WHERE mem_mail = ? AND mem_name = ?`,
       [mem_email, mem_name],
       (err, result) => {
-        if (err) reject(err);
-        else resolve(result);
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
       }
     );
   });
 };
 
-// 회원탈퇴
-// 연관된 데이터 삭제
+// 회원탈퇴 - 연관된 데이터 삭제
 exports.deleteRelatedData = (mem_id) => {
   return new Promise((resolve, reject) => {
     const queries = [
@@ -101,19 +118,21 @@ exports.deleteRelatedData = (mem_id) => {
       `DELETE FROM setting WHERE mem_id = ?`
     ];
 
-    Promise.all(queries.map(query => {
-      return new Promise((resolve, reject) => {
-        db.query(query, [mem_id], (err, result) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(result);
-          }
+    Promise.all(
+      queries.map((query) => {
+        return new Promise((resolve, reject) => {
+          db.query(query, [mem_id], (err, result) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(result);
+            }
+          });
         });
-      });
-    }))
+      })
+    )
       .then(() => resolve())
-      .catch(err => {
+      .catch((err) => {
         console.error('관련 데이터 삭제 중 오류 발생:', err);
         reject(err);
       });
@@ -134,16 +153,18 @@ exports.deleteUser = (mem_id) => {
   });
 };
 
-
-// 비밀번호 찾기 (이메일,아이디)
+// 비밀번호 찾기 (이메일, 아이디)
 exports.getUserByEmailAndId = (mem_email, mem_id) => {
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT * FROM member WHERE mem_mail = ? AND mem_id = ?`,
       [mem_email, mem_id],
       (err, result) => {
-        if (err) reject(err);
-        else resolve(result);
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
       }
     );
   });
@@ -156,8 +177,11 @@ exports.updatePassword = (mem_id, newPw) => {
       `UPDATE member SET mem_pw = ? WHERE mem_id = ?`,
       [newPw, mem_id],
       (err, result) => {
-        if (err) reject(err);
-        else resolve(result);
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
       }
     );
   });
@@ -167,7 +191,7 @@ exports.updatePassword = (mem_id, newPw) => {
 exports.getWishlistBooks = (mem_id) => {
   return new Promise((resolve, reject) => {
     const sql = `
-      SELECT book_db.book_name, book_db.book_cover, book_db.book_writer
+      SELECT book_db.*
       FROM book_wishlist
       JOIN book_db ON book_wishlist.book_idx = book_db.book_idx
       WHERE book_wishlist.mem_id = ?;
@@ -178,20 +202,28 @@ exports.getWishlistBooks = (mem_id) => {
         console.error('찜한 도서 가져오기 에러:', err);
         reject(new Error('찜한 도서를 가져오는 중 오류가 발생했습니다.'));
       } else {
-        resolve(results);
+        const updatedResults = results.map(book => {
+          book.book_cover = decodeURIComponent(book.book_cover);
+          if (book.book_cover) {
+            book.book_cover = `/images/${book.book_cover}`;
+          } else {
+            book.book_cover = '/images/default.jpg';
+          }
+          return book;
+        });
+        resolve(updatedResults);
       }
     });
   });
 };
+
 
 // 최근 읽은 도서 가져오기
 exports.getRecentBooks = (mem_id) => {
   return new Promise((resolve, reject) => {
     const query = `
       SELECT 
-          book_db.book_name, 
-          book_db.book_writer, 
-          book_db.book_cover,
+          book_db.*,
           MAX(book_reading.book_latest) AS book_latest
       FROM 
           book_reading 
@@ -202,9 +234,7 @@ exports.getRecentBooks = (mem_id) => {
       WHERE 
           book_reading.mem_id = ?
       GROUP BY 
-          book_db.book_name, 
-          book_db.book_writer, 
-          book_db.book_cover
+          book_db.book_idx
       ORDER BY 
           book_latest DESC
     `;
@@ -214,18 +244,26 @@ exports.getRecentBooks = (mem_id) => {
         console.error('Error fetching recent books:', err);
         reject(err);
       } else {
-        resolve(results);
+        const updatedResults = results.map(book => {
+          book.book_cover = decodeURIComponent(book.book_cover);
+          if (book.book_cover) {
+            book.book_cover = `/images/${book.book_cover}`;
+          } else {
+            book.book_cover = '/images/default.jpg';
+          }
+          return book;
+        });
+        resolve(updatedResults);
       }
     });
   });
 };
 
-
 // 완독 도서를 가져오는 함수
 exports.getCompletedBooks = (mem_id) => {
   return new Promise((resolve, reject) => {
     const sql = `
-      SELECT book_db.book_name, book_db.book_cover, book_db.book_writer
+      SELECT book_db.*
       FROM book_end
       JOIN book_db ON book_end.book_idx = book_db.book_idx
       WHERE book_end.mem_id = ?;
@@ -236,11 +274,21 @@ exports.getCompletedBooks = (mem_id) => {
         console.error('완독 도서 가져오기 에러:', err);
         reject(new Error('완독 도서를 가져오는 중 오류가 발생했습니다.'));
       } else {
-        resolve(results);
+        const updatedResults = results.map(book => {
+          book.book_cover = decodeURIComponent(book.book_cover);
+          if (book.book_cover) {
+            book.book_cover = `/images/${book.book_cover}`;
+          } else {
+            book.book_cover = '/images/default.jpg';
+          }
+          return book;
+        });
+        resolve(updatedResults);
       }
     });
   });
 };
+
 
 // 독서 기록을 추가하는 함수
 exports.addReadingRecord = (mem_id, book_name) => {
@@ -285,25 +333,25 @@ exports.incrementBookViews = (mem_id, book_idx) => {
 
       const hasViewed = results[0].count > 0;
 
-      const incrementViewsQuery = hasViewed ? Promise.resolve() : new Promise((resolve, reject) => {
-        // 조회수가 증가되지 않았을 때만 book_views 증가
-        const updateViewsQuery = `
-          UPDATE book_db 
-          SET book_views = book_views + 1 
-          WHERE book_idx = ?
-        `;
+      const incrementViewsQuery = hasViewed
+        ? Promise.resolve()
+        : new Promise((resolve, reject) => {
+          const updateViewsQuery = `
+              UPDATE book_db 
+              SET book_views = book_views + 1 
+              WHERE book_idx = ?
+            `;
 
-        db.query(updateViewsQuery, [book_idx], (err) => {
-          if (err) {
-            console.error('책 조회수 증가 중 오류 발생:', err);
-            reject(new Error('책 조회수 증가에 실패했습니다.'));
-          } else {
-            resolve();
-          }
+          db.query(updateViewsQuery, [book_idx], (err) => {
+            if (err) {
+              console.error('책 조회수 증가 중 오류 발생:', err);
+              reject(new Error('책 조회수 증가에 실패했습니다.'));
+            } else {
+              resolve();
+            }
+          });
         });
-      });
 
-      // book_views 증가 이후 또는 이미 조회된 경우에만 logViewQuery 실행
       incrementViewsQuery
         .then(() => {
           const logViewQuery = `
@@ -315,14 +363,12 @@ exports.incrementBookViews = (mem_id, book_idx) => {
             if (err) {
               console.error('책 조회 로그 기록 중 오류 발생:', err);
               reject(new Error('책 조회 로그 기록에 실패했습니다.'));
-              return;
+            } else {
+              resolve();
             }
-
-            resolve();
           });
         })
         .catch(reject);
     });
   });
 };
-
