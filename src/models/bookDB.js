@@ -67,44 +67,42 @@ const getBooks = (orderBy, limit = 12) => {
         ORDER BY ${orderBy}
         LIMIT ${limit}
       `;
-  
-      conn.query(sql, (err, results) => {
-        if (err) {
-          console.error('DB 쿼리 실행 중 오류 발생:', err);
-          reject(err);
-          return;
-        }
-        resolve(results);
-        const updatedResults = results.map(book => {
-          book.book_cover = decodeURIComponent(book.book_cover);
-          if (book.book_cover) {
-            book.book_cover = `/images/${book.book_cover}`;
-          } else {
-            book.book_cover = '/images/default.jpg';
-          }
-          return book;
-        });
-        resolve(updatedResults);
-      });
 
+    conn.query(sql, (err, results) => {
+      if (err) {
+        console.error('DB 쿼리 실행 중 오류 발생:', err);
+        reject(err);
+        return;
+      }
+      resolve(results);
+      const updatedResults = results.map(book => {
+        book.book_cover = decodeURIComponent(book.book_cover);
+        if (book.book_cover) {
+          book.book_cover = `/images/${book.book_cover}`;
+        } else {
+          book.book_cover = '/images/default.jpg';
+        }
+        return book;
+      });
       resolve(updatedResults);
     });
-  };
-  
-   // 메인 인기 top6
-   exports.popularBooksMain = () => {
-    return getBooks('book_views DESC', 6);
-  };
+  });
+};
 
-  // 메인 평점 top6
-  exports.bestBooksMain = () => {
-    return getBooks('book_avg DESC', 6);
-  };
+// 메인 인기 top6
+exports.popularBooksMain = () => {
+  return getBooks('book_views DESC', 6);
+};
 
-  // 메인 신작 top6
-  exports.newBooksMain = () => {
-    return getBooks('book_published_at DESC', 6);
-  };
+// 메인 평점 top6
+exports.bestBooksMain = () => {
+  return getBooks('book_avg DESC', 6);
+};
+
+// 메인 신작 top6
+exports.newBooksMain = () => {
+  return getBooks('book_published_at DESC', 6);
+};
 
 // 인기 랭킹 도서 목록
 exports.popularBooks = () => {
