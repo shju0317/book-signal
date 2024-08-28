@@ -167,7 +167,7 @@ return (
       <h2 className='text-2xl mb-6 text-black'>관련 도서</h2>
       <div className='flex gap-4'>
         {sameBooks.map((sameBook) => (
-          <div className="same-book-card">
+          <div className="same-book-card " >
             <div key={sameBook.book_idx} className='book-cover-wrapper w-[200px] aspect-w-2 aspect-h-3'>
               <img src={sameBook.book_cover} alt={sameBook.book_name} className='w-[180px] h-[260px] rounded-lg object-cover'/>
             </div>

@@ -5,8 +5,8 @@ const { sameBooksDetail } = require('../models/bookDB');
 // 관련 도서 목록
 router.get('/', (req, res) => {
     
-    const { genre } = req.query;
-    Promise.all([sameBooksDetail(genre)])
+    const { genre, idx } = req.query;
+    Promise.all([sameBooksDetail(genre, idx)])
     .then(results => {
       const [sameBooks] = results;
       res.json({ sameBooks });

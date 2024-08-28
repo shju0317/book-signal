@@ -117,6 +117,7 @@ exports.newBooks = () => {
 
 // 관련 도서 목록을 가져오는 함수
 exports.sameBooksDetail = (book_genre, book_idx) => {
+  console.log('야호')
   return new Promise((resolve, reject) => {
     const sql = `
       SELECT *
@@ -126,7 +127,7 @@ exports.sameBooksDetail = (book_genre, book_idx) => {
       ORDER BY RAND() 
       LIMIT 4
     `;
-
+    console.log('쿼리문',sql)
     conn.query(sql, [book_genre, book_idx], (err, results) => {
       if (err) {
         console.error('관련 도서 목록을 가져오는 중 오류 발생:', err);
