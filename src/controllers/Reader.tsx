@@ -43,7 +43,7 @@ const Reader = ({ url, loadingView }: Props) => {
 	
 	const [bookStyle, setBookStyle] = useState<BookStyle>({
     fontFamily: 'Origin',
-    fontSize: 18,
+    fontSize: 30,
     lineHeight: 1.4,
     marginHorizontal: 15,
     marginVertical: 5
@@ -52,7 +52,7 @@ const Reader = ({ url, loadingView }: Props) => {
   const [bookOption, setBookOption] = useState<BookOption>({
     flow: "paginated",
     resizeOnOrientationChange: true,
-    spread: "auto"
+    spread: "none"
   });
 
 	const [navControl, onNavToggle] = useMenu(navRef, 300.);
@@ -213,9 +213,10 @@ const ReaderWrapper = ({ url, loadingView }: Props) => {
 	);
 }
 
+// Props 인터페이스에 url 추가
 interface Props {
-	url: string;
+	url: string; // url 추가
 	loadingView?: React.ReactNode;
 }
 
-export default ReaderWrapper
+export default ReaderWrapper;

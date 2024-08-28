@@ -1,7 +1,6 @@
 import React, { useState, useRef } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { Provider } from "react-redux";
-import { ReactEpubViewer } from "react-epub-viewer";
+import { Provider, useDispatch, useSelector } from "react-redux";
+import { ReactEpubViewer } from "react-epub-viewer"; // Import your component
 // containers
 import Header from "containers/Header";
 import Footer from "containers/Footer";
@@ -37,12 +36,14 @@ const EpubReader = ({ url }) => {
     fontFamily: "Arial",
     fontSize: 16,
     lineHeight: 1.6,
+    marginHorizontal: 50,
+    marginVertical: 5,
   });
 
   const [bookOption, setBookOption] = useState({
     flow: "paginated",
     resizeOnOrientationChange: true,
-    spread: "auto",
+    spread: "none",
   });
 
   const [navControl, onNavToggle] = useMenu(navRef, 300);
@@ -58,8 +59,10 @@ const EpubReader = ({ url }) => {
   } = useHighlight(viewerRef, setIsContextMenu, bookStyle, bookOption.flow);
 
   const onBookInfoChange = (book) => dispatch(updateBook(book));
-  const onLocationChange = (loc) =>
+
+  const onLocationChange = (loc) => {
     viewerRef.current && viewerRef.current.setLocation(loc);
+  };
 
   const onPageMove = (type) => {
     const node = viewerRef.current;
@@ -71,12 +74,36 @@ const EpubReader = ({ url }) => {
   const onTocChange = (toc) => dispatch(updateToc(toc));
   const onBookStyleChange = (bookStyle_) => setBookStyle(bookStyle_);
   const onBookOptionChange = (bookOption_) => setBookOption(bookOption_);
-  const onPageChange = (page) => dispatch(updateCurrentPage(page));
+
+  const onPageChange = (page) => {
+    dispatch(updateCurrentPage(page));
+    logCurrentPageText(); // 페이지 변경 시 텍스트 로깅
+  };
+
   const onContextMenu = (cfiRange) => {
     const result = onSelection(cfiRange);
     setIsContextMenu(result);
   };
+
   const onContextMenuRemove = () => setIsContextMenu(false);
+
+  // 특정 페이지의 텍스트를 가져와 콘솔에 출력하는 함수
+  const logCurrentPageText = () => {
+    const viewer = viewerRef.current;
+    if (viewer && viewer.rendition) {
+      viewer.rendition.getContents().forEach((content) => {
+        const iframeDoc = content.document;
+        if (iframeDoc) {
+          const text = iframeDoc.body.innerText || iframeDoc.body.textContent;
+          console.log("Current Page Text:", text);
+        } else {
+          console.warn("Could not access iframe content.");
+        }
+      });
+    } else {
+      console.warn("Viewer or rendition is not available.");
+    }
+  };
 
   return (
     <div>
@@ -104,7 +131,7 @@ const EpubReader = ({ url }) => {
           title={currentLocation?.chapterName || ""}
           nowPage={currentLocation?.currentPage || 0}
           totalPage={currentLocation?.totalPage || 0}
-          onPageMove={onPageMove} // 페이지 이동 기능 연결
+          onPageMove={onPageMove}
         />
       </ViewerWrapper>
 
@@ -152,11 +179,11 @@ const EpubReader = ({ url }) => {
 };
 
 const Reader = () => {
-  const epubUrl = "files/김유정-동백꽃-조광.epub"; // EPUB 파일 경로 설정
+  const epubUrl = "files/카프카 변신 한글번역 200620 05.epub";
 
   return (
     <Provider store={store}>
-      <EpubReader url={epubUrl} /> {/* ReaderWrapper 컴포넌트에 URL 전달 */}
+      <EpubReader url={epubUrl} />
     </Provider>
   );
 };

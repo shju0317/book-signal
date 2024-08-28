@@ -86,16 +86,17 @@ const Option = ({
    */
   const onClickViewType = (isSpread: boolean) => {
     if (isSpread) {
-      setViewType({ ...viewType, spread: true });
-      onBookOptionChange({
-        ...bookOption,
-        spread: "auto"
-      });
-    } else {
       setViewType({ ...viewType, spread: false });
       onBookOptionChange({
         ...bookOption,
         spread: "none"
+
+      });
+    } else {
+      setViewType({ ...viewType, spread: true });
+      onBookOptionChange({
+        ...bookOption,
+        spread: "auto"
       });
     }
   }
@@ -152,12 +153,12 @@ const Option = ({
                           alt="Two Page View"
                           active={viewType.active}
                           isSelected={viewType.spread}
-                          onClick={() => onClickViewType(true)} />
+                          onClick={() => onClickViewType(false)} />
           <ControlIconBtn type="BookClose" 
                           alt="One Page View"
                           active={viewType.active}
                           isSelected={!viewType.spread}
-                          onClick={() => onClickViewType(false)} />
+                          onClick={() => onClickViewType(true)} />
         </ControlIconBtnWrapper>
         <OptionDropdown title="Font"
                         defaultValue={fontFamily}
