@@ -6,7 +6,6 @@ import Home from './pages/Home';
 import MyLib from './pages/MyLib';
 import MyPage from './pages/MyPage';
 import RootLayout from './pages/RootLayout';
-import viewerLayout from 'lib/styles/viewerLayout';
 import Chatbot from './components/Chatbot';
 import Login from './pages/Login';
 import Join from './pages/Join';

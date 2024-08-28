@@ -67,9 +67,9 @@ h2 {
     /* 더 큰 그림자 효과 */
 }
 
-.book-cover {
-    width: 100%;
-    height: auto;
+.search-book-cover {
+    width: 190px;
+    height: 260px;
     max-width: 200px;
     /* 이미지의 최대 너비를 설정 */
     max-height: 300px;
