@@ -166,13 +166,6 @@ return (
     <section>
       <h2 className='text-2xl mb-6 text-black'>관련 도서</h2>
       <div className='flex gap-4'>
-        {/* <div className='book-cover-wrapper w-[200px]'>
-            <img src='book_cover_sample.jpg' alt="이미지" className='w-full h-full rounded-xl' />
-          </div>
-          <div className='book-cover-wrapper w-[200px] aspect-w-2 aspect-h-3'>
-            <img src='book_cover_sample.jpg' alt="이미지" className='w-full h-full rounded-xl object-cover' />
-          </div> */}
-
         {sameBooks.map((sameBook) => (
           <div className="same-book-card">
             <div key={sameBook.book_idx} className='book-cover-wrapper w-[200px] aspect-w-2 aspect-h-3'>
