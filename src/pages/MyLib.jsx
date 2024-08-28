@@ -70,16 +70,16 @@ const MyLib = () => {
 
   const handleBookClick = (book) => {
     navigate(`/detail`, { state: { book } }); // 선택한 책의 전체 객체를 상태로 전달하여 이동
-  };  
+  };
 
   const renderContent = () => {
     switch (activeTab) {
       case 'recent':
         return (
-          <div className="books-grid">
+          <div className="mylib-books-grid">
             {recentBooks.length > 0 ? (
               recentBooks.map((book, index) => (
-                <div className="book-card" key={index} >
+                <div className="mylib-book-card" key={index} >
                   <img src={book.book_cover} alt={`${book.book_name} Cover`} className="mylib-book-cover" />
                   <div className="book-info">
                     <p className="book-title">{book.book_name}</p>
@@ -94,10 +94,10 @@ const MyLib = () => {
         );
       case 'favorite':
         return (
-          <div className="books-grid">
+          <div className="mylib-books-grid">
             {wishlistBooks.length > 0 ? (
               wishlistBooks.map((book, index) => (
-                <div className="book-card" key={index} onClick={() => handleBookClick(book)}>
+                <div className="mylib-book-card" key={index} onClick={() => handleBookClick(book)}>
                   <img src={book.book_cover} alt={`${book.book_name} Cover`} className="mylib-book-cover" />
                   <div className="book-info">
                     <p className="book-title">{book.book_name}</p>
@@ -148,10 +148,10 @@ const MyLib = () => {
         );
       case 'completed':
         return (
-          <div className="books-grid">
+          <div className="mylib-books-grid">
             {completedBooks.length > 0 ? (
               completedBooks.map((book, index) => (
-                <div className="book-card" key={index} onClick={() => handleBookClick(book)}>
+                <div className="mylib-book-card" key={index} onClick={() => handleBookClick(book)}>
                   <img src={book.book_cover} alt={`${book.book_name} Cover`} className="mylib-book-cover" />
                   <div className="book-info">
                     <p className="book-title">{book.book_name}</p>

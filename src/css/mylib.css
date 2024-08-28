@@ -36,22 +36,37 @@
 }
 
 /* 책 그리드 */
-.books-grid {
+.mylib-books-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 40px;
 }
 
 /* 책 카드 */
-.book-card {
-    width: 200px;
-    height: 300px;
-    position: relative;
+.mylib-book-card {
+    margin-top: 15px;
     background-color: #fff;
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     padding: 15px;
     text-align: center;
+    border: 1px solid #e0e0e0;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    width: 230px;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: 400px;
+}
+
+/* Hover 효과 추가 */
+.mylib-book-card:hover {
+    transform: translateY(-10px);
+    /* 마우스 오버 시 살짝 위로 올라가도록 설정 */
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+    /* 그림자 효과를 조금 더 진하게 */
 }
 
 /* 책 커버 이미지 */

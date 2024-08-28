@@ -34,8 +34,7 @@
 }
   
 /* 책 제목 스타일 */
-.book-title {
-    margin-top: 20px;
+.review-book-title {
     text-align: center;
     font-size: 1.1rem;
     color: #555;
