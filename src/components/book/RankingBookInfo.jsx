@@ -17,7 +17,7 @@ const RankingBookInfo = ({ book, ranking, onClick }) => {
         <p className='flex items-center'>
           <span className='sr-only'>평점</span>
           <FaRegStar />
-          <strong className='ml-1'>4.5</strong>
+          <strong className='ml-1'>{book.book_avg}</strong>
         </p>
       </div>
     </li>

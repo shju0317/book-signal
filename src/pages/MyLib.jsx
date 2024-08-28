@@ -7,6 +7,9 @@ import Modal from '../components/Modal';
 const MyLib = () => {
   const [activeTab, setActiveTab] = useState('recent'); // 기본 활성 탭
   const [userInfo, setUserInfo] = useState(undefined); // 세션 정보가 로드되지 않았을 때 undefined로 초기화
+  const [recentBooks, setRecentBooks] = useState([]); // 최근 읽은 도서 상태
+  const [wishlistBooks, setWishlistBooks] = useState([]); // 찜한 도서 상태
+  const [completedBooks, setCompletedBooks] = useState([]); // 완독 도서 상태
   const [selectedBook, setSelectedBook] = useState(null); // 모달 관련 상태
   const [isModalOpen, setIsModalOpen] = useState(false); // 모달 관련 상태
   const [backgroundImage, setBackgroundImage] = useState(''); // 모달 배경 이미지 상태
@@ -31,16 +34,35 @@ const MyLib = () => {
 
   // 세션 확인 후 처리
   useEffect(() => {
-    if (userInfo === null) {
-      alert('로그인이 필요합니다.');
-      navigate('/login'); // 세션 정보가 없으면 로그인 페이지로 이동
-    }
-  }, [userInfo, navigate]);
+    if (userInfo) {
+      // 최근 읽은 도서 데이터를 가져옴
+      axios.get('http://localhost:3001/recent-books', { withCredentials: true })
+        .then(response => {
+          setRecentBooks(response.data); // 서버에서 가져온 데이터를 상태에 저장
+        })
+        .catch(error => {
+          console.error('최근 읽은 도서를 가져오는데 실패했습니다.', error);
+        });
 
-  // 로딩 중일 때 표시할 내용
-  if (userInfo === undefined) {
-    return <div>로딩 중...</div>;  // 세션 정보가 로드되기 전에는 로딩 중 상태를 표시
-  }
+      // 찜한 도서 데이터를 가져옴
+      axios.get('http://localhost:3001/wishlist-books', { withCredentials: true })
+        .then(response => {
+          setWishlistBooks(response.data); // 서버에서 가져온 데이터를 상태에 저장
+        })
+        .catch(error => {
+          console.error('찜한 도서를 가져오는데 실패했습니다.', error);
+        });
+
+      // 완독 도서 데이터를 가져옴
+      axios.get('http://localhost:3001/completed-books', { withCredentials: true })
+        .then(response => {
+          setCompletedBooks(response.data); // 서버에서 가져온 데이터를 상태에 저장
+        })
+        .catch(error => {
+          console.error('완독 도서를 가져오는데 실패했습니다.', error);
+        });
+    }
+  }, [userInfo]);
 
   const handleTabClick = (tabName) => {
     setActiveTab(tabName);
@@ -59,26 +81,37 @@ const MyLib = () => {
       case 'recent':
         return (
           <div className="books-grid">
-            <div className="book-card">
-              <img src="" alt="Book Cover" className="book-cover" />
-              <div className="book-info">
-                <p className="book-title">&lt;최근 읽은 책 제목&gt;</p>
-                <p className="book-author">저자 이름</p>
-              </div>
-            </div>
+            {recentBooks.length > 0 ? (
+              recentBooks.map((book, index) => (
+                <div className="book-card" key={index}>
+                  <img src={`/images/${book.book_cover}`} alt={`${book.book_name} Cover`} className="book-cover" />
+                  <div className="book-info">
+                    <p className="book-title">{book.book_name}</p>
+                    <p className="book-author">{book.book_writer}</p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="mylib-no-readingbooks-message">최근 읽은 도서가 없습니다.</p>
+            )}
           </div>
         );
       case 'favorite':
         return (
           <div className="books-grid">
-            <div className="book-card">
-              <img src="" alt="Book Cover" className="book-cover" />
-              <div className="book-info">
-                <p className="book-title">&lt;찜한 책 제목&gt;</p>
-                <p className="book-author">저자 이름</p>
-              </div>
-              <div className="book-heart">❤️</div>
-            </div>
+            {wishlistBooks.length > 0 ? (
+              wishlistBooks.map((book, index) => (
+                <div className="book-card" key={index}>
+                  <img src={`/images/${book.book_cover}`} alt={`${book.book_name} Cover`} className="book-cover" />
+                  <div className="book-info">
+                    <p className="book-title">{book.book_name}</p>
+                    <p className="book-author">{book.book_writer}</p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="mylib-no-readingbooks-message">찜한 도서가 없습니다.</p>
+            )}
           </div>
         );
       case 'bookSignal':
@@ -119,13 +152,19 @@ const MyLib = () => {
       case 'completed':
         return (
           <div className="books-grid">
-            <div className="book-card">
-              <img src="" alt="Book Cover" className="book-cover" />
-              <div className="book-info">
-                <p className="book-title">&lt;완독한 책 제목&gt;</p>
-                <p className="book-author">저자 이름</p>
-              </div>
-            </div>
+            {completedBooks.length > 0 ? (
+              completedBooks.map((book, index) => (
+                <div className="book-card" key={index}>
+                  <img src={`/images/${book.book_cover}`} alt={`${book.book_name} Cover`} className="mylib-book-cover" />
+                  <div className="book-info">
+                    <p className="book-title">{book.book_name}</p>
+                    <p className="book-author">{book.book_writer}</p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="mylib-no-readingbooks-message">완독한 도서가 없습니다.</p>
+            )}
           </div>
         );
       default:

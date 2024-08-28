@@ -242,3 +242,55 @@ exports.deleteUser = async (req, res) => {
     res.status(500).json({ message: '서버 오류' });
   }
 };
+
+// 최근 읽은 도서 가져오기
+exports.getRecentBooks = async (req, res) => {
+  const mem_id = req.session.user.mem_id; // 현재 로그인한 사용자의 mem_id
+
+  try {
+    const recentBooks = await userDB.getRecentBooks(mem_id);
+    res.status(200).json(recentBooks);
+  } catch (error) {
+    console.error('최근 읽은 도서 가져오기 실패:', error);
+    res.status(500).json({ message: '최근 읽은 도서를 가져오는 중 오류가 발생했습니다.' });
+  }
+};
+
+// 찜한 도서를 가져오는 함수
+exports.getWishlistBooks = async (req, res) => {
+  const mem_id = req.session.user.mem_id; // 현재 로그인한 사용자의 mem_id
+
+  try {
+    const wishlistBooks = await userDB.getWishlistBooks(mem_id);
+    res.status(200).json(wishlistBooks);
+  } catch (error) {
+    console.error('찜한 도서 가져오기 실패:', error);
+    res.status(500).json({ message: '찜한 도서를 가져오는 중 오류가 발생했습니다.' });
+  }
+};
+
+// 완독 도서 가져오기
+exports.getCompletedBooks = async (req, res) => {
+  const mem_id = req.session.user.mem_id; // 현재 로그인한 사용자의 mem_id
+
+  try {
+    const completedBooks = await userDB.getCompletedBooks(mem_id);
+    res.status(200).json(completedBooks);
+  } catch (error) {
+    console.error('완독 도서 가져오기 실패:', error);
+    res.status(500).json({ message: '완독 도서를 가져오는 중 오류가 발생했습니다.' });
+  }
+};
+
+// 독서 기록을 추가하는 컨트롤러 함수
+exports.addReadingRecord = async (req, res) => {
+  const { mem_id, book_name } = req.body;
+
+  try {
+    const result = await userDB.addReadingRecord(mem_id, book_name);
+    res.status(200).json({ message: '독서 기록이 성공적으로 추가되었습니다.', result });
+  } catch (error) {
+    console.error('독서 기록 추가 에러:', error);
+    res.status(500).json({ message: '독서 기록을 추가하는 중 오류가 발생했습니다.', error: error.message });
+  }
+};

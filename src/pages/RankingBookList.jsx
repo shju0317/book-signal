@@ -69,7 +69,7 @@ const RankingBookList = () => {
   return (
     <div className='max-w-screen-xl m-auto mb-16'>
       <SlideShow slides={SLIDES}/>
-      <ul className='flex gap-5 text-lg font-semibold border-b py-5 mb-16'>
+      <ul className='flex gap-5 text-lg font-semibold border-b py-5 mb-16 mt-20'>
       <li
           onClick={() => handleTabClick('popular')}
           className={`cursor-pointer ${activeTab === 'popular' ? 'text-primary border-b-2 border-b-primary' : ''}`}
