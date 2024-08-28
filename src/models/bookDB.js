@@ -86,8 +86,6 @@ const getBooks = (orderBy, limit = 12) => {
         });
         resolve(updatedResults);
       });
-
-      resolve(updatedResults);
     });
   };
   
