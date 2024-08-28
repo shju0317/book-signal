@@ -33,6 +33,7 @@ yarn-error.log*
 src/styles/output.css
 
 # 환경변수 제외 처리
+src/config/project-tts-433810-c08f02942439.json
 .env
 
 # Custom ignore files or folders
