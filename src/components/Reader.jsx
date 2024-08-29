@@ -159,8 +159,8 @@ const Reader = () => {
   const location = useLocation();
   const { bookPath } = location.state || {};
 
-  const epubUrl = `book_file/${bookPath}.epub`; // EPUB 파일 경로 설정
-
+  const epubUrl =  `book_file/${bookPath}.epub`; // EPUB 파일 경로 설정
+  
 
   return (
     <Provider store={store}>
