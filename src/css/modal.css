@@ -11,16 +11,25 @@
   z-index: 1000;
 }
 
+.modal-polaroid{
+  width: 480px;
+  height: 800px;
+  background-color: white;
+  position: relative; /* 자식 요소의 위치 조정을 위해 필요 */
+  display: flex;
+  justify-content: center; /* 수평 중앙 정렬 */
+  align-items: flex-start;
+}
+
 .modal-content {
   background-size: cover; /* 배경 이미지가 모달 크기에 맞도록 설정 */
   background-position: center; /* 배경 이미지를 중앙에 맞춤 */
   background-repeat: no-repeat; /* 이미지 반복 방지 */
   padding: 20px;
-  border-radius: 8px;
-  position: relative;
-  width: 100%;
-  max-width: 600px;
-  height: 800px;
+  position: absolute;
+  top: 50px;
+  width: 400px;
+  height: 560px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -30,29 +39,36 @@
 }
 
 .modal-text {
-  background-color: rgba(0, 0, 0, 0.5); /* 텍스트 배경을 반투명 검정으로 설정 */
+  background-color: rgba(225, 225, 225, 0.7); /* 텍스트 배경을 반투명 검정으로 설정 */
+  width: 300px;
+  height: auto;
+  min-height: 200px;
   padding: 20px;
   border-radius: 8px;
-  color: white;
+  color: black;
   text-align: center;
-  width: 100%;
+  justify-content: center;
+  align-items: center;
 }
+
 
 .modal-download,
 .modal-close {
   position: absolute;
-  top: 10px;
   background: none;
-  border: none;
-  font-size: 20px;
   cursor: pointer;
   color: white;
+  opacity: 0.7;
 }
 
 .modal-download {
-  right: 70px; /* 두 버튼 간의 간격 유지 */
+  font-size: 25px;
+  top : 30px;
+  right: 80px; /* 두 버튼 간의 간격 유지 */
 }
 
 .modal-close {
-  right: 40px;
+  font-size: 32px;
+  top : 27px;
+  right: 30px;
 }
