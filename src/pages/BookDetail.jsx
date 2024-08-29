@@ -42,9 +42,8 @@ const BookDetail = () => {
   }, [book, navigate]);
 
 
-  //////////////////////////////////////////////////////////////////////////////////////////
+  // 관련 도서 가져오기
   useEffect(() => {
-    // 관련 도서 가져오기
     axios.get('http://localhost:3001/sameBook', {
       params: { genre: book.book_genre, idx: book.book_idx }
     })
@@ -57,7 +56,6 @@ const BookDetail = () => {
         console.error('오류:', error.response ? error.response.data : error.message);
       });
   }, [book.book_genre, book.book_idx]);
-  //////////////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -167,7 +165,12 @@ const BookDetail = () => {
         <h2 className='text-2xl mb-6 text-black'>관련 도서</h2>
         <div className='flex gap-4'>
           {sameBooks.map((sameBook) => (
-            <div className="same-book-card " key={sameBook.book_idx}>
+            <div
+              className="same-book-card"
+              key={sameBook.book_idx}
+              onClick={() => navigate(`/detail`, { state: { book: sameBook } })}
+              style={{ cursor: 'pointer' }}
+            >
               <div className='book-cover-wrapper w-[200px] aspect-w-2 aspect-h-3'>
                 <img src={sameBook.book_cover} alt={sameBook.book_name} className='w-[180px] h-[260px] rounded-lg object-cover' />
               </div>
@@ -177,7 +180,6 @@ const BookDetail = () => {
               </div>
             </div>
           ))}
-
         </div>
       </section>
       <div className='h-40 text-right'>
