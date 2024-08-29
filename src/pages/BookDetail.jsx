@@ -42,7 +42,6 @@ const BookDetail = () => {
   }, [book.book_idx]);
 
 
-  //////////////////////////////////////////////////////////////////////////////////////////
   useEffect(() => {
     // 관련 도서 가져오기
     axios.get('http://localhost:3001/sameBook',  {
@@ -51,14 +50,11 @@ const BookDetail = () => {
     .then(response => {
       const { sameBooks } = response.data;
       setSameBooks(sameBooks);
-      console.log(sameBooks);
     })
     .catch(error => {
       console.error('오류:', error.response ? error.response.data : error.message);
     });
 }, []);
-//////////////////////////////////////////////////////////////////////////////////////////
-
 
 
 // 사용자가 이미 찜한 도서인지 확인
