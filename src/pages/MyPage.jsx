@@ -83,7 +83,7 @@ const MyPage = () => {
         <br />
         <div className='info-group'>
           <MdEmail className='icon' />
-          <p>이메일: {userInfo.mem_email}</p>
+          <p>이메일: {userInfo.mem_mail}</p>
         </div>
         <br />
         <div className='info-group'>
