@@ -1,8 +1,5 @@
 require('dotenv').config(); // dotenv 패키지를 로드 환경변수 사용
 const textToSpeech = require('@google-cloud/text-to-speech');
-const fs = require('fs');
-const util = require('util');
-const path = require('path');
 
 // Google Cloud TTS 클라이언트 생성 (환경변수를 사용하여 JSON 키 파일 경로 설정)
 const client = new textToSpeech.TextToSpeechClient({

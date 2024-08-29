@@ -34,6 +34,8 @@ const EpubReader = ({ url }) => {
   const learningRef = useRef(null);
 
   const [isContextMenu, setIsContextMenu] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false); // TTS 상태 관리
+
   const [bookStyle, setBookStyle] = useState({
     fontFamily: "Arial",
     fontSize: 16,
@@ -79,6 +81,68 @@ const EpubReader = ({ url }) => {
   };
   const onContextMenuRemove = () => setIsContextMenu(false);
 
+  function splitText(text, maxBytes = 5000) {
+    const textParts = [];
+    let currentPart = '';
+    // google cloud tts 텍스트 길이 5000바이트 이상일시 오류 - > 텍스트 나누기
+    for (const char of text) {
+        const charByteLength = new Blob([char]).size;
+
+        if (new Blob([currentPart + char]).size > maxBytes) {
+            textParts.push(currentPart);
+            currentPart = char;
+        } else {
+            currentPart += char;
+        }
+    }
+
+    if (currentPart) {
+        textParts.push(currentPart);
+    }
+
+    return textParts;
+}
+
+  // TTS 실행 함수
+  const handleTTS = async () => {
+    if (viewerRef.current && !isPlaying) {
+      const iframe = document.querySelector('iframe'); // iframe 요소를 선택
+      if (iframe) {
+        const iframeDocument = iframe.contentDocument || iframe.contentWindow.document; //  iframe.contentWindow.document; 오래된 브라우저 지원
+        const text = iframeDocument.body.innerText; // iframe 내부의 텍스트를 가져옴
+        console.log(text)
+       if (text) {
+                const textParts = splitText(text);
+
+                for (const part of textParts) {
+                    await fetch('http://localhost:3001/tts', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ text: part }),
+                    })
+                    .then(response => response.arrayBuffer())
+                    .then(audioContent => {
+                        const audioBlob = new Blob([audioContent], { type: 'audio/mp3' });
+                        const audioUrl = URL.createObjectURL(audioBlob);
+                        const audio = new Audio(audioUrl);
+                        return new Promise((resolve) => {
+                            audio.onended = () => resolve();
+                            audio.play();
+                            console.log('재생중');
+                        });
+                    });
+                }
+
+                setIsPlaying(false);
+                viewerRef.current.nextPage(); // 다음 페이지로 이동
+                setTimeout(handleTTS, 1000); // 다음 페이지로 텍스트 로드 후 다시 읽기
+            }
+      }
+    }
+  };
+
   return (
     <div>
       <ViewerWrapper>
@@ -86,6 +150,7 @@ const EpubReader = ({ url }) => {
           onNavToggle={onNavToggle}
           onOptionToggle={onOptionToggle}
           onLearningToggle={onLearningToggle}
+          onTTSToggle={handleTTS} // TTS 함수 전달
         />
 
         <ReactEpubViewer
@@ -153,12 +218,10 @@ const EpubReader = ({ url }) => {
 };
 
 const Reader = () => {
-
   const location = useLocation();
   const { bookPath } = location.state || {};
 
-  const epubUrl =  `book_file/${bookPath}.epub`; // EPUB 파일 경로 설정
-  
+  const epubUrl = `book_file/${bookPath}.epub`; // EPUB 파일 경로 설정
 
   return (
     <Provider store={store}>

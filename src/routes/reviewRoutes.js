@@ -8,4 +8,8 @@ router.get('/reviews/:mem_id', reviewController.getUserReviews);
 // 리뷰 삭제하기
 router.delete('/reviews/:reviewId', reviewController.deleteReview);
 
+// 리뷰 등록 
+router.post('/review', reviewController.addReview);
+
+
 module.exports = router;

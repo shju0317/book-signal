@@ -64,6 +64,7 @@ app.post('/tts', async (req, res) => {
         // 음성 데이터를 클라이언트에 스트림으로 전송
         res.set({
             'Content-Type': 'audio/mp3',
+            'Content-Length': audioContent.length,
             'Content-Disposition': 'inline', // 바로 재생
         });
 
