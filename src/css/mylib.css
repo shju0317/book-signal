@@ -94,6 +94,7 @@
     grid-template-columns: 1fr;
     gap: 20px;
     margin-top: 20px;
+    width: 1280px;
 }
 
 .signal-card {
@@ -123,12 +124,7 @@
     transform: scale(1.01);
 }
 
-.signal-text {
-    background: rgba(0, 0, 0, 0.5);
-    padding: 10px;
-    border-radius: 8px;
-    font-size: 18px;
-    line-height: 1.5;
+.signal-img {
     width: 100%;
     height: 100%;
 

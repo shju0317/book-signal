@@ -9,7 +9,11 @@ const Modal = ({ isOpen, onClose, onDownload, backgroundImage, children }) => {
       <div
         className="modal-content"
         onClick={(e) => e.stopPropagation()}
-        style={{ backgroundImage: `url(${backgroundImage})` }}
+        style={{ 
+          backgroundImage: `url(${backgroundImage}) `, 
+          backgroundSize:  'cover',
+          backgroundPosition: 'center',
+        }}
       >
         <button className="modal-download" onClick={onDownload}>↓</button>
         <button className="modal-close" onClick={onClose}>X</button>
