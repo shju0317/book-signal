@@ -127,6 +127,48 @@ const MyLib = () => {
       case 'bookSignal':
         return (
           <div className="signal-grid">
+
+            <div
+              className="signal-card"
+              style={{ backgroundImage: `url('/images/cover(21).jpg')` }}
+              onClick={() => handleBookClick('작가, 제목', '/images/cover(21).jpg')}
+            >
+              <div className="signal-text">
+                <p>시간은 흐르고,우리는 그 속에서 끊임없이 변화한다.</p>
+                <p>홍길동, 홍길동전</p>
+              </div>
+            </div>
+
+            {/* <div
+                className="signal-card"
+                style={{ backgroundImage: `url('../images/cover(4).jpg')` }}
+                onClick={() => handleBookClick('북 시그널 책 제목 2', '/path/to/image2.png')}
+              >
+                <div className="signal-text">
+                  <p>시간은 흐르고,<br />우리는 그 속에서 끊임없이 변화한다.</p>
+                  <br />
+                  <p>홍길동, {'<나의 눈부신 친구>'}</p>
+                </div>
+              </div>
+              <div
+                className="signal-card"
+                style={{ backgroundImage: `url('../images/cover(97).jpg')` }}
+                onClick={() => handleBookClick('북 시그널 책 제목 3', '../images/cover(97).jpg')}
+              >
+                <div className="signal-text">
+                  <p>시간은 흐르고,<br />우리는 그 속에서 끊임없이 변화한다.</p>
+                  <br />
+                  <p>홍길동, {'<나의 눈부신 친구>'}</p>
+                </div>
+              </div> */}
+
+          </div>
+        );
+
+
+      case 'bookSignal':
+        return (
+          <div className="signal-grid">
             {/* 북 시그널 콘텐츠 */}
           </div>
         );
