@@ -11,10 +11,10 @@ const MyLib = () => {
   const [recentBooks, setRecentBooks] = useState([]); // 최근 읽은 도서 상태
   const [wishlistBooks, setWishlistBooks] = useState([]); // 찜한 도서 상태
   const [completedBooks, setCompletedBooks] = useState([]); // 완독 도서 상태
-  const [selectedBook, setSelectedBook] = useState(null); // 모달 관련 상태
-  const [isModalOpen, setIsModalOpen] = useState(false); // 모달 관련 상태
-  const [backgroundImage, setBackgroundImage] = useState(''); // 모달 배경 이미지 상태
-  const [reviewModalOpen, setReviewModalOpen] = useState(false); // 리뷰 모달 상태
+  const [selectedBook, setSelectedBook] = useState(null); // 리뷰모달 관련 상태
+  const [isModalOpen, setIsModalOpen] = useState(false); // 리뷰모달 관련 상태
+  const [backgroundImage, setBackgroundImage] = useState(''); // 리뷰모달 배경 이미지 상태
+  const [reviewModalOpen, setReviewModalOpen] = useState(false); // 리뷰모달 상태
 
   const navigate = useNavigate();
 
@@ -80,6 +80,7 @@ const MyLib = () => {
     setReviewModalOpen(true);
   };
 
+
   const closeReviewModal = () => {
     setReviewModalOpen(false);
     setSelectedBook(null);
@@ -131,7 +132,7 @@ const MyLib = () => {
             <div
               className="signal-card"
               style={{ backgroundImage: `url('/images/cover(21).jpg')` }}
-              onClick={() => handleBookClick('작가, 제목', '/images/cover(21).jpg')}
+              onClick={() => handleTabClick('작가, 제목', '/images/cover(21).jpg')}
             >
               <div className="signal-text">
                 <p>시간은 흐르고,우리는 그 속에서 끊임없이 변화한다.</p>
