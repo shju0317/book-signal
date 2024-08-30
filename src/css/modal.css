@@ -27,7 +27,7 @@
   background-repeat: no-repeat; /* 이미지 반복 방지 */
   padding: 20px;
   position: absolute;
-  top: 50px;
+  top: 45px;
   width: 400px;
   height: 560px;
   display: flex;
@@ -38,8 +38,9 @@
   background-color: transparent; /* 배경색 제거 */
 }
 
-.modal-text {
-  background-color: rgba(225, 225, 225, 0.7); /* 텍스트 배경을 반투명 검정으로 설정 */
+
+.modal-signal {
+  background-color: rgba(225, 225, 225, 0.75); /* 텍스트 배경을 반투명 흰색으로 설정 */
   width: 300px;
   height: auto;
   min-height: 200px;
@@ -50,6 +51,8 @@
   justify-content: center;
   align-items: center;
 }
+
+
 
 
 .modal-download,
