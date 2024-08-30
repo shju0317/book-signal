@@ -73,7 +73,7 @@ const MyLib = () => {
         });
 
       // 북 시그널 도서 데이터를 가져옴
-      axios.get('http://localhost:3001/signal-books', { withCredentials: true })
+      axios.get(`http://localhost:3001/signal-books?mem_id=${userInfo.mem_id}`, { withCredentials: true })
         .then(response => {
           setSignalBooks(response.data); // 서버에서 가져온 데이터를 상태에 저장
         })
@@ -269,8 +269,8 @@ const MyLib = () => {
         onDownload={handleDownload}
       >
         <h2>{signalTitle}</h2>
-        <p>{signalText}</p>
-        <p>{signalSumm}</p>
+        <h3>{signalText}</h3>
+        <h4>{signalSumm}</h4>
 
       </Modal>
     </div>

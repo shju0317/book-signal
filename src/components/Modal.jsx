@@ -37,7 +37,7 @@ const Modal = ({ isOpen, onClose, onDownload, backgroundImage, children }) => {
             <div className='modal-text'>{text}</div>
           </div>
         </div>
-        <div className='mt-[640px]'>
+        <div className='modal-summ'>
           <p>{summ}</p>
         </div>
       </div>
