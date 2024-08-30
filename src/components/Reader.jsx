@@ -83,7 +83,7 @@ const EpubReader = ({ url }) => {
 
   return (
     <div className="max-w-screen-xl m-auto">
-      <ViewerWrapper>
+      <ViewerWrapper className="m-auto">
         <Header
           onNavToggle={onNavToggle}
           onOptionToggle={onOptionToggle}
@@ -92,7 +92,7 @@ const EpubReader = ({ url }) => {
         />
 
         <ReactEpubViewer
-          className="max-w-screen-xl m-auto bg-slate-600"
+        className="max-w-screen-xl bg-slate-500 "
           url={url}
           viewerLayout={viewerLayout}
           viewerStyle={bookStyle}
@@ -159,7 +159,7 @@ const EpubReader = ({ url }) => {
 };
 
 const Reader = () => {
-  const epubUrl = "files/김유정-동백꽃-조광.epub"; // EPUB 파일 경로 설정
+  const epubUrl = "files/카프카_변신.epub"; // EPUB 파일 경로 설정
 
   return (
     <Provider store={store}>

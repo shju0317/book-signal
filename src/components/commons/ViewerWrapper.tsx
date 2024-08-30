@@ -4,10 +4,10 @@ import * as styles from 'lib/styles/styles'
 
 const ViewerWrapper = styled.div`
   position: relative;
-  // width: 100%;
-  width: 70vw;
+  width: 100%;
+  // width: 70vw;
   height: 80vh;
-  overflow-x: hidden;
+  // overflow-x: hidden;
   display: flex;
   flex-direction: column;
   ${styles.scrollbar(0)};
