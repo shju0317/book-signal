@@ -23,9 +23,6 @@ const Header = ({
   const [showTTSSettings, setShowTTSSettings] = useState(false);
 
   const handleSoundClick = () => {
-    if (onTTSToggle) {
-      onTTSToggle({ rate, gender });
-    }
     setShowTTSSettings(true);
   };
 

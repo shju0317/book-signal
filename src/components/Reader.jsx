@@ -117,14 +117,14 @@ const EpubReader = ({ url }) => {
     }
   }, [rate]); // 배속 또는 성별이 변경될 때만 실행
 
-  useEffect(() => {
-    // 성별 변경 시 TTS 재실행
-    if (isPlaying && audioRef.current) {
-      audioRef.current.pause();
-      setIsPaused(false);
-      handleTTS({ rate, gender });
+   // 성별 변경 시 효과 적용
+   useEffect(() => {
+    if (isPlaying) {
+      // 성별 변경 시 현재 재생 중인 오디오를 멈추고, 새로운 설정으로 재생
+      stopTTS();
+      resumeTTS();
     }
-  }, [gender]); // 성별이 변경될 때만 실행
+  }, [gender]); // gender가 변경될 때마다 실행
 
   useEffect(() => {
     if (audioSource && audioRef.current) {
@@ -143,6 +143,7 @@ const EpubReader = ({ url }) => {
       if (iframe) {
         const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
         const text = iframeDocument.body.innerText;
+        console.log(text);
         if (text) {
           const textParts = splitText(text);
           setIsPlaying(true);
@@ -164,6 +165,7 @@ const EpubReader = ({ url }) => {
               audioRef.current.src = audioUrl;
               audioRef.current.playbackRate = rate; // 배속 반영
               audioRef.current.play();
+              console.log('재생중');
               return new Promise((resolve) => {
                 audioRef.current.onended = () => resolve();
               });
@@ -208,12 +210,12 @@ const stopTTS = () => {
           onLearningToggle={onLearningToggle}
           onTTSResume={resumeTTS}
           onTTSToggle={handleTTS} // TTS 실행 함수 전달
-          onTTSPause={pauseTTS} // TTS 일시정지 함수 전달
-          onTTSStop={stopTTS} // TTS 중지 함수 전달
-          onRateChange={setRate} // 배속 변경 함수 전달
-          onVoiceChange={setGender} // 음성 성별 변경 함수 전달
-          rate={rate} // 현재 배속 상태 전달
-          gender={gender} // 현재 음성 성별 상태 전달
+          onTTSPause={pauseTTS} 
+          onTTSStop={stopTTS} 
+          onRateChange={setRate}        // TTS 배속 변경 함수 전달
+          onVoiceChange={setGender} 
+          rate={rate} 
+          gender={gender} 
         />
 
         <ReactEpubViewer

@@ -17,15 +17,17 @@ interface TTSManagerProps {
 const TTSManager: React.FC<TTSManagerProps> = ({
   onTTSToggle,
   onTTSPause,
-  onTTSStop,
+  onTTSStop,    
   rate,
   gender,
   onRateChange,
   onVoiceChange,
   onTTSResume,
+  setAudioSource,
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const handleToggle = () => {
     if (isPlaying && !isPaused) {
@@ -47,6 +49,10 @@ const TTSManager: React.FC<TTSManagerProps> = ({
   };
 
   const handleStop = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
     if (onTTSStop) {
       onTTSStop();
     }
