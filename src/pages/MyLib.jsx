@@ -4,6 +4,7 @@ import '../css/mylib.css';
 import axios from 'axios';
 import Modal from '../components/Modal';
 import GetReview from './GetReview'; // GetReview 컴포넌트 import
+import html2canvas from 'html2canvas';
 
 const MyLib = () => {
   const [activeTab, setActiveTab] = useState('recent'); // 기본 활성 탭
@@ -15,6 +16,11 @@ const MyLib = () => {
   const [isModalOpen, setIsModalOpen] = useState(false); // 리뷰모달 관련 상태
   const [backgroundImage, setBackgroundImage] = useState(''); // 리뷰모달 배경 이미지 상태
   const [reviewModalOpen, setReviewModalOpen] = useState(false); // 리뷰모달 상태
+
+  const [signalText, setSignalText] = useState('');
+  const [signalTitle, setSignalTitle] = useState(null); // 시그널 모달 관련 상태
+  const [isSignalOpen, setSignalOpen] = useState(false); // 시그널 모달 관련 상태
+  const [signalBackground, setSignalBackground] = useState(''); // 시그널 모달 배경 이미지 상태
 
   const navigate = useNavigate();
 
@@ -86,6 +92,32 @@ const MyLib = () => {
     setSelectedBook(null);
   };
 
+  const handleSignalClick = (book, image, text) => {
+    if(activeTab === 'bookSignal'){
+      setSignalTitle(book);
+      setSignalBackground(image);
+      setSignalText(text);
+      setSignalOpen(true);
+    }
+  }
+
+  const handleDownload = () => {
+    const modalContent = document.querySelector('.modal-content');
+    if (modalContent) {
+      html2canvas(modalContent).then(canvas => {
+        canvas.toBlob(blob => {
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = `${signalTitle}.jpg`;
+          link.click();
+          URL.revokeObjectURL(link.href);
+        }, 'image/jpeg');
+      });
+    }
+  };
+
+
+
   const renderContent = () => {
     switch (activeTab) {
       case 'recent':
@@ -125,6 +157,9 @@ const MyLib = () => {
           </div>
         );
 
+
+
+        // 북시그널
       case 'bookSignal':
         return (
           <div className="signal-grid">
@@ -132,47 +167,16 @@ const MyLib = () => {
             <div
               className="signal-card"
               style={{ backgroundImage: `url('/images/cover(21).jpg')` }}
-              onClick={() => handleTabClick('작가, 제목', '/images/cover(21).jpg')}
+              onClick={() => handleSignalClick('작가,제목','/images/cover(21).jpg','시간은 흐르고, 우리는 그 속에서 끊임없이 변화한다.')}
             >
               <div className="signal-text">
                 <p>시간은 흐르고,우리는 그 속에서 끊임없이 변화한다.</p>
-                <p>홍길동, 홍길동전</p>
               </div>
             </div>
-
-            {/* <div
-                className="signal-card"
-                style={{ backgroundImage: `url('../images/cover(4).jpg')` }}
-                onClick={() => handleBookClick('북 시그널 책 제목 2', '/path/to/image2.png')}
-              >
-                <div className="signal-text">
-                  <p>시간은 흐르고,<br />우리는 그 속에서 끊임없이 변화한다.</p>
-                  <br />
-                  <p>홍길동, {'<나의 눈부신 친구>'}</p>
-                </div>
-              </div>
-              <div
-                className="signal-card"
-                style={{ backgroundImage: `url('../images/cover(97).jpg')` }}
-                onClick={() => handleBookClick('북 시그널 책 제목 3', '../images/cover(97).jpg')}
-              >
-                <div className="signal-text">
-                  <p>시간은 흐르고,<br />우리는 그 속에서 끊임없이 변화한다.</p>
-                  <br />
-                  <p>홍길동, {'<나의 눈부신 친구>'}</p>
-                </div>
-              </div> */}
-
           </div>
         );
 
 
-      case 'bookSignal':
-        return (
-          <div className="signal-grid">
-            {/* 북 시그널 콘텐츠 */}
-          </div>
-        );
 
       case 'completed':
         return (
@@ -242,13 +246,15 @@ const MyLib = () => {
         />
       )}
 
+      {/* bookSignal 모달 */}
       <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        backgroundImage={backgroundImage}
+        isOpen={isSignalOpen}
+        onClose={() => setSignalOpen(false)}
+        backgroundImage={signalBackground}
+        onDownload={handleDownload}
       >
-        <h2>{selectedBook}</h2>
-        <p>책 세부 정보 표시</p>
+        <h2>{signalTitle}</h2>
+        <p>{signalText}</p>
       </Modal>
     </div>
   );
