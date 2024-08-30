@@ -1,17 +1,17 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
-import { useSelector } from 'react-redux'
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useSelector } from 'react-redux';
 // components
-import Wrapper from 'components/contextMenu/Wrapper'
-import ColorItem from 'components/contextMenu/ColorItem'
-import Item from 'components/contextMenu/Item'
+import Wrapper from 'components/contextMenu/Wrapper';
+import ColorItem from 'components/contextMenu/ColorItem';
+import Item from 'components/contextMenu/Item';
 // utils
-import { getParagraphCfi } from 'lib/utils/commonUtil'
+import { getParagraphCfi } from 'lib/utils/commonUtil';
 // slices
-import { contextmenuWidth } from 'lib/styles/viewerLayout'
+import { contextmenuWidth } from 'lib/styles/viewerLayout';
 // types
-import { RootState } from 'slices'
-import Highlight, { Color } from 'types/highlight'
-import Selection from 'types/selection'
+import { RootState } from 'slices';
+import Highlight, { Color } from 'types/highlight';
+import Selection from 'types/selection';
 
 const ContextMenu = ({
   active,
@@ -22,6 +22,10 @@ const ContextMenu = ({
   onUpdateHighlight,
   onContextmMenuRemove
 }: Props) => {
+  console.log('ContextMenu Rendered');
+  console.log('Active:', active);
+  console.log('Selection:', selection);
+
   const highlights = useSelector<RootState, Highlight[]>(state => state.book.highlights);
   const colorList = useSelector<RootState, Color[]>(state => state.book.colorList);
 
@@ -32,16 +36,21 @@ const ContextMenu = ({
   const [isEraseBtn, setIsEraseBtn] = useState<boolean>(false);
   const [isReverse, setIsReverse] = useState<boolean>(false);
   const [height, setHeight] = useState<number>(0);
-  const [y, setY] = useState<number>(0);  // 초기값 설정
+  const [x, setX] = useState<number>(selection?.x || 0);  // 기본값 설정
+  const [y, setY] = useState<number>(selection?.y || 0);  // 기본값 설정
 
   const ColorList = colorList.map(
-    color => <ColorItem key={color.code}
-      name={color.name}
-      color={color.code}
-      onClick={selection?.update
-        ? () => onUpdateHighlight(highlight, color.code)
-        : () => onAddHighlight(color.code)
-      } />
+    color => (
+      <ColorItem
+        key={color.code}
+        name={color.name}
+        color={color.code}
+        onClick={selection?.update
+          ? () => onUpdateHighlight(highlight, color.code)
+          : () => onAddHighlight(color.code)
+        }
+      />
+    )
   );
 
   /** Remove highlight */
@@ -84,6 +93,7 @@ const ContextMenu = ({
 
   /** Check whether the menu button is visible */
   useEffect(() => {
+    console.log("Checking if ContextMenu should be displayed");
     if (!active) setIsEraseBtn(false);
 
     const paragraphCfi = getParagraphCfi(selection?.cfiRange || '');
@@ -109,11 +119,19 @@ const ContextMenu = ({
 
   /** Register contextmenu events */
   useEffect(() => {
+    console.log("Registering context menu events");
     if (!viewerRef.current) return;
 
     const iframe = document.querySelector('iframe');
     const node = iframe && iframe.contentWindow && iframe.contentWindow.document;
     const scrolledTarget = viewerRef.current.querySelector('div');
+
+    const handleContextMenu = (event: MouseEvent) => {
+      event.preventDefault();
+      setX(event.clientX);
+      setY(event.clientY);
+      setDisplay(true);
+    };
 
     if (active) {
       setDisplay(true);
@@ -122,6 +140,7 @@ const ContextMenu = ({
       node && node.addEventListener('keyup', onKeyPress);
       document.addEventListener('mousedown', onRemove);
       document.addEventListener('keyup', onKeyPress);
+      document.addEventListener('contextmenu', handleContextMenu);  // 클릭 시 ContextMenu 실행
     } else {
       setDisplay(false);
       scrolledTarget && scrolledTarget.removeEventListener('scroll', onContextmMenuRemove);
@@ -129,13 +148,15 @@ const ContextMenu = ({
       node && node.removeEventListener('keyup', onKeyPress);
       document.removeEventListener('mousedown', onRemove);
       document.removeEventListener('keyup', onKeyPress);
-    };
+      document.removeEventListener('contextmenu', handleContextMenu);  // 클릭 이벤트 제거
+    }
 
     return () => {
       node && node.removeEventListener('mousedown', onContextmMenuRemove);
       node && node.removeEventListener('keyup', onKeyPress);
       document.removeEventListener('keyup', onKeyPress);
-    }
+      document.removeEventListener('contextmenu', handleContextMenu);
+    };
   }, [
     viewerRef,
     active,
@@ -153,26 +174,25 @@ const ContextMenu = ({
     if (isEraseBtn) itemCnt += 1;
 
     const defaultHeight = itemCnt * itemHeight + menuPadding;
-    let y_ = selection?.y || 0;  // y 값이 없는 경우에 대비하여 기본값 0 설정
     const { innerHeight } = window;
 
-    if (y_ + defaultHeight > innerHeight) {
-      y_ = y_ - selection?.height - (defaultHeight);
-      if (y_ < 0) {
-        setHeight(defaultHeight + y_ - 8);
-        y_ = 8;
+    if (y + defaultHeight > innerHeight) {
+      let newY = y - (selection?.height ?? 0) - defaultHeight; // 기본값 0 사용
+      if (newY < 0) {
+        setHeight(defaultHeight + newY - 8);
+        newY = 8;
       } else {
         setHeight(defaultHeight);
       }
+      setY(newY);
       setIsReverse(true);
     } else {
       setHeight(defaultHeight);
       setIsReverse(false);
     }
 
-    setY(y_);
   }, [
-    selection?.y,
+    y,
     selection?.height,
     ColorList,
     isEraseBtn,
@@ -181,13 +201,15 @@ const ContextMenu = ({
 
   return (
     <>
-      {display && selection?.x !== undefined && selection?.y !== undefined && (
-        <Wrapper x={selection.x}
+      {display && (
+        <Wrapper
+          x={x}
           y={y}
           width={contextmenuWidth}
           height={height}
           isReverse={isReverse}
-          ref={menuRef}>
+          ref={menuRef}
+        >
           <div>
             {ColorList}
             {isEraseBtn && <Item text="Remove" onClick={onRemoveHighlight_} />}
@@ -196,12 +218,12 @@ const ContextMenu = ({
       )}
     </>
   );
-}
+};
 
 interface Props {
   active: boolean;
   viewerRef: any;
-  selection: Selection;
+  selection: Selection | null;
   onAddHighlight: (color: string) => void;
   onRemoveHighlight: (key: string, cfiRange: string) => void;
   onUpdateHighlight: (highlight: Highlight | null, color: string) => void;
