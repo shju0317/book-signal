@@ -10,13 +10,13 @@ const bookRoutes = require('./routes/bookRoutes');
 const mainRoutes = require('./routes/mainRoutes');
 const path = require('path');
 const helmet = require('helmet');
-
 const session = require('express-session');
 const app = express();
 const reviewRoutes = require('./routes/reviewRoutes');
 const fs = require('fs'); // 파일 시스템 접근을 위한 모듈 추가
 const tts = require('./tts'); // TTS 기능 추가
-
+const textToSpeech = require('@google-cloud/text-to-speech');
+const client = new textToSpeech.TextToSpeechClient();
 // 세션 설정 (기본 설정)
 app.use(session({
     secret: 'MyKey', 
@@ -55,27 +55,33 @@ app.use('/getBookPath', bookRoutes);
 app.use('/main', mainRoutes);
 app.use('/', reviewRoutes);
 
-// TTS 기능 추가
 app.post('/tts', async (req, res) => {
-    const { text } = req.body;
+    const { text, rate, gender } = req.body;
+  
+    const request = {
+      input: { text: text },
+      voice: { 
+        languageCode: 'ko-KR', 
+        ssmlGender: gender 
+      },
+      audioConfig: { 
+        audioEncoding: 'MP3',
+        speakingRate: rate 
+      },
+    };
+  
     try {
-        const audioContent = await tts.convertTextToSpeech(text);
-
-        // 음성 데이터를 클라이언트에 스트림으로 전송
-        res.set({
-            'Content-Type': 'audio/mp3',
-            'Content-Length': audioContent.length,
-            'Content-Disposition': 'inline', // 바로 재생
-        });
-
-        res.send(audioContent);
-    } catch (error) {
-        res.status(500).json({ message: 'TTS 변환 실패', error: error.message });
+      const [response] = await client.synthesizeSpeech(request);
+      res.set({
+        'Content-Type': 'audio/mp3',
+        'Content-Length': response.audioContent.length,
+      });
+      res.send(response.audioContent);
+    } catch (err) {
+      console.error('ERROR:', err);
+      res.status(500).send('TTS 변환 실패');
     }
-});
-
-;
-
+  });
 
 
 // eye-gaze

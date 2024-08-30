@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef,useEffect,useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Provider } from "react-redux";
 import { ReactEpubViewer } from "react-epub-viewer";
@@ -29,12 +29,18 @@ const EpubReader = ({ url }) => {
   const currentLocation = useSelector((state) => state.book.currentLocation);
 
   const viewerRef = useRef(null);
+  const audioRef = useRef(new Audio()); // audio 객체를 사용하여 초기화
   const navRef = useRef(null);
   const optionRef = useRef(null);
   const learningRef = useRef(null);
 
   const [isContextMenu, setIsContextMenu] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false); // TTS 상태 관리
+  const [rate, setRate] = useState(1); // TTS 배속 상태 관리
+  const [gender, setGender] = useState("MALE"); // TTS 음성 성별 상태 관리
+  const [isPaused, setIsPaused] = useState(false); // 일시정지 상태 관리
+  const [audioSource, setAudioSource] = useState(null); // 오디오 소스 상태 관리
+  const [currentTextIndex, setCurrentTextIndex] = useState(0); // 현재 텍스트 위치를 저장
 
   const [bookStyle, setBookStyle] = useState({
     fontFamily: "Arial",
@@ -83,63 +89,113 @@ const EpubReader = ({ url }) => {
 
   function splitText(text, maxBytes = 5000) {
     const textParts = [];
-    let currentPart = '';
+    let currentPart = "";
+
     // google cloud tts 텍스트 길이 5000바이트 이상일시 오류 - > 텍스트 나누기
     for (const char of text) {
-        const charByteLength = new Blob([char]).size;
+      const charByteLength = new Blob([char]).size;
 
-        if (new Blob([currentPart + char]).size > maxBytes) {
-            textParts.push(currentPart);
-            currentPart = char;
-        } else {
-            currentPart += char;
-        }
+      if (new Blob([currentPart + char]).size > maxBytes) {
+        textParts.push(currentPart);
+        currentPart = char;
+      } else {
+        currentPart += char;
+      }
     }
 
     if (currentPart) {
-        textParts.push(currentPart);
+      textParts.push(currentPart);
     }
 
     return textParts;
-}
+  }
+
+  useEffect(() => {
+    // 배속 변경될 때 오디오 설정만 업데이트
+    if (audioRef.current) {
+      audioRef.current.playbackRate = rate; // 실시간 배속 반영
+    }
+  }, [rate]); // 배속 또는 성별이 변경될 때만 실행
+
+  useEffect(() => {
+    // 성별 변경 시 TTS 재실행
+    if (isPlaying && audioRef.current) {
+      audioRef.current.pause();
+      setIsPaused(false);
+      handleTTS({ rate, gender });
+    }
+  }, [gender]); // 성별이 변경될 때만 실행
+
+  useEffect(() => {
+    if (audioSource && audioRef.current) {
+      audioRef.current.src = audioSource;
+      audioRef.current.play();
+      audioRef.current.playbackRate = rate; // 배속 반영
+      setIsPlaying(true);
+      setIsPaused(false);
+    }
+  }, [audioSource]); // 오디오 소스가 변경될 때만 실행
 
   // TTS 실행 함수
-  const handleTTS = async () => {
+  const handleTTS = async ({ rate, gender }) => {
     if (viewerRef.current && !isPlaying) {
-      const iframe = document.querySelector('iframe'); // iframe 요소를 선택
+      const iframe = document.querySelector('iframe');
       if (iframe) {
-        const iframeDocument = iframe.contentDocument || iframe.contentWindow.document; //  iframe.contentWindow.document; 오래된 브라우저 지원
-        const text = iframeDocument.body.innerText; // iframe 내부의 텍스트를 가져옴
-        console.log(text)
-       if (text) {
-                const textParts = splitText(text);
-
-                for (const part of textParts) {
-                    await fetch('http://localhost:3001/tts', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ text: part }),
-                    })
-                    .then(response => response.arrayBuffer())
-                    .then(audioContent => {
-                        const audioBlob = new Blob([audioContent], { type: 'audio/mp3' });
-                        const audioUrl = URL.createObjectURL(audioBlob);
-                        const audio = new Audio(audioUrl);
-                        return new Promise((resolve) => {
-                            audio.onended = () => resolve();
-                            audio.play();
-                            console.log('재생중');
-                        });
-                    });
-                }
-
-                setIsPlaying(false);
-                viewerRef.current.nextPage(); // 다음 페이지로 이동
-                setTimeout(handleTTS, 1000); // 다음 페이지로 텍스트 로드 후 다시 읽기
-            }
+        const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+        const text = iframeDocument.body.innerText;
+        if (text) {
+          const textParts = splitText(text);
+          setIsPlaying(true);
+          setIsPaused(false); // 일시정지 상태 해제
+          // TTS 요청 및 오디오 재생
+         // TTS 요청 및 오디오 재생
+         for (const part of textParts) {
+          await fetch('http://localhost:3001/tts', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ text: part, rate, gender }),
+          })
+            .then(response => response.arrayBuffer())
+            .then(audioContent => {
+              const audioBlob = new Blob([audioContent], { type: 'audio/mp3' });
+              const audioUrl = URL.createObjectURL(audioBlob);
+              audioRef.current.src = audioUrl;
+              audioRef.current.playbackRate = rate; // 배속 반영
+              audioRef.current.play();
+              return new Promise((resolve) => {
+                audioRef.current.onended = () => resolve();
+              });
+            });
+        }
+        setIsPlaying(false);
+        viewerRef.current.nextPage();
       }
+    }
+  }
+};
+
+const stopTTS = () => {
+  if (audioRef.current) {
+    audioRef.current.pause();
+    audioRef.current.currentTime = 0; // 재생 위치를 처음으로
+  }
+  setIsPlaying(false);
+  setIsPaused(false); // 일시정지 상태 해제
+};
+
+  const pauseTTS = () => {
+    if (audioRef.current && isPlaying) {
+      audioRef.current.pause(); // 오디오 일시 정지
+      setIsPaused(true); // 일시정지 상태 설정
+    }
+  };
+
+  const resumeTTS = () => {
+    if (audioRef.current && isPaused) {
+      audioRef.current.play();
+      setIsPaused(false);
     }
   };
 
@@ -150,7 +206,14 @@ const EpubReader = ({ url }) => {
           onNavToggle={onNavToggle}
           onOptionToggle={onOptionToggle}
           onLearningToggle={onLearningToggle}
-          onTTSToggle={handleTTS} // TTS 함수 전달
+          onTTSResume={resumeTTS}
+          onTTSToggle={handleTTS} // TTS 실행 함수 전달
+          onTTSPause={pauseTTS} // TTS 일시정지 함수 전달
+          onTTSStop={stopTTS} // TTS 중지 함수 전달
+          onRateChange={setRate} // 배속 변경 함수 전달
+          onVoiceChange={setGender} // 음성 성별 변경 함수 전달
+          rate={rate} // 현재 배속 상태 전달
+          gender={gender} // 현재 음성 성별 상태 전달
         />
 
         <ReactEpubViewer

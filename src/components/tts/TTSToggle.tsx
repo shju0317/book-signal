@@ -3,15 +3,16 @@ import styled from 'styled-components';
 
 interface Props {
   isPlaying: boolean;
+  isPaused: boolean; 
   onToggle: () => void;
   onStop: () => void;
 }
 
-const TTSToggle: React.FC<Props> = ({ isPlaying, onToggle, onStop }) => {
+const TTSToggle: React.FC<Props> = ({ isPlaying,isPaused, onToggle, onStop }) => {
   return (
     <Container>
       <Button onClick={onToggle}>
-        {isPlaying ? 'Pause' : 'Play'}
+      {isPlaying ? (isPaused ? 'Resume' : 'Pause') : 'Play'}
       </Button>
       <Button onClick={onStop}>Stop</Button>
     </Container>

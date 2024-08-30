@@ -40,9 +40,7 @@ const Home = () => {
     <div className='main-div'>
       <SlideShow slides={SLIDES} />
       <br />
-      <div>
-      <Link to="/tts">TTS 테스트로 이동</Link>
-    </div>
+      
       <br />
       <br />
       <br />
