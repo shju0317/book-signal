@@ -145,7 +145,7 @@ const EpubReader = ({ url }) => {
       if (iframe) {
         const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
         const text = iframeDocument.body.innerText;
-        console.log(text);
+        alert('페이지 로딩중입니다. 조금만 기다려주세요!!');
         if (text) {
           const textParts = splitText(text);
           setIsPlaying(true);

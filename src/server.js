@@ -13,14 +13,12 @@ const path = require('path');
 const helmet = require('helmet');
 const session = require('express-session');
 const app = express();
-const reviewRoutes = require('./routes/reviewRoutes');
 const fs = require('fs'); // 파일 시스템 접근을 위한 모듈 추가
 const tts = require('./tts'); // TTS 기능 추가
 const textToSpeech = require('@google-cloud/text-to-speech');
 const client = new textToSpeech.TextToSpeechClient();
 const sameBookRoutes = require('./routes/sameBookRoutes');
 
-const session = require('express-session');
 // 세션 설정 (기본 설정)
 app.use(session({
     secret: 'MyKey', 
