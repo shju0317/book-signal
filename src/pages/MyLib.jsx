@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import '../css/mylib.css';
 import axios from 'axios';
 import Modal from '../components/Modal';
+import GetReview from './GetReview'; // GetReview 컴포넌트 import
+import html2canvas from 'html2canvas';
 
 const MyLib = () => {
   const [activeTab, setActiveTab] = useState('recent'); // 기본 활성 탭
@@ -10,9 +12,16 @@ const MyLib = () => {
   const [recentBooks, setRecentBooks] = useState([]); // 최근 읽은 도서 상태
   const [wishlistBooks, setWishlistBooks] = useState([]); // 찜한 도서 상태
   const [completedBooks, setCompletedBooks] = useState([]); // 완독 도서 상태
-  const [selectedBook, setSelectedBook] = useState(null); // 모달 관련 상태
-  const [isModalOpen, setIsModalOpen] = useState(false); // 모달 관련 상태
-  const [backgroundImage, setBackgroundImage] = useState(''); // 모달 배경 이미지 상태
+  const [selectedBook, setSelectedBook] = useState(null); // 리뷰모달 관련 상태
+  const [isModalOpen, setIsModalOpen] = useState(false); // 리뷰모달 관련 상태
+  const [backgroundImage, setBackgroundImage] = useState(''); // 리뷰모달 배경 이미지 상태
+  const [reviewModalOpen, setReviewModalOpen] = useState(false); // 리뷰모달 상태
+
+  const [signalText, setSignalText] = useState('');
+  const [signalTitle, setSignalTitle] = useState(null); // 시그널 모달 관련 상태
+  const [isSignalOpen, setSignalOpen] = useState(false); // 시그널 모달 관련 상태
+  const [signalBackground, setSignalBackground] = useState(''); // 시그널 모달 배경 이미지 상태
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -68,23 +77,56 @@ const MyLib = () => {
     setActiveTab(tabName);
   };
 
-  const handleBookClick = (book, image) => {
-    if (activeTab === 'bookSignal') {
-      setSelectedBook(book);
-      setBackgroundImage(image);
-      setIsModalOpen(true);
+  const handleBookClick = (book) => {
+    navigate(`/detail`, { state: { book } }); // 선택한 책의 전체 객체를 상태로 전달하여 이동
+  };
+
+  const openReviewModal = (book) => {
+    setSelectedBook(book);
+    setReviewModalOpen(true);
+  };
+
+
+  const closeReviewModal = () => {
+    setReviewModalOpen(false);
+    setSelectedBook(null);
+  };
+
+  const handleSignalClick = (book, image, text) => {
+    if(activeTab === 'bookSignal'){
+      setSignalTitle(book);
+      setSignalBackground(image);
+      setSignalText(text);
+      setSignalOpen(true);
+    }
+  }
+
+  const handleDownload = () => {
+    const modalContent = document.querySelector('.modal-content');
+    if (modalContent) {
+      html2canvas(modalContent).then(canvas => {
+        canvas.toBlob(blob => {
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = `${signalTitle}.jpg`;
+          link.click();
+          URL.revokeObjectURL(link.href);
+        }, 'image/jpeg');
+      });
     }
   };
+
+
 
   const renderContent = () => {
     switch (activeTab) {
       case 'recent':
         return (
-          <div className="books-grid">
+          <div className="mylib-books-grid">
             {recentBooks.length > 0 ? (
               recentBooks.map((book, index) => (
-                <div className="book-card" key={index}>
-                  <img src={`/images/${book.book_cover}`} alt={`${book.book_name} Cover`} className="mylib-book-cover" />
+                <div className="mylib-book-card" key={index} >
+                  <img src={book.book_cover} alt={`${book.book_name} Cover`} className="mylib-book-cover" />
                   <div className="book-info">
                     <p className="book-title">{book.book_name}</p>
                     <p className="book-author">{book.book_writer}</p>
@@ -98,11 +140,11 @@ const MyLib = () => {
         );
       case 'favorite':
         return (
-          <div className="books-grid">
+          <div className="mylib-books-grid">
             {wishlistBooks.length > 0 ? (
               wishlistBooks.map((book, index) => (
-                <div className="book-card" key={index}>
-                  <img src={`/images/${book.book_cover}`} alt={`${book.book_name} Cover`} className="mylib-book-cover" />
+                <div className="mylib-book-card" key={index} onClick={() => handleBookClick(book)}>
+                  <img src={book.book_cover} alt={`${book.book_name} Cover`} className="mylib-book-cover" />
                   <div className="book-info">
                     <p className="book-title">{book.book_name}</p>
                     <p className="book-author">{book.book_writer}</p>
@@ -114,52 +156,44 @@ const MyLib = () => {
             )}
           </div>
         );
+
+
+
+        // 북시그널
       case 'bookSignal':
         return (
           <div className="signal-grid">
+
             <div
               className="signal-card"
-              style={{ backgroundImage: `url('/path/to/image1.png')` }}
-              onClick={() => handleBookClick('북 시그널 책 제목 1', '/path/to/image1.png')}
+              style={{ backgroundImage: `url('/images/cover(21).jpg')` }}
+              onClick={() => handleSignalClick('작가,제목','/images/cover(21).jpg','시간은 흐르고, 우리는 그 속에서 끊임없이 변화한다.')}
             >
               <div className="signal-text">
-                <p>시간은 흐르고,<br />우리는 그 속에서 끊임없이 변화한다.</p>
-                <p>홍길동, {'<나의 눈부신 친구>'}</p>
-              </div>
-            </div>
-            <div
-              className="signal-card"
-              style={{ backgroundImage: `url('/path/to/image2.png')` }}
-              onClick={() => handleBookClick('북 시그널 책 제목 2', '/path/to/image2.png')}
-            >
-              <div className="signal-text">
-                <p>시간은 흐르고,<br />우리는 그 속에서 끊임없이 변화한다.</p>
-                <p>홍길동, {'<나의 눈부신 친구>'}</p>
-              </div>
-            </div>
-            <div
-              className="signal-card"
-              style={{ backgroundImage: `url('/path/to/image3.png')` }}
-              onClick={() => handleBookClick('북 시그널 책 제목 3', '/path/to/image3.png')}
-            >
-              <div className="signal-text">
-                <p>시간은 흐르고,<br />우리는 그 속에서 끊임없이 변화한다.</p>
-                <p>홍길동, {'<나의 눈부신 친구>'}</p>
+                <p>시간은 흐르고,우리는 그 속에서 끊임없이 변화한다.</p>
               </div>
             </div>
           </div>
         );
+
+
+
       case 'completed':
         return (
-          <div className="books-grid">
+          <div className="mylib-completed-books-grid">
             {completedBooks.length > 0 ? (
               completedBooks.map((book, index) => (
-                <div className="book-card" key={index}>
-                  <img src={`/images/${book.book_cover}`} alt={`${book.book_name} Cover`} className="mylib-book-cover" />
-                  <div className="book-info">
-                    <p className="book-title">{book.book_name}</p>
-                    <p className="book-author">{book.book_writer}</p>
+                <div className="mylib-book-item" key={index}>
+                  <div className="mylib-completed-book-card" onClick={() => handleBookClick(book)}>
+                    <img src={book.book_cover} alt={`${book.book_name} Cover`} className="mylib-book-cover" />
+                    <div className="book-info">
+                      <p className="book-title">{book.book_name}</p>
+                      <p className="book-author">{book.book_writer}</p>
+                    </div>
                   </div>
+                  <button className="write-review-button" onClick={() => openReviewModal(book)}>
+                    리뷰 작성 및 수정
+                  </button>
                 </div>
               ))
             ) : (
@@ -172,7 +206,6 @@ const MyLib = () => {
     }
   };
 
-  
   return (
     <div className="mylib-container">
       <h1 className="mylib-title">{userInfo?.mem_nick} 님의 서재</h1>
@@ -205,13 +238,23 @@ const MyLib = () => {
 
       {renderContent()}
 
+      {/* GetReview 모달 */}
+      {selectedBook && (
+        <GetReview
+          book={selectedBook}
+          onReviewSubmit={closeReviewModal}
+        />
+      )}
+
+      {/* bookSignal 모달 */}
       <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        backgroundImage={backgroundImage}
+        isOpen={isSignalOpen}
+        onClose={() => setSignalOpen(false)}
+        backgroundImage={signalBackground}
+        onDownload={handleDownload}
       >
-        <h2>{selectedBook}</h2>
-        <p>책 세부 정보 표시</p>
+        <h2>{signalTitle}</h2>
+        <p>{signalText}</p>
       </Modal>
     </div>
   );

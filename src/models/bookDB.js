@@ -3,6 +3,7 @@ const conn = require('../config/database');
 const fs = require('fs');
 const path = require('path');
 
+
 // 도서 정보 검색 함수
 exports.searchBooks = (searchQuery) => {
   return new Promise((resolve, reject) => {
@@ -15,18 +16,12 @@ exports.searchBooks = (searchQuery) => {
         return;
       }
 
-      // 서버에 이미지가 있는지 확인
       const updatedResults = results.map(book => {
-        // book_cover가 URI 인코딩된 상태라면 디코딩
         book.book_cover = decodeURIComponent(book.book_cover);
-
         if (book.book_cover) {
-          // 파일이 존재할 경우 URL 경로 설정
           book.book_cover = `images/${book.book_cover}`;
         } else {
-          // 파일이 존재하지 않을 경우 기본 이미지 설정
           book.book_cover = './files/default.jpg'; // 기본 이미지 경로 설정
-          console.log('File not found, using default image');
         }
         return book;
       });
@@ -35,6 +30,7 @@ exports.searchBooks = (searchQuery) => {
     });
   });
 };
+
 
 // book_path를 가져오는 함수
 exports.getBookPath = (bookName) => {
@@ -119,6 +115,38 @@ exports.newBooks = () => {
   return getBooks('book_published_at DESC');
 };
 
+// 관련 도서 목록을 가져오는 함수
+exports.sameBooksDetail = (book_genre, book_idx) => {
+  return new Promise((resolve, reject) => {
+    const sql = `
+      SELECT *
+      FROM book_db 
+      WHERE book_genre = ? 
+      AND book_idx != ? 
+      ORDER BY RAND() 
+      LIMIT 4
+    `;
+    conn.query(sql, [book_genre, book_idx], (err, results) => {
+      if (err) {
+        console.error('관련 도서 목록을 가져오는 중 오류 발생:', err);
+        reject(new Error('관련 도서 목록을 가져오는 중 오류가 발생했습니다.'));
+        return;
+      }
+
+      const updatedResults = results.map(book => {
+        book.book_cover = decodeURIComponent(book.book_cover);
+        if (book.book_cover) {
+          book.book_cover = `/images/${book.book_cover}`;
+        } else {
+          book.book_cover = '/images/default.jpg';
+        }
+        return book;
+      });
+
+      resolve(updatedResults);
+    });
+  });
+};
 
 /******************** 찜하기 ********************/
 // 사용자가 이미 찜한 도서인지 확인

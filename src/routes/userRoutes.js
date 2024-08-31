@@ -14,6 +14,9 @@ router.post('/logout', userController.logout);
 // 회원탈퇴
 router.post('/deleteuser', userController.deleteUser);
 
+// 사용자 정보 가져오기
+router.get('/user-info/:mem_id', userController.getUserInfo);
+
 // 이메일 중복 체크
 router.get('/check-email', async (req, res) => {
   const { mem_email } = req.query;
@@ -29,7 +32,6 @@ router.get('/check-email', async (req, res) => {
     return res.status(500).json({ message: '서버 오류' });
   }
 });
-
 
 // 아이디 중복 체크
 router.get('/check-id', async (req, res) => {

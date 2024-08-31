@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import '../css/bookDetail.css';
 import { IoMdHeartEmpty } from "react-icons/io";
 import { TiStarFullOutline } from "react-icons/ti";
+import '../css/sameBook.css';
 
 const BookDetail = () => {
   const navigate = useNavigate();
@@ -12,7 +13,7 @@ const BookDetail = () => {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [memId, setMemId] = useState(null); // 사용자 ID 상태 추가
-
+  const [sameBooks, setSameBooks] = useState([]); //관련 도서 상태 추가
 
   useEffect(() => {
 
@@ -38,7 +39,24 @@ const BookDetail = () => {
         console.error('로그인 상태 확인 중 오류 발생:', error);
         setIsLoggedIn(false);
       });
-  }, [book.book_idx]);
+  }, [book, navigate]);
+
+
+  // 관련 도서 가져오기
+  useEffect(() => {
+    axios.get('http://localhost:3001/sameBook', {
+      params: { genre: book.book_genre, idx: book.book_idx }
+    })
+      .then(response => {
+        const { sameBooks } = response.data;
+        setSameBooks(sameBooks);
+      })
+      .catch(error => {
+        console.error('오류:', error.response ? error.response.data : error.message);
+      });
+  }, [book.book_genre, book.book_idx]);
+
+
 
   // 사용자가 이미 찜한 도서인지 확인
   const checkWishlistStatus = async (memId, bookIdx) => {
@@ -96,31 +114,34 @@ const BookDetail = () => {
       alert('책을 읽는 중에 문제가 발생했습니다.');
     }
 
-    
+
   };
 
 
   return (
     <div className='book-info-wrapper flex flex-col gap-10 max-w-screen-xl m-auto'>
-      <section className='flex gap-6 w-30 justify-between'>
+      <section className='flex gap-6 w-30 h-96 justify-between'>
         <h2 className='sr-only'>도서 정보</h2>
         <div className='book-cover-wrapper w-[250px] aspect-w-2 aspect-h-3'>
           <img src={book?.book_cover} alt={book?.book_name || "도서 이미지"} className='w-full h-full object-cover rounded-xl' />
         </div>
         <div className='border rounded-xl grow flex flex-col justify-between'>
           <div className='book-info-contents flex flex-col gap-2 text-md p-6'>
-            <p>{book.book_genre}</p>
+            <p className='text-[14px] text-gray-500 mt-2'>{book.book_genre}</p>
             <p className='text-3xl font-semibold mb-4'>{book.book_name}</p>
             <div className='flex gap-3'>
-              <p>{book?.book_writer}<span>저자</span></p>
+              <p className='text-[16px]'>{book?.book_writer}<span>저자</span></p>
             </div>
-            <p className='mb-4'>{book.book_published_at}<span>출간</span></p>
-            <div className='flex ml-[-6px]'>
-              <span className='mr-2'>이 책을 읽은 독자</span>{book.book_views}
-              <p className='flex ml-3 items-center'>
+            <p className='mb-4 text-[16px]'>{book.book_published_at}<span>출간</span></p>
+            <div className='flex ml-[-6px] mb-2'>
+              <span className='mr-2 text-[16px]'>이 책을 읽은 독자</span>
+              <p className='text-[16px] text-black'>{book.book_views}</p>
+            </div>
+            <div>
+              <p className='flex items-center text-[16px] justify-start mb-2'>
                 <span className='sr-only'>평점</span>
-                <TiStarFullOutline />
-                <strong className='ml-1'>{book.book_avg}</strong>
+                <TiStarFullOutline className='mt-[2px]' />
+                <strong className='ml-1 text-[16px]'>{book.book_avg}</strong>
               </p>
             </div>
           </div>
@@ -133,23 +154,39 @@ const BookDetail = () => {
         </div>
       </section>
       <section>
-        <h2 className='text-2xl'>책 소개</h2>
+        <h2 className='text-2xl text-black'>책 소개</h2>
         <div className='bg-background p-6 mt-3 rounded-xl'>
-          <h3 className='text-xl mb-3'>요약</h3>
+          <h3 className='text-xl mb-3 '>도서 정보</h3>
           <p className='font-normal'>{book.book_explanation}</p>
         </div>
       </section>
       <section>
-        <h2 className='text-2xl mb-3'>관련 도서</h2>
+        <h2 className='text-2xl mb-6 text-black'>관련 도서</h2>
         <div className='flex gap-4'>
-          <div className='book-cover-wrapper w-[200px]'>
-            <img src='book_cover_sample.jpg' alt="이미지" className='w-full h-full rounded-xl' />
-          </div>
-          <div className='book-cover-wrapper w-[200px] aspect-w-2 aspect-h-3'>
-            <img src='book_cover_sample.jpg' alt="이미지" className='w-full h-full rounded-xl object-cover' />
-          </div>
+          {sameBooks.map((sameBook) => (
+            <div
+              className="same-book-card"
+              key={sameBook.book_idx}
+              onClick={() => navigate(`/detail`, { state: { book: sameBook } })}
+              style={{ cursor: 'pointer' }}
+            >
+              <div className='book-cover-wrapper w-[200px] aspect-w-2 aspect-h-3'>
+                <img src={sameBook.book_cover} alt={sameBook.book_name} className='w-[180px] h-[260px] rounded-lg object-cover' />
+              </div>
+              <div className="main-book-info w-[180px]">
+                <p className="main-book-title">{sameBook.book_name}</p>
+                <p className="main-book-author">{sameBook.book_writer}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
+      <div className='h-40 text-right'>
+        <hr />
+        <div className='h-5'></div>
+        <span className='text-gray-400'>b:ook</span>
+        <div className='h-10'></div>
+      </div>
     </div>
   );
 };

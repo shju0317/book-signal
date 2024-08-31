@@ -46,12 +46,14 @@ const EpubReader = ({ url }) => {
     fontFamily: "Arial",
     fontSize: 16,
     lineHeight: 1.6,
+    marginHorizontal: 50,
+    marginVertical: 5,
   });
 
   const [bookOption, setBookOption] = useState({
     flow: "paginated",
     resizeOnOrientationChange: true,
-    spread: "auto",
+    spread: "none",
   });
 
   const [navControl, onNavToggle] = useMenu(navRef, 300);
