@@ -1,38 +1,26 @@
-import React, { useState, useRef,useEffect,useCallback } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import React, { useState, useRef, useEffect } from "react";
+import { useDispatch } from "react-redux";
 import { Provider } from "react-redux";
-import { ReactEpubViewer } from "react-epub-viewer";
 import { useLocation } from "react-router-dom";
+import ePub from "epubjs";
 // containers
-import Header from "containers/Header";
 import Footer from "containers/Footer";
 import Nav from "containers/menu/Nav";
-import Option from "containers/menu/Option";
-import Learning from "containers/menu/Note";
-import ContextMenu from "containers/commons/ContextMenu";
 import Snackbar from "containers/commons/Snackbar";
+import Header from "containers/Header";
 // components
 import ViewerWrapper from "components/commons/ViewerWrapper";
-import LoadingView from "LoadingView";
 // slices
 import store from "slices";
-import { updateBook, updateCurrentPage, updateToc } from "slices/book";
-// hooks
-import useMenu from "lib/hooks/useMenu";
-import useHighlight from "lib/hooks/useHighlight";
+import { updateCurrentPage } from "slices/book";
+
 // styles
 import "lib/styles/readerStyle.css";
-import viewerLayout from "lib/styles/viewerLayout";
 
 const EpubReader = ({ url }) => {
   const dispatch = useDispatch();
-  const currentLocation = useSelector((state) => state.book.currentLocation);
-
   const viewerRef = useRef(null);
   const audioRef = useRef(new Audio()); // audio 객체를 사용하여 초기화
-  const navRef = useRef(null);
-  const optionRef = useRef(null);
-  const learningRef = useRef(null);
 
   const [isContextMenu, setIsContextMenu] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false); // TTS 상태 관리
@@ -40,53 +28,105 @@ const EpubReader = ({ url }) => {
   const [gender, setGender] = useState("MALE"); // TTS 음성 성별 상태 관리
   const [isPaused, setIsPaused] = useState(false); // 일시정지 상태 관리
   const [audioSource, setAudioSource] = useState(null); // 오디오 소스 상태 관리
-  const [currentTextIndex, setCurrentTextIndex] = useState(0); // 현재 텍스트 위치를 저장
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [pageText, setPageText] = useState(""); // 현재 페이지의 텍스트 상태
+
+  const bookRef = useRef(null);
+  const renditionRef = useRef(null);
 
   const [bookStyle, setBookStyle] = useState({
     fontFamily: "Arial",
     fontSize: 16,
     lineHeight: 1.6,
-    marginHorizontal: 50,
-    marginVertical: 5,
   });
 
-  const [bookOption, setBookOption] = useState({
-    flow: "paginated",
-    resizeOnOrientationChange: true,
-    spread: "none",
-  });
 
-  const [navControl, onNavToggle] = useMenu(navRef, 300);
-  const [optionControl, onOptionToggle, emitEvent] = useMenu(optionRef, 300);
-  const [learningControl, onLearningToggle] = useMenu(learningRef, 300);
-  const {
-    selection,
-    onSelection,
-    onClickHighlight,
-    onAddHighlight,
-    onRemoveHighlight,
-    onUpdateHighlight,
-  } = useHighlight(viewerRef, setIsContextMenu, bookStyle, bookOption.flow);
+  useEffect(() => {
+    if (viewerRef.current) {
+      const book = ePub(url);
+      const rendition = book.renderTo(viewerRef.current, {
+        width: "100%",
+        height: "100%",
+        flow: "paginated", // 페이지 방식
+        spread: "none", // 페이지 확장 없음
+      });
 
-  const onBookInfoChange = (book) => dispatch(updateBook(book));
-  const onLocationChange = (loc) =>
-    viewerRef.current && viewerRef.current.setLocation(loc);
+      renditionRef.current = rendition;
+
+      
+
+      // 페이지가 로드 될 때마다 텍스트를 가져오는 이벤트 리스너
+      rendition.on("relocated",  async (location) => {
+        const currentPage = location.start.displayed.page;
+        const totalPages = location.start.displayed.total;
+
+        setCurrentPage(currentPage);
+        setTotalPages(totalPages);
+
+        dispatch(updateCurrentPage({ currentPage, totalPages }));
+     
+      // 현재 페이지의 텍스트 추출
+      try {
+        const contents = await renditionRef.current.getContents();
+        let visibleText = "";
+
+        // 페이지 내의 텍스트를 가져오기
+        contents.forEach((content) => {
+          const text = content.document.body.innerText;
+          visibleText += text + "\n";
+        });
+
+        console.log("Visible Text:", visibleText); // 텍스트 출력
+        setPageText(visibleText);
+      } catch (error) {
+        console.error("텍스트 추출 오류:", error);
+      }
+    });
+
+
+     // 페이지 랜더링
+     rendition.display();
+     
+      return () => {
+        if (book) {
+          book.destroy();
+        }
+      };
+    }
+  }, [url, dispatch]);
+
+  const extractVisibleText = (element) => {
+    // 현재 뷰포트에서 보이는 텍스트만 추출
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+    const visibleText = selection.toString();
+    selection.removeAllRanges();
+    return visibleText;
+  };
 
   const onPageMove = (type) => {
-    const node = viewerRef.current;
-    if (node) {
-      type === "PREV" ? node.prevPage() : node.nextPage();
+    if (renditionRef.current) {
+      if (type === "PREV") {
+        renditionRef.current.prev();
+      } else if (type === "NEXT") {
+        renditionRef.current.next();
+      }
     }
   };
 
-  const onTocChange = (toc) => dispatch(updateToc(toc));
-  const onBookStyleChange = (bookStyle_) => setBookStyle(bookStyle_);
-  const onBookOptionChange = (bookOption_) => setBookOption(bookOption_);
-  const onPageChange = (page) => dispatch(updateCurrentPage(page));
-  const onContextMenu = (cfiRange) => {
-    const result = onSelection(cfiRange);
-    setIsContextMenu(result);
-  };
+  // const onTocChange = (toc) => dispatch(updateToc(toc));
+  // const onBookStyleChange = (bookStyle_) => setBookStyle(bookStyle_);
+  // const onBookOptionChange = (bookOption_) => setBookOption(bookOption_);
+  // const onPageChange = (page) => dispatch(updateCurrentPage(page));
+  // const onContextMenu = (cfiRange) => {
+  //   const result = onSelection(cfiRange);
+  //   setIsContextMenu(result);
+  // };
   const onContextMenuRemove = () => setIsContextMenu(false);
 
   function splitText(text, maxBytes = 5000) {
@@ -141,23 +181,17 @@ const EpubReader = ({ url }) => {
   // TTS 실행 함수
   const handleTTS = async ({ rate, gender }) => {
     if (viewerRef.current && !isPlaying) {
-      const iframe = document.querySelector('iframe');
-      if (iframe) {
-        const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-        const text = iframeDocument.body.innerText;
-        alert('페이지 로딩중입니다. 조금만 기다려주세요!!');
-        if (text) {
-          const textParts = splitText(text);
-          setIsPlaying(true);
-          setIsPaused(false); // 일시정지 상태 해제
-          // TTS 요청 및 오디오 재생
-         // TTS 요청 및 오디오 재생
-         for (const part of textParts) {
+      const text = pageText;
+
+      if (text) {
+        const textParts = splitText(text);
+        setIsPlaying(true);
+        setIsPaused(false);
+
+        for (const part of textParts) {
           await fetch('http://localhost:3001/tts', {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ text: part, rate, gender }),
           })
             .then(response => response.arrayBuffer())
@@ -165,20 +199,23 @@ const EpubReader = ({ url }) => {
               const audioBlob = new Blob([audioContent], { type: 'audio/mp3' });
               const audioUrl = URL.createObjectURL(audioBlob);
               audioRef.current.src = audioUrl;
-              audioRef.current.playbackRate = rate; // 배속 반영
+              audioRef.current.playbackRate = rate;
               audioRef.current.play();
-              console.log('재생중');
               return new Promise((resolve) => {
                 audioRef.current.onended = () => resolve();
               });
             });
         }
+
         setIsPlaying(false);
-        viewerRef.current.nextPage();
+
+        // 다음 페이지로 자동 이동
+        if (renditionRef.current) {
+          renditionRef.current.next();
+        }
       }
     }
-  }
-};
+  };
 
 const stopTTS = () => {
   if (audioRef.current) {
@@ -207,9 +244,6 @@ const stopTTS = () => {
     <div>
       <ViewerWrapper>
         <Header
-          onNavToggle={onNavToggle}
-          onOptionToggle={onOptionToggle}
-          onLearningToggle={onLearningToggle}
           onTTSResume={resumeTTS}
           onTTSToggle={handleTTS} // TTS 실행 함수 전달
           onTTSPause={pauseTTS} 
@@ -220,64 +254,20 @@ const stopTTS = () => {
           gender={gender} 
         />
 
-        <ReactEpubViewer
-          url={url}
-          viewerLayout={viewerLayout}
-          viewerStyle={bookStyle}
-          viewerOption={bookOption}
-          onBookInfoChange={onBookInfoChange}
-          onPageChange={onPageChange}
-          onTocChange={onTocChange}
-          onSelection={onContextMenu}
-          loadingView={<LoadingView />}
+        <div
           ref={viewerRef}
+          style={{ width: "100%", height: "100%", border: "1px solid #ccc" }}
         />
 
         <Footer
-          title={currentLocation?.chapterName || ""}
-          nowPage={currentLocation?.currentPage || 0}
-          totalPage={currentLocation?.totalPage || 0}
-          onPageMove={onPageMove} // 페이지 이동 기능 연결
+          title="Chapter Title"
+          nowPage={currentPage}
+          totalPage={totalPages}
+          onPageMove={onPageMove}
         />
       </ViewerWrapper>
 
-      <Nav
-        control={navControl}
-        onToggle={onNavToggle}
-        onLocation={onLocationChange}
-        ref={navRef}
-      />
-
-      <Option
-        control={optionControl}
-        bookStyle={bookStyle}
-        bookOption={bookOption}
-        bookFlow={bookOption.flow}
-        onToggle={onOptionToggle}
-        emitEvent={emitEvent}
-        onBookStyleChange={onBookStyleChange}
-        onBookOptionChange={onBookOptionChange}
-        ref={optionRef}
-      />
-
-      <Learning
-        control={learningControl}
-        onToggle={onLearningToggle}
-        onClickHighlight={onClickHighlight}
-        emitEvent={emitEvent}
-        viewerRef={viewerRef}
-        ref={learningRef}
-      />
-
-      <ContextMenu
-        active={isContextMenu}
-        viewerRef={viewerRef}
-        selection={selection}
-        onAddHighlight={onAddHighlight}
-        onRemoveHighlight={onRemoveHighlight}
-        onUpdateHighlight={onUpdateHighlight}
-        onContextMenuRemove={onContextMenuRemove}
-      />
+      <Nav control={() => { }} onToggle={() => { }} onLocation={() => { }} ref={null} />
 
       <Snackbar />
     </div>
@@ -288,11 +278,11 @@ const Reader = () => {
   const location = useLocation();
   const { bookPath } = location.state || {};
 
-  const epubUrl = `book_file/${bookPath}.epub`; // EPUB 파일 경로 설정
+  const epubUrl = `${process.env.PUBLIC_URL}/book_file/${bookPath}.epub`;
 
   return (
     <Provider store={store}>
-      <EpubReader url={epubUrl} /> {/* ReaderWrapper 컴포넌트에 URL 전달 */}
+      <EpubReader url={epubUrl} />
     </Provider>
   );
 };

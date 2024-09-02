@@ -7,7 +7,7 @@ const path = require('path');
 // 도서 정보 검색 함수
 exports.searchBooks = (searchQuery) => {
   return new Promise((resolve, reject) => {
-    const sql = `SELECT book_name, book_writer, book_cover FROM book_db WHERE book_name LIKE ?`;
+    const sql = `SELECT * FROM book_db WHERE book_name LIKE ?`;
     const formattedQuery = `%${searchQuery}%`;
 
     conn.query(sql, [formattedQuery], (err, results) => {
@@ -196,40 +196,6 @@ exports.removeWishlist = (mem_id, book_idx) => {
       }
 
       resolve({ message: '도서가 찜 목록에서 제거되었습니다.' });
-    });
-  });
-};
-
-
-
-
-
-
-
-// 리뷰 데이터 삽입
-exports.addBookEnd = (data) => {
-  return new Promise((resolve, reject) => {
-    const sql = `INSERT INTO book_end (mem_id, book_idx, book_name, book_score, book_review) VALUES (?, ?, ?, ?, ?)`;
-    conn.query(sql, [data.mem_id, data.book_idx, data.book_name, data.book_score, data.book_review], (err, result) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(result);
-      }
-    });
-  });
-};
-
-// 포인트 업데이트
-exports.updateMemberPoints = (mem_id, points) => {
-  return new Promise((resolve, reject) => {
-    const sql = `UPDATE member SET mem_point = mem_point + ? WHERE mem_id = ?`;
-    conn.query(sql, [points, mem_id], (err, result) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(result);
-      }
     });
   });
 };

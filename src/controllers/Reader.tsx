@@ -1,7 +1,7 @@
-import { useState, useRef, useCallback } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { Provider } from 'react-redux';
-import { ReactEpubViewer } from 'react-epub-viewer';
+import { useState, useRef,useCallback } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import { Provider } from 'react-redux'
+// import { ReactEpubViewer } from 'react-epub-viewer'
 // containers
 import Header from 'containers/Header';
 import Footer from 'containers/Footer';
@@ -196,7 +196,7 @@ const Reader = ({ url, loadingView }: Props) => {
 		  setAudioSource={handleAudioSourceChange} // 오디오 소스 설정 함수 전달
         />
 
-        <ReactEpubViewer 
+        {/* <ReactEpubViewer 
           url={url}
           viewerLayout={viewerLayout}
           viewerStyle={bookStyle}
@@ -207,7 +207,7 @@ const Reader = ({ url, loadingView }: Props) => {
           onSelection={onContextMenu}
           loadingView={loadingView || <LoadingView />}
           ref={viewerRef}
-        />
+        /> */}
 
         <Footer 
           title={currentLocation.chapterName}
