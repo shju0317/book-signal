@@ -21,9 +21,6 @@ const EpubReader = ({ url }) => {
   const dispatch = useDispatch();
   const viewerRef = useRef(null);
   const audioRef = useRef(new Audio()); // audio 객체를 사용하여 초기화
-  const navRef = useRef(null);
-  const optionRef = useRef(null);
-  const learningRef = useRef(null);
 
   const [isContextMenu, setIsContextMenu] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false); // TTS 상태 관리
@@ -31,18 +28,20 @@ const EpubReader = ({ url }) => {
   const [gender, setGender] = useState("MALE"); // TTS 음성 성별 상태 관리
   const [isPaused, setIsPaused] = useState(false); // 일시정지 상태 관리
   const [audioSource, setAudioSource] = useState(null); // 오디오 소스 상태 관리
-  const [currentTextIndex, setCurrentTextIndex] = useState(0); // 현재 텍스트 위치를 저장
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [pageText, setPageText] = useState(""); // 현재 페이지의 텍스트 상태
+
+  const bookRef = useRef(null);
+  const renditionRef = useRef(null);
 
   const [bookStyle, setBookStyle] = useState({
     fontFamily: "Arial",
     fontSize: 16,
     lineHeight: 1.6,
   });
-  const bookRef = useRef(null);
-  const renditionRef = useRef(null);
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     if (viewerRef.current) {
@@ -54,13 +53,12 @@ const EpubReader = ({ url }) => {
         spread: "none", // 페이지 확장 없음
       });
 
-      bookRef.current = book;
       renditionRef.current = rendition;
 
-      // 특정 위치로 이동
-      rendition.display();
+      
 
-      rendition.on("relocated", (location) => {
+      // 페이지가 로드 될 때마다 텍스트를 가져오는 이벤트 리스너
+      rendition.on("relocated",  async (location) => {
         const currentPage = location.start.displayed.page;
         const totalPages = location.start.displayed.total;
 
@@ -68,15 +66,48 @@ const EpubReader = ({ url }) => {
         setTotalPages(totalPages);
 
         dispatch(updateCurrentPage({ currentPage, totalPages }));
-      });
+     
+      // 현재 페이지의 텍스트 추출
+      try {
+        const contents = await renditionRef.current.getContents();
+        let visibleText = "";
 
+        // 페이지 내의 텍스트를 가져오기
+        contents.forEach((content) => {
+          const text = content.document.body.innerText;
+          visibleText += text + "\n";
+        });
+
+        console.log("Visible Text:", visibleText); // 텍스트 출력
+        setPageText(visibleText);
+      } catch (error) {
+        console.error("텍스트 추출 오류:", error);
+      }
+    });
+
+
+     // 페이지 랜더링
+     rendition.display();
+     
       return () => {
-        if (bookRef.current) {
-          bookRef.current.destroy();
+        if (book) {
+          book.destroy();
         }
       };
     }
   }, [url, dispatch]);
+
+  const extractVisibleText = (element) => {
+    // 현재 뷰포트에서 보이는 텍스트만 추출
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+    const visibleText = selection.toString();
+    selection.removeAllRanges();
+    return visibleText;
+  };
 
   const onPageMove = (type) => {
     if (renditionRef.current) {
@@ -150,23 +181,17 @@ const EpubReader = ({ url }) => {
   // TTS 실행 함수
   const handleTTS = async ({ rate, gender }) => {
     if (viewerRef.current && !isPlaying) {
-      const iframe = document.querySelector('iframe');
-      if (iframe) {
-        const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-        const text = iframeDocument.body.innerText;
-        console.log(text);
-        if (text) {
-          const textParts = splitText(text);
-          setIsPlaying(true);
-          setIsPaused(false); // 일시정지 상태 해제
-          // TTS 요청 및 오디오 재생
-         // TTS 요청 및 오디오 재생
-         for (const part of textParts) {
+      const text = pageText;
+
+      if (text) {
+        const textParts = splitText(text);
+        setIsPlaying(true);
+        setIsPaused(false);
+
+        for (const part of textParts) {
           await fetch('http://localhost:3001/tts', {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ text: part, rate, gender }),
           })
             .then(response => response.arrayBuffer())
@@ -174,20 +199,23 @@ const EpubReader = ({ url }) => {
               const audioBlob = new Blob([audioContent], { type: 'audio/mp3' });
               const audioUrl = URL.createObjectURL(audioBlob);
               audioRef.current.src = audioUrl;
-              audioRef.current.playbackRate = rate; // 배속 반영
+              audioRef.current.playbackRate = rate;
               audioRef.current.play();
-              console.log('재생중');
               return new Promise((resolve) => {
                 audioRef.current.onended = () => resolve();
               });
             });
         }
+
         setIsPlaying(false);
-        viewerRef.current.nextPage();
+
+        // 다음 페이지로 자동 이동
+        if (renditionRef.current) {
+          renditionRef.current.next();
+        }
       }
     }
-  }
-};
+  };
 
 const stopTTS = () => {
   if (audioRef.current) {
