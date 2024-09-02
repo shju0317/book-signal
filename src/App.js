@@ -6,7 +6,6 @@ import Home from './pages/Home';
 import MyLib from './pages/MyLib';
 import MyPage from './pages/MyPage';
 import RootLayout from './pages/RootLayout';
-import viewerLayout from 'lib/styles/viewerLayout';
 import Chatbot from './components/Chatbot';
 import Login from './pages/Login';
 import Join from './pages/Join';
@@ -25,8 +24,9 @@ import RankingBookList from './pages/RankingBookList';
 import EyeGazeTest from './pages/EyeGazeTest';
 import Modal from './components/Modal';
 import ReaderWrapper from '../src/containers/Reader';
-import Reader from 'components/Reader';
-import SummarizePage from 'components/SummarizePage';
+import Reader from './components/Reader';
+import SummarizePage from './components/SummarizePage';
+import Epubjs from 'components/Epubjs';
 
 // 로그인 상태를 관리하기 위한 Context 생성
 export const AuthContext = createContext();
@@ -65,6 +65,7 @@ function App() {
             <Route path="/modal" element={<Modal />} />
             <Route path="/reader" element={<Reader />} />
             <Route path="/summarizepage" element={<SummarizePage />} />
+            <Route path="/epubjs" element={<Epubjs />} />
 
           </Route>
 
