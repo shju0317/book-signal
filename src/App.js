@@ -27,6 +27,8 @@ import Modal from './components/Modal';
 import ReaderWrapper from '../src/containers/Reader';
 import Reader from 'components/Reader';
 import EyeGazeCalibration from 'pages/EyeGazeCalibration';
+import SummarizePage from './components/SummarizePage';
+import Epubjs from 'components/Epubjs';
 
 // 로그인 상태를 관리하기 위한 Context 생성
 export const AuthContext = createContext();
@@ -40,6 +42,7 @@ console.warn = (...args) => {
 };
 
 function App() {
+  const epubUrl = "files/김유정-동백꽃-조광.epub"; // ePub 파일 경로 설정
   const [isAuthenticated, setIsAuthenticated] = useState(false);  // 로그인 상태 관리
   const [user, setUser] = useState(null);  // 로그인한 사용자 정보 관리
 
@@ -86,9 +89,12 @@ function App() {
             <Route path="/modal" element={<Modal />} />
             <Route path="/reader" element={<Reader />} />
             <Route path="/test" element={<EyeGazeCalibration />} />
+            <Route path="/summarizepage" element={<SummarizePage />} />
+            <Route path="/epubjs" element={<Epubjs />} />
+
           </Route>
 
-          <Route path="/readerwrapper" element={<ReaderWrapper />} />
+          <Route path="/readerwrapper" element={<ReaderWrapper url={epubUrl} />} />
           <Route path='/login' element={<Login />} />
           <Route path='/join' element={<Join />} />
           <Route path="/findid" element={<FindId />} />

@@ -1,12 +1,17 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import EasySeeSo from 'seeso/easy-seeso';
 import axios from 'axios';
+import { AuthContext } from '../App';
 
 const SEESO_API_KEY = process.env.REACT_APP_SEESO_API_KEY;
 // console.log(SEESO_API_KEY);
 
 
-const EyeGaze = ({ viewerRef, onSaveGazeTime }) => {
+const EyeGaze = ({ viewerRef, onSaveGazeTime, bookText }) => {
+  const { user } = useContext(AuthContext);
+  // console.log('user!!', user.mem_id);
+  const memId = user.mem_id;
+
   const canvasRef = useRef(null);
   const seesoRef = useRef(null);
 
@@ -39,11 +44,12 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime }) => {
       // console.log('canvas 높이: ', canvas.height);
       
 
-      const ctx = canvas.getContext('2d');
-      ctx.strokeStyle = '#800080'; // 보라색
-      ctx.lineWidth = 2;
-      ctx.clearRect(0, 0, canvas.width, canvas.height); 
-      ctx.strokeRect(0, 0, canvas.width, canvas.height);
+      // 영역 확인용
+      // const ctx = canvas.getContext('2d');
+      // ctx.strokeStyle = '#800080'; // 보라색
+      // ctx.lineWidth = 2;
+      // ctx.clearRect(0, 0, canvas.width, canvas.height); 
+      // ctx.strokeRect(0, 0, canvas.width, canvas.height);
     }
   }, [viewerRef]);
 
@@ -157,7 +163,7 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime }) => {
 
   /******************** 시선추적 초기화 ********************/  
   function afterInitialized() {
-    console.log('SDK 초기화 성공!');
+    console.log('Seeso SDK 초기화 성공!');
     const seeso = seesoRef.current;
     seeso.setMonitorSize(16);
     seeso.setFaceDistance(50);
@@ -170,8 +176,12 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime }) => {
   }
 
   function onGaze(gazeInfo) {
+    showGaze(gazeInfo);
+
     if (!gazeInfo || typeof gazeInfo.screen_x === 'undefined' || typeof gazeInfo.screen_y === 'undefined') {
       // console.error('Invalid gazeInfo:', gazeInfo);
+      // console.log('흠',gazeInfo.screen_x);
+      
       return;
     }
 
@@ -212,8 +222,8 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime }) => {
   /******************** 시선 추적 시간 저장 ********************/
   // 임의로 지정된 값들(테스트용)
   const bookIdx = 1; 
-  const memId = 'zzang';
-  const bookText = '텍스트';
+  // memId = 'zzang';
+  // bookText = '텍스트';
 
   const saveGazeTime = () => {
     const duration = insideTimeTotalRef.current / 1000; // ref에서 최신 상태 값을 가져옴
