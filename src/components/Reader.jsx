@@ -22,12 +22,13 @@ const EpubReader = ({ url }) => {
   const [fontFamily, setFontFamily] = useState("Arial");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [bookmarks, setBookmarks] = useState([]);
-  const [firstVisibleCfi, setFirstVisibleCfi] = useState(null);
+  const [loading, setLoading] = useState(true); // 로딩 상태 관리
+  const [bookmarks, setBookmarks] = useState([]); // 북마크 관리
 
   // ePub 책과 렌더링 초기화
   useEffect(() => {
     if (viewerRef.current) {
+      setLoading(true); // 로딩 시작
       const book = ePub(url);
       const rendition = book.renderTo(viewerRef.current, {
         width: "100%",
@@ -39,16 +40,19 @@ const EpubReader = ({ url }) => {
       bookRef.current = book;
       renditionRef.current = rendition;
 
+      // 페이지 정보 업데이트 함수
       const updatePageInfo = () => {
         const location = renditionRef.current.currentLocation();
-        if (location) {
+        if (location && location.start && location.start.displayed) {
           const page = location.start.displayed.page;
-          const total = location.start.displayed.total-1;
+          const total = location.start.displayed.total;
 
-          setCurrentPage(page || 1);
-          setTotalPages(total || 1);
-
-          dispatch(updateCurrentPage({ currentPage: page || 1, totalPages: total || 1 }));
+          if (page !== currentPage || total !== totalPages) {
+            setCurrentPage(page || 1);
+            setTotalPages(total || 1);
+            dispatch(updateCurrentPage({ currentPage: page || 1, totalPages: total || 1 }));
+          }
+          setLoading(false); // 로딩 완료
         }
       };
 
@@ -80,19 +84,15 @@ const EpubReader = ({ url }) => {
       if (bookRef.current) {
         bookRef.current.ready
           .then(() => bookRef.current.locations.generate())
-          .then(() => {
-            if (firstVisibleCfi) {
-              return renditionRef.current.display(firstVisibleCfi);
-            }
-          })
           .catch((err) => console.error("스타일 업데이트 또는 위치 생성 중 오류:", err));
       }
     }
-  }, [fontSize, lineHeight, margin, fontFamily, firstVisibleCfi]);
+  }, [fontSize, lineHeight, margin, fontFamily]);
 
   // 페이지 이동 핸들러
   const onPageMove = useCallback((type) => {
     if (renditionRef.current) {
+      setLoading(true); // 페이지 이동 시 로딩 상태로 변경
       const updateAfterMove = () => {
         const location = renditionRef.current.currentLocation();
         if (location) {
@@ -103,6 +103,7 @@ const EpubReader = ({ url }) => {
           setTotalPages(total || 1);
 
           dispatch(updateCurrentPage({ currentPage: page || 1, totalPages: total || 1 }));
+          setLoading(false); // 페이지 이동 후 로딩 완료
         }
       };
 
@@ -117,7 +118,7 @@ const EpubReader = ({ url }) => {
     }
   }, [dispatch]);
 
-  // 북마크 추가 및 제거
+  // 북마크 추가
   const addBookmark = () => {
     const currentLocation = renditionRef.current.currentLocation();
     if (currentLocation && currentLocation.start) {
@@ -127,6 +128,7 @@ const EpubReader = ({ url }) => {
     }
   };
 
+  // 북마크로 이동
   const goToBookmark = (cfi) => {
     if (renditionRef.current) {
       renditionRef.current.display(cfi).catch((err) => {
@@ -135,6 +137,7 @@ const EpubReader = ({ url }) => {
     }
   };
 
+  // 북마크 제거
   const removeBookmark = (cfi) => {
     const newBookmarks = bookmarks.filter((bookmark) => bookmark !== cfi);
     setBookmarks(newBookmarks);
@@ -281,7 +284,8 @@ const EpubReader = ({ url }) => {
       >
         <button onClick={() => onPageMove("PREV")}>Previous</button>
         <span>
-          Progress: {calculateReadingProgress()}% | Page {currentPage} of {totalPages}
+          Progress: {calculateReadingProgress()}% | Page {currentPage} of {totalPages - 1}{" "}
+          {loading ? "로딩 중..." : ""}
         </span>
         <button onClick={() => onPageMove("NEXT")}>Next</button>
       </div>
