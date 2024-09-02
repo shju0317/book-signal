@@ -109,13 +109,23 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime }) => {
               // 시선이 영역 밖으로 나갔을 때 영역 안에 머문 시간을 계산하고 누적
               const timeSpentInside = Date.now() - gazeInsideTimeRef.current;
 
+            //   setInsideTimeTotal(prevTime => {
+            //     const newTotal = prevTime + timeSpentInside;
+            //     insideTimeTotalRef.current = newTotal; // 최신 상태를 ref로 업데이트
+            //     console.log(`영역 안 머문 누적 시간: ${newTotal / 1000}초`);
+            //     return newTotal;
+            // });
+
+            if (timeSpentInside > 0 && timeSpentInside < 30000) { // 비정상적으로 큰 값 방지
               setInsideTimeTotal(prevTime => {
                 const newTotal = prevTime + timeSpentInside;
-                insideTimeTotalRef.current = newTotal; // 최신 상태를 ref로 업데이트
+                insideTimeTotalRef.current = newTotal;
                 console.log(`영역 안 머문 누적 시간: ${newTotal / 1000}초`);
                 return newTotal;
-            });
-
+              });
+            } else {
+              console.error("잘못된 시간 계산 감지됨:", timeSpentInside);
+            }
               // 시선이 영역 밖으로 나갔으므로 바깥에 머문 시간 기록 시작
               gazeOutsideTimeRef.current = Date.now();
               isGazeInsideRef.current = false;
@@ -160,12 +170,16 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime }) => {
   }
 
   function onGaze(gazeInfo) {
-    if (!gazeInfo || typeof gazeInfo.x === 'undefined' || typeof gazeInfo.y === 'undefined') {
-      console.error('Invalid gazeInfo received:', gazeInfo);
+    if (!gazeInfo || typeof gazeInfo.screen_x === 'undefined' || typeof gazeInfo.screen_y === 'undefined') {
+      // console.error('Invalid gazeInfo:', gazeInfo);
       return;
     }
 
-    showGaze(gazeInfo);
+    if (seesoRef.current) {
+        showGaze(gazeInfo);
+    } else {
+        console.error('SeeSo SDK is not initialized properly.');
+    }
   }
 
   function onDebug(FPS, latency_min, latency_max, latency_avg) {

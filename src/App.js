@@ -26,6 +26,7 @@ import EyeGaze from './pages/EyeGaze';
 import Modal from './components/Modal';
 import ReaderWrapper from '../src/containers/Reader';
 import Reader from 'components/Reader';
+import EyeGazeCalibration from 'pages/EyeGazeCalibration';
 
 // 로그인 상태를 관리하기 위한 Context 생성
 export const AuthContext = createContext();
@@ -84,6 +85,7 @@ function App() {
             <Route path="/detail" element={<BookDetail />} />
             <Route path="/modal" element={<Modal />} />
             <Route path="/reader" element={<Reader />} />
+            <Route path="/test" element={<EyeGazeCalibration />} />
           </Route>
 
           <Route path="/readerwrapper" element={<ReaderWrapper />} />
