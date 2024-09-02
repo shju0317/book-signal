@@ -1,3 +1,5 @@
+require('dotenv').config({ path: './src/tts.env' });
+console.log('GOOGLE_APPLICATION_CREDENTIALS:', process.env.GOOGLE_APPLICATION_CREDENTIALS); // 환경 변수 출력 확인
 const express = require('express');
 const cors = require('cors');
 const userRoutes = require('./routes/userRoutes');
@@ -6,11 +8,14 @@ const rankingRoutes = require('./routes/rankingRoutes');
 const wishListRoutes = require('./routes/wishListRoutes');
 const bookRoutes = require('./routes/bookRoutes');
 const mainRoutes = require('./routes/mainRoutes');
-const reviewRoutes = require('./routes/reviewRoutes')
 const path = require('path');
 const helmet = require('helmet');
+const reviewRoutes = require('./routes/reviewRoutes');
+const fs = require('fs'); // 파일 시스템 접근을 위한 모듈 추가
+const tts = require('./tts'); // TTS 기능 추가
+const textToSpeech = require('@google-cloud/text-to-speech');
+const client = new textToSpeech.TextToSpeechClient();
 const sameBookRoutes = require('./routes/sameBookRoutes');
-
 const session = require('express-session');
 const app = express();
 
@@ -50,6 +55,36 @@ app.use('/ranking', rankingRoutes);
 app.use('/wishlist', wishListRoutes);
 app.use('/getBookPath', bookRoutes);
 app.use('/main', mainRoutes);
+app.use('/', reviewRoutes);
+
+app.post('/tts', async (req, res) => {
+    const { text, rate, gender } = req.body;
+  
+    const request = {
+      input: { text: text },
+      voice: { 
+        languageCode: 'ko-KR', 
+        ssmlGender: gender 
+      },
+      audioConfig: { 
+        audioEncoding: 'MP3',
+        speakingRate: rate 
+      },
+    };
+  
+    try {
+      const [response] = await client.synthesizeSpeech(request);
+      res.set({
+        'Content-Type': 'audio/mp3',
+        'Content-Length': response.audioContent.length,
+      });
+      res.send(response.audioContent);
+    } catch (err) {
+      console.error('ERROR:', err);
+      res.status(500).send('TTS 변환 실패');
+    }
+  });
+
 app.use('/review', reviewRoutes)
 app.use('/sameBook', sameBookRoutes);
 
