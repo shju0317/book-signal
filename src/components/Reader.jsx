@@ -1,5 +1,3 @@
-import React, { useState, useRef,useEffect,useCallback } from "react";
-import { useSelector, useDispatch } from "react-redux";
 import React, { useState, useRef, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { Provider } from "react-redux";
@@ -9,6 +7,7 @@ import ePub from "epubjs";
 import Footer from "containers/Footer";
 import Nav from "containers/menu/Nav";
 import Snackbar from "containers/commons/Snackbar";
+import Header from "containers/Header";
 // components
 import ViewerWrapper from "components/commons/ViewerWrapper";
 // slices
@@ -89,14 +88,14 @@ const EpubReader = ({ url }) => {
     }
   };
 
-  const onTocChange = (toc) => dispatch(updateToc(toc));
-  const onBookStyleChange = (bookStyle_) => setBookStyle(bookStyle_);
-  const onBookOptionChange = (bookOption_) => setBookOption(bookOption_);
-  const onPageChange = (page) => dispatch(updateCurrentPage(page));
-  const onContextMenu = (cfiRange) => {
-    const result = onSelection(cfiRange);
-    setIsContextMenu(result);
-  };
+  // const onTocChange = (toc) => dispatch(updateToc(toc));
+  // const onBookStyleChange = (bookStyle_) => setBookStyle(bookStyle_);
+  // const onBookOptionChange = (bookOption_) => setBookOption(bookOption_);
+  // const onPageChange = (page) => dispatch(updateCurrentPage(page));
+  // const onContextMenu = (cfiRange) => {
+  //   const result = onSelection(cfiRange);
+  //   setIsContextMenu(result);
+  // };
   const onContextMenuRemove = () => setIsContextMenu(false);
 
   function splitText(text, maxBytes = 5000) {
@@ -217,9 +216,6 @@ const stopTTS = () => {
     <div>
       <ViewerWrapper>
         <Header
-          onNavToggle={onNavToggle}
-          onOptionToggle={onOptionToggle}
-          onLearningToggle={onLearningToggle}
           onTTSResume={resumeTTS}
           onTTSToggle={handleTTS} // TTS 실행 함수 전달
           onTTSPause={pauseTTS} 
