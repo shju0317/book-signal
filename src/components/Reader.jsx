@@ -11,7 +11,7 @@ import Snackbar from "containers/commons/Snackbar";
 import ViewerWrapper from "components/commons/ViewerWrapper";
 // slices
 import store from "slices";
-import { updateCurrentPage } from "slices/book";
+import { updateBook, updateCurrentPage, updateToc } from "slices/book";
 
 // styles
 import "lib/styles/readerStyle.css";
@@ -38,7 +38,7 @@ const EpubReader = ({ url }) => {
   });
   const [currentPage, setCurrentPage] = useState();
   console.log(currentPage);
-  
+
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
@@ -54,11 +54,11 @@ const EpubReader = ({ url }) => {
       bookRef.current = book;
       renditionRef.current = rendition;
 
-  const onBookInfoChange = (book) => dispatch(updateBook(book));
+      const onBookInfoChange = (book) => dispatch(updateBook(book));
 
-  const onLocationChange = (loc) => {
-    viewerRef.current && viewerRef.current.setLocation(loc);
-  };
+      const onLocationChange = (loc) => {
+        viewerRef.current && viewerRef.current.setLocation(loc);
+      };
       // 특정 위치로 이동
       rendition.display();
 
