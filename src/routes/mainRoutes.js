@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { newBooksMain, bestBooksMain, popularBooksMain } = require('../models/bookDB');
 
+// 메인 책 불러오기
 router.get('/', (req, res) => {
     Promise.all([newBooksMain(), bestBooksMain(), popularBooksMain()])
       .then(results => {
