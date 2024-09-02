@@ -7,7 +7,7 @@ const path = require('path');
 // 도서 정보 검색 함수
 exports.searchBooks = (searchQuery) => {
   return new Promise((resolve, reject) => {
-    const sql = `SELECT book_name, book_writer, book_cover FROM book_db WHERE book_name LIKE ?`;
+    const sql = `SELECT * FROM book_db WHERE book_name LIKE ?`;
     const formattedQuery = `%${searchQuery}%`;
 
     conn.query(sql, [formattedQuery], (err, results) => {
