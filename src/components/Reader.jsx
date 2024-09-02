@@ -65,9 +65,14 @@ const EpubReader = ({ url }) => {
         // 첫 번째 문장의 위치로 이동
         if (firstVisibleCfi) {
           renditionRef.current.display(firstVisibleCfi).catch((err) => {
-            console.error("Error displaying first visible CFI after initial load:", err);
+            console.error(
+              "Error displaying first visible CFI after initial load:",
+              err
+            );
           });
         }
+        // 페이지가 처음 로드된 후 텍스트를 출력
+        logCurrentPageText();
       });
 
       // 페이지 수를 계산하고 설정합니다.
@@ -101,6 +106,9 @@ const EpubReader = ({ url }) => {
         // 페이지 번호와 총 페이지 수를 콘솔에 출력
         console.log(`Current Page: ${currentPage}, Total Pages: ${totalPages}`);
 
+        // 페이지 이동 후 현재 화면에 보이는 텍스트를 로그에 출력
+        logCurrentPageText();
+
         dispatch(updateCurrentPage({ currentPage, totalPages }));
       });
 
@@ -112,7 +120,10 @@ const EpubReader = ({ url }) => {
             // 페이지 렌더링이 완료된 후 첫 번째 문장의 위치로 다시 이동
             if (firstVisibleCfi) {
               renditionRef.current.display(firstVisibleCfi).catch((err) => {
-                console.error("Error displaying first visible CFI after resize:", err);
+                console.error(
+                  "Error displaying first visible CFI after resize:",
+                  err
+                );
               });
             }
           });
@@ -144,18 +155,27 @@ const EpubReader = ({ url }) => {
 
       // 페이지 수를 다시 계산
       if (bookRef.current) {
-        bookRef.current.locations.generate().then(() => {
-          setTotalPages(bookRef.current.locations.length());
+        bookRef.current.locations
+          .generate()
+          .then(() => {
+            setTotalPages(bookRef.current.locations.length());
 
-          // 페이지 렌더링이 완료된 후 첫 번째 문장의 위치로 다시 이동
-          if (firstVisibleCfi) {
-            renditionRef.current.display(firstVisibleCfi).catch((err) => {
-              console.error("Error displaying first visible CFI after style change:", err);
-            });
-          }
-        }).catch((err) => {
-          console.error("Error regenerating locations after style change:", err);
-        });
+            // 페이지 렌더링이 완료된 후 첫 번째 문장의 위치로 다시 이동
+            if (firstVisibleCfi) {
+              renditionRef.current.display(firstVisibleCfi).catch((err) => {
+                console.error(
+                  "Error displaying first visible CFI after style change:",
+                  err
+                );
+              });
+            }
+          })
+          .catch((err) => {
+            console.error(
+              "Error regenerating locations after style change:",
+              err
+            );
+          });
       }
     }
   };
@@ -166,9 +186,15 @@ const EpubReader = ({ url }) => {
     setShouldSaveCfi(false); // 페이지를 넘길 때는 CFI를 저장하지 않음
     if (renditionRef.current) {
       if (type === "PREV") {
-        renditionRef.current.prev();
+        renditionRef.current.prev().then(() => {
+          // 페이지가 바뀐 후 텍스트를 로깅합니다.
+          logCurrentPageText();
+        });
       } else if (type === "NEXT") {
-        renditionRef.current.next();
+        renditionRef.current.next().then(() => {
+          // 페이지가 바뀐 후 텍스트를 로깅합니다.
+          logCurrentPageText();
+        });
       }
     }
   };
@@ -184,21 +210,44 @@ const EpubReader = ({ url }) => {
 
   const onContextMenuRemove = () => setIsContextMenu(false);
 
-  // 특정 페이지의 텍스트를 가져와 콘솔에 출력하는 함수
+  // 현재 보이는 텍스트를 로그에 출력하는 함수
   const logCurrentPageText = () => {
-    const viewer = viewerRef.current;
-    if (viewer && viewer.rendition) {
-      viewer.rendition.getContents().forEach((content) => {
+    if (renditionRef.current) {
+      const contents = renditionRef.current.getContents();
+
+      contents.forEach((content) => {
         const iframeDoc = content.document;
         if (iframeDoc) {
-          const text = iframeDoc.body.innerText || iframeDoc.body.textContent;
-          console.log("Current Page Text:", text);
+          const textElements = iframeDoc.body.querySelectorAll(
+            "p, span, div, h1, h2, h3, h4, h5, h6"
+          ); // 텍스트가 포함된 모든 요소 선택
+
+          // 뷰포트에 있는 텍스트만 선택
+          const visibleText = Array.from(textElements)
+            .filter((element) => {
+              const rect = element.getBoundingClientRect();
+              const isVisible =
+                rect.top < window.innerHeight &&
+                rect.bottom >= 0 &&
+                rect.left < window.innerWidth &&
+                rect.right >= 0;
+              return isVisible;
+            })
+            .map((element) => element.innerText || element.textContent)
+            .join(" ")
+            .trim();
+
+          if (visibleText) {
+            console.log("Visible Text on Current Page:", visibleText);
+          } else {
+            console.log("No visible text found on the current page.");
+          }
         } else {
           console.warn("Could not access iframe content.");
         }
       });
     } else {
-      console.warn("Viewer or rendition is not available.");
+      console.warn("Rendition is not available.");
     }
   };
 
