@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import React, { useState, useRef, useEffect } from "react";
+import Header from "containers/Header";
 import { Provider } from "react-redux";
 import { useLocation } from "react-router-dom";
 import ePub from "epubjs";
