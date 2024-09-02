@@ -1,4 +1,4 @@
-// Epubjs.jsx
+// EpubReader.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { Provider } from "react-redux";
@@ -12,7 +12,7 @@ import Snackbar from "containers/commons/Snackbar";
 import ViewerWrapper from "components/commons/ViewerWrapper";
 // slices
 import store from "slices";
-import { updateCurrentPage } from "slices/book";
+import { updateBook, updateCurrentPage, updateToc } from "slices/book";
 
 // styles
 import "lib/styles/readerStyle.css";
@@ -23,71 +23,101 @@ const EpubReader = ({ url }) => {
   const bookRef = useRef(null);
   const renditionRef = useRef(null);
 
+  const [isContextMenu, setIsContextMenu] = useState(false);
+  const [bookStyle, setBookStyle] = useState({
+    fontFamily: "Arial",
+    fontSize: 16,
+    lineHeight: 1.6,
+    marginHorizontal: 50,
+    marginVertical: 5,
+  });
+
+  const [bookOption, setBookOption] = useState({
+    flow: "paginated",
+    resizeOnOrientationChange: true,
+    spread: "none",
+  });
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [bookmarks, setBookmarks] = useState([]); // 북마크를 저장합니다.
-  const [fontSize, setFontSize] = useState("100%"); // 폰트 크기 상태
-  const [lineHeight, setLineHeight] = useState("1.5"); // 줄 간격 상태
-  const [margin, setMargin] = useState("0"); // 여백 상태
-  const [fontFamily, setFontFamily] = useState("Arial"); // 글꼴 상태
+  const [bookmarks, setBookmarks] = useState([]);
+  const [fontSize, setFontSize] = useState("100%");
+  const [lineHeight, setLineHeight] = useState("1.5");
+  const [margin, setMargin] = useState("0");
+  const [fontFamily, setFontFamily] = useState("Arial");
 
   useEffect(() => {
-    if (url && viewerRef.current) {
-      const book = ePub(url);
-      const rendition = book.renderTo(viewerRef.current, {
-        width: "100%",
-        height: "100%",
-        flow: "paginated", // 페이지 방식
-        spread: "none", // 페이지 확장 없음
-      });
-
-      bookRef.current = book;
-      renditionRef.current = rendition;
-
-      // 특정 위치로 이동
-      rendition.display();
-
-      // 페이지 수를 계산하고 설정합니다.
-      const generateLocations = () => {
-        book.ready
+    const generateLocations = () => {
+      if (bookRef.current) {
+        bookRef.current.ready
           .then(() => {
-            book.locations.generate().then(() => {
-              setTotalPages(book.locations.length());
-            });
+            bookRef.current.locations
+              .generate()
+              .then(() => {
+                const total = bookRef.current.locations.length();
+                setTotalPages(total);
+                if (total > 0) setCurrentPage(1); // 첫 페이지 설정
+              })
+              .catch((err) => {
+                console.error("Error generating locations:", err);
+              });
           })
           .catch((err) => {
-            console.error("Error generating locations:", err);
+            console.error("Error loading book:", err);
           });
-      };
+      }
+    };
 
-      generateLocations();
+    const initializeBook = () => {
+      if (url && viewerRef.current) {
+        const book = ePub(url);
+        const rendition = book.renderTo(viewerRef.current, {
+          width: "100%",
+          height: "100%",
+          flow: bookOption.flow,
+          spread: bookOption.spread,
+        });
 
-      // 페이지가 이동할 때마다 페이지 번호를 업데이트합니다.
-      rendition.on("relocated", (location) => {
-        if (location.start) {
-          const page = book.locations.locationFromCfi(location.start.cfi);
-          setCurrentPage(page + 1); // 페이지는 0부터 시작하므로 +1
-          dispatch(updateCurrentPage({ currentPage: page + 1, totalPages }));
-        }
-      });
+        bookRef.current = book;
+        renditionRef.current = rendition;
 
-      // 페이지 크기나 스타일이 변경될 때 페이지 수를 다시 계산합니다.
-      const handleResize = () => {
-        if (renditionRef.current) {
-          renditionRef.current.resize();
-          generateLocations();
-        }
-      };
+        // 첫 페이지로 이동
+        rendition.display().catch((err) => {
+          console.error("Error displaying first page:", err);
+        });
 
-      window.addEventListener("resize", handleResize);
+        generateLocations(); // 초기 로딩 시 페이지 수 계산
 
-      // 컴포넌트 언마운트 시 ePub 책을 정리하고 이벤트 리스너를 제거합니다.
-      return () => {
-        book.destroy();
-        window.removeEventListener("resize", handleResize);
-      };
-    }
-  }, [url, dispatch]); // url이 변경될 때마다 useEffect가 실행됩니다.
+        // 페이지가 이동할 때마다 페이지 번호를 업데이트합니다.
+        rendition.on("relocated", (location) => {
+          if (location.start) {
+            const page = book.locations.locationFromCfi(location.start.cfi);
+            setCurrentPage(page + 1); // 페이지는 0부터 시작하므로 +1
+            dispatch(updateCurrentPage({ currentPage: page + 1, totalPages }));
+          }
+        });
+
+        // 컴포넌트 언마운트 시 ePub 책을 정리하고 이벤트 리스너를 제거합니다.
+        return () => {
+          book.destroy();
+          window.removeEventListener("resize", handleResize);
+        };
+      }
+    };
+
+    const handleResize = () => {
+      if (renditionRef.current) {
+        renditionRef.current.resize();
+        generateLocations();
+      }
+    };
+
+    initializeBook();
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [url, dispatch, bookOption]); // url 또는 bookOption이 변경될 때마다 useEffect가 실행됩니다.
 
   // 스타일 업데이트 함수
   const updateStyles = () => {
@@ -96,7 +126,7 @@ const EpubReader = ({ url }) => {
         body: {
           "font-size": fontSize,
           "line-height": lineHeight,
-          "margin": margin,
+          margin: margin,
           "font-family": fontFamily,
         },
       });
@@ -104,11 +134,18 @@ const EpubReader = ({ url }) => {
 
       // 페이지 수를 다시 계산
       if (bookRef.current) {
-        bookRef.current.locations.generate().then(() => {
-          setTotalPages(bookRef.current.locations.length());
-        }).catch((err) => {
-          console.error("Error regenerating locations after style change:", err);
-        });
+        bookRef.current.locations
+          .generate()
+          .then(() => {
+            const total = bookRef.current.locations.length();
+            setTotalPages(total);
+          })
+          .catch((err) => {
+            console.error(
+              "Error regenerating locations after style change:",
+              err
+            );
+          });
       }
     }
   };
@@ -306,11 +343,11 @@ const EpubReader = ({ url }) => {
   );
 };
 
-const Reader = () => {
+const Epubjs = () => {
   const location = useLocation();
   const { bookPath } = location.state || {};
 
-  const epubUrl = `book_file/${bookPath}.epub`;
+  const epubUrl = `files/무정.epub`;
   console.log(epubUrl);
 
   return (
@@ -320,4 +357,4 @@ const Reader = () => {
   );
 };
 
-export default Reader;
+export default Epubjs;
