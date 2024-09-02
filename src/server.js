@@ -5,12 +5,15 @@ const gazeRoutes = require('./routes/gazeRoutes');
 const searchRoutes = require('./routes/searchRoutes');
 const rankingRoutes = require('./routes/rankingRoutes');
 const wishListRoutes = require('./routes/wishListRoutes');
+const bookRoutes = require('./routes/bookRoutes');
+const mainRoutes = require('./routes/mainRoutes');
+const reviewRoutes = require('./routes/reviewRoutes')
 const path = require('path');
 const helmet = require('helmet');
+const sameBookRoutes = require('./routes/sameBookRoutes');
 
 const session = require('express-session');
 const app = express();
-const reviewRoutes = require('./routes/reviewRoutes');
 
 // 세션 설정 (기본 설정)
 app.use(session({
@@ -47,6 +50,10 @@ app.use('/gaze', gazeRoutes);
 app.use('/api', searchRoutes);
 app.use('/ranking', rankingRoutes);
 app.use('/wishlist', wishListRoutes);
+app.use('/getBookPath', bookRoutes);
+app.use('/main', mainRoutes);
+app.use('/review', reviewRoutes)
+app.use('/sameBook', sameBookRoutes);
 
 // eye-gaze
 // Cross-Origin Isolation 헤더 설정
@@ -55,9 +62,6 @@ app.use('/wishlist', wishListRoutes);
   
 // 정적 파일 서빙
 app.use(express.static('public'));
-
-
-app.use('/', reviewRoutes);
 
 app.listen(3001, () => {
     console.log('서버 실행: http://localhost:3001');

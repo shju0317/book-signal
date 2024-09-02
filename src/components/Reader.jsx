@@ -1,20 +1,19 @@
-import React, { useState, useRef } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import React, { useState, useRef, useEffect } from "react";
+import { useDispatch } from "react-redux";
 import { Provider } from "react-redux";
-import { ReactEpubViewer } from "react-epub-viewer";
-// 추가 컴포넌트와 설정 가져오기
-import Header from "containers/Header";
+import { useLocation } from "react-router-dom";
+import ePub from "epubjs";
+// containers
 import Footer from "containers/Footer";
 import Nav from "containers/menu/Nav";
-import Option from "containers/menu/Option";
-import Learning from "containers/menu/Note";
-import ContextMenu from "containers/commons/ContextMenu";
 import Snackbar from "containers/commons/Snackbar";
+// components
 import ViewerWrapper from "components/commons/ViewerWrapper";
+// slices
 import store from "slices";
-import { updateBook, updateCurrentPage, updateToc } from "slices/book";
-import useMenu from "lib/hooks/useMenu";
-import useHighlight from "lib/hooks/useHighlight";
+import { updateCurrentPage } from "slices/book";
+
+// styles
 import "lib/styles/readerStyle.css";
 import viewerLayout from "lib/styles/viewerLayout";
 import LoadingView from "LoadingView";
@@ -22,42 +21,50 @@ import EyeGaze from "pages/EyeGaze";
 
 const EpubReader = ({ url }) => {
   const dispatch = useDispatch();
-  const currentLocation = useSelector((state) => state.book.currentLocation);
-
   const viewerRef = useRef(null);
   const navRef = useRef(null);
   const optionRef = useRef(null);
   const learningRef = useRef(null);
   const saveGazeTimeRef = useRef(null);
+  const bookRef = useRef(null);
+  const renditionRef = useRef(null);
 
-  const [isContextMenu, setIsContextMenu] = useState(false);
-  const [bookStyle, setBookStyle] = useState({
-    fontFamily: "Arial",
-    fontSize: 16,
-    lineHeight: 1.6,
-  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const [bookOption, setBookOption] = useState({
-    flow: "paginated",
-    resizeOnOrientationChange: true,
-    spread: "auto",
-  });
+  useEffect(() => {
+    if (viewerRef.current) {
+      const book = ePub(url);
+      const rendition = book.renderTo(viewerRef.current, {
+        width: "100%",
+        height: "100%",
+        flow: "paginated", // 페이지 방식
+        spread: "none", // 페이지 확장 없음
+      });
 
-  const [navControl, onNavToggle] = useMenu(navRef, 300);
-  const [optionControl, onOptionToggle, emitEvent] = useMenu(optionRef, 300);
-  const [learningControl, onLearningToggle] = useMenu(learningRef, 300);
-  const {
-    selection,
-    onSelection,
-    onClickHighlight,
-    onAddHighlight,
-    onRemoveHighlight,
-    onUpdateHighlight,
-  } = useHighlight(viewerRef, setIsContextMenu, bookStyle, bookOption.flow);
+      bookRef.current = book;
+      renditionRef.current = rendition;
 
-  const onBookInfoChange = (book) => dispatch(updateBook(book));
-  const onLocationChange = (loc) =>
-    viewerRef.current && viewerRef.current.setLocation(loc);
+      // 특정 위치로 이동
+      rendition.display();
+
+      rendition.on("relocated", (location) => {
+        const currentPage = location.start.displayed.page;
+        const totalPages = location.start.displayed.total;
+
+        setCurrentPage(currentPage);
+        setTotalPages(totalPages);
+
+        dispatch(updateCurrentPage({ currentPage, totalPages }));
+      });
+
+      return () => {
+        if (bookRef.current) {
+          bookRef.current.destroy();
+        }
+      };
+    }
+  }, [url, dispatch]);
 
   const onPageMove = (type) => {
     // 시선 추적 정보 저장 함수 연결
@@ -65,26 +72,24 @@ const EpubReader = ({ url }) => {
       saveGazeTimeRef.current(); // 페이지 이동 전 시선 추적 시간 저장
     }
     
-    const node = viewerRef.current;
-    if (node) {
-      type === "PREV" ? node.prevPage() : node.nextPage();
+    // const node = viewerRef.current;
+    // if (node) {
+    //   type === "PREV" ? node.prevPage() : node.nextPage();
+    // }
+
+    if (renditionRef.current) {
+      if (type === "PREV") {
+        renditionRef.current.prev();
+      } else if (type === "NEXT") {
+        renditionRef.current.next();
+      }
     }
   };
-
-  const onTocChange = (toc) => dispatch(updateToc(toc));
-  const onBookStyleChange = (bookStyle_) => setBookStyle(bookStyle_);
-  const onBookOptionChange = (bookOption_) => setBookOption(bookOption_);
-  const onPageChange = (page) => dispatch(updateCurrentPage(page));
-  const onContextMenu = (cfiRange) => {
-    const result = onSelection(cfiRange);
-    setIsContextMenu(result);
-  };
-  const onContextMenuRemove = () => setIsContextMenu(false);
 
   return (
     <div className="max-w-screen-xl m-auto">
       <ViewerWrapper className="m-auto">
-        <Header
+        {/* <Header
           onNavToggle={onNavToggle}
           onOptionToggle={onOptionToggle}
           onLearningToggle={onLearningToggle}
@@ -103,53 +108,24 @@ const EpubReader = ({ url }) => {
           onSelection={onContextMenu}
           loadingView={<LoadingView />}
           ref={viewerRef}
+          style={{ width: "100%", height: "100%", border: "1px solid #ccc" }}
+        /> */}
+
+        <div
+          ref={viewerRef}
+          style={{ width: "100%", height: "100%", border: "1px solid #ccc" }}
         />
 
+
         <Footer
-          title={currentLocation?.chapterName || ""}
-          nowPage={currentLocation?.currentPage || 0}
-          totalPage={currentLocation?.totalPage || 0}
-          onPageMove={onPageMove} // 페이지 이동
+          title="Chapter Title"
+          nowPage={currentPage}
+          totalPage={totalPages}
+          onPageMove={onPageMove}
         />
       </ViewerWrapper>
 
-      <Nav
-        control={navControl}
-        onToggle={onNavToggle}
-        onLocation={onLocationChange}
-        ref={navRef}
-      />
-
-      <Option
-        control={optionControl}
-        bookStyle={bookStyle}
-        bookOption={bookOption}
-        bookFlow={bookOption.flow}
-        onToggle={onOptionToggle}
-        emitEvent={emitEvent}
-        onBookStyleChange={onBookStyleChange}
-        onBookOptionChange={onBookOptionChange}
-        ref={optionRef}
-      />
-
-      <Learning
-        control={learningControl}
-        onToggle={onLearningToggle}
-        onClickHighlight={onClickHighlight}
-        emitEvent={emitEvent}
-        viewerRef={viewerRef}
-        ref={learningRef}
-      />
-
-      <ContextMenu
-        active={isContextMenu}
-        viewerRef={viewerRef}
-        selection={selection}
-        onAddHighlight={onAddHighlight}
-        onRemoveHighlight={onRemoveHighlight}
-        onUpdateHighlight={onUpdateHighlight}
-        onContextMenuRemove={onContextMenuRemove}
-      />
+      <Nav control={() => { }} onToggle={() => { }} onLocation={() => { }} ref={null} />
 
       <Snackbar />
       <EyeGaze viewerRef={viewerRef} onSaveGazeTime={(saveGazeTime) => {
@@ -159,11 +135,17 @@ const EpubReader = ({ url }) => {
 };
 
 const Reader = () => {
-  const epubUrl = "files/카프카_변신.epub"; // EPUB 파일 경로 설정
+  const location = useLocation();
+  const { bookPath } = location.state || {};
+
+  // const epubUrl = `${process.env.PUBLIC_URL}/book_file/${bookPath}.epub`;
+  const epubUrl = `book_file/${bookPath}.epub`;
+  console.log(epubUrl);
+
 
   return (
     <Provider store={store}>
-      <EpubReader url={epubUrl} /> {/* ReaderWrapper 컴포넌트에 URL 전달 */}
+      <EpubReader url={epubUrl} />
     </Provider>
   );
 };

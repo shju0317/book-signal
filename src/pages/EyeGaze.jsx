@@ -18,6 +18,7 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime }) => {
   const outsideTimerRef = useRef(null); // 영역 밖에서의 10초 체크를 위한 타이머
 
   const [insideTimeTotal, setInsideTimeTotal] = useState(0);
+  const insideTimeTotalRef = useRef(insideTimeTotal); // 최신 상태를 관리하기 위한 ref
   const [gazeTimeOutside, setGazeTimeOutside] = useState(0);
 
   /******************** 화면 크기에 맞춰 canvas 크기 조정 ********************/
@@ -34,8 +35,8 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime }) => {
       canvas.height = rect.height;
       canvas.style.left = `${rect.left}px`;
       canvas.style.top = `${rect.top}px`;
-      console.log('canvas 너비: ', canvas.width);
-      console.log('canvas 높이: ', canvas.height);
+      // console.log('canvas 너비: ', canvas.width);
+      // console.log('canvas 높이: ', canvas.height);
       
 
       const ctx = canvas.getContext('2d');
@@ -107,9 +108,13 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime }) => {
             if (isGazeInsideRef.current) {
               // 시선이 영역 밖으로 나갔을 때 영역 안에 머문 시간을 계산하고 누적
               const timeSpentInside = Date.now() - gazeInsideTimeRef.current;
-              setInsideTimeTotal(prevTime => prevTime + timeSpentInside);
 
-              console.log(`영역 안 머문 누적 시간: ${(insideTimeTotal + timeSpentInside) / 1000}초`);
+              setInsideTimeTotal(prevTime => {
+                const newTotal = prevTime + timeSpentInside;
+                insideTimeTotalRef.current = newTotal; // 최신 상태를 ref로 업데이트
+                console.log(`영역 안 머문 누적 시간: ${newTotal / 1000}초`);
+                return newTotal;
+            });
 
               // 시선이 영역 밖으로 나갔으므로 바깥에 머문 시간 기록 시작
               gazeOutsideTimeRef.current = Date.now();
@@ -197,9 +202,10 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime }) => {
   const bookText = '텍스트';
 
   const saveGazeTime = () => {
-    if (gazeInsideTimeRef.current > 0) {
-      const duration = gazeInsideTimeRef.current / 1000; // 초 단위로 변환
-      console.log('gazeTime이 0보다 큼:', gazeInsideTimeRef.current);
+    const duration = insideTimeTotalRef.current / 1000; // ref에서 최신 상태 값을 가져옴
+
+    if (duration > 0) {
+      console.log('저장할 gazeTime:', duration);
   
       axios.post('http://localhost:3001/gaze', {
         book_idx: bookIdx,
