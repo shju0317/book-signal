@@ -70,9 +70,10 @@ const EpubReader = ({ url }) => {
               err
             );
           });
+        } else {
+          // 페이지가 처음 로드된 후 텍스트를 출력
+          logCurrentPageText(); // 첫 번째 페이지 로드 시 텍스트 로깅
         }
-        // 페이지가 처음 로드된 후 텍스트를 출력
-        logCurrentPageText();
       });
 
       // 페이지 수를 계산하고 설정합니다.
@@ -106,10 +107,10 @@ const EpubReader = ({ url }) => {
         // 페이지 번호와 총 페이지 수를 콘솔에 출력
         console.log(`Current Page: ${currentPage}, Total Pages: ${totalPages}`);
 
+        dispatch(updateCurrentPage({ currentPage, totalPages }));
+
         // 페이지 이동 후 현재 화면에 보이는 텍스트를 로그에 출력
         logCurrentPageText();
-
-        dispatch(updateCurrentPage({ currentPage, totalPages }));
       });
 
       const handleResize = () => {
@@ -187,13 +188,11 @@ const EpubReader = ({ url }) => {
     if (renditionRef.current) {
       if (type === "PREV") {
         renditionRef.current.prev().then(() => {
-          // 페이지가 바뀐 후 텍스트를 로깅합니다.
-          logCurrentPageText();
+          logCurrentPageText(); // 이전 페이지로 이동 후 텍스트 로깅
         });
       } else if (type === "NEXT") {
         renditionRef.current.next().then(() => {
-          // 페이지가 바뀐 후 텍스트를 로깅합니다.
-          logCurrentPageText();
+          logCurrentPageText(); // 다음 페이지로 이동 후 텍스트 로깅
         });
       }
     }
@@ -218,30 +217,17 @@ const EpubReader = ({ url }) => {
       contents.forEach((content) => {
         const iframeDoc = content.document;
         if (iframeDoc) {
-          const textElements = iframeDoc.body.querySelectorAll(
-            "p, span, div, h1, h2, h3, h4, h5, h6"
-          ); // 텍스트가 포함된 모든 요소 선택
+          const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                console.log("Visible Text on Current Page:", entry.target.innerText || entry.target.textContent);
+              }
+            });
+          });
 
-          // 뷰포트에 있는 텍스트만 선택
-          const visibleText = Array.from(textElements)
-            .filter((element) => {
-              const rect = element.getBoundingClientRect();
-              const isVisible =
-                rect.top < window.innerHeight &&
-                rect.bottom >= 0 &&
-                rect.left < window.innerWidth &&
-                rect.right >= 0;
-              return isVisible;
-            })
-            .map((element) => element.innerText || element.textContent)
-            .join(" ")
-            .trim();
-
-          if (visibleText) {
-            console.log("Visible Text on Current Page:", visibleText);
-          } else {
-            console.log("No visible text found on the current page.");
-          }
+          // 모든 텍스트 요소를 관찰
+          const textElements = iframeDoc.querySelectorAll("p, span, div, h1, h2, h3, h4, h5, h6");
+          textElements.forEach((element) => observer.observe(element));
         } else {
           console.warn("Could not access iframe content.");
         }
