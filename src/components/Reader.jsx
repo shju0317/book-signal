@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { useDispatch } from "react-redux";
 import { Provider } from "react-redux";
 import { useLocation } from "react-router-dom";
 import ePub from "epubjs";
 // containers
-import Footer from "containers/Footer";
-import Nav from "containers/menu/Nav";
-import Snackbar from "containers/commons/Snackbar";
+// import Footer from "containers/Footer";
+// import Nav from "containers/menu/Nav";
+// import Snackbar from "containers/commons/Snackbar";
 // components
-import ViewerWrapper from "components/commons/ViewerWrapper";
+// import ViewerWrapper from "components/commons/ViewerWrapper";
 // slices
 import store from "slices";
 import { updateBook, updateCurrentPage, updateToc } from "slices/book";
@@ -37,7 +37,7 @@ const EpubReader = ({ url }) => {
     spread: "none",
   });
 
-  const [currentPage, setCurrentPage] = useState();
+  const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [bookmarks, setBookmarks] = useState([]);
   const [fontSize, setFontSize] = useState("100%");
@@ -53,67 +53,52 @@ const EpubReader = ({ url }) => {
       const rendition = book.renderTo(viewerRef.current, {
         width: "100%",
         height: "100%",
-        flow: bookOption.flow,
-        spread: bookOption.spread,
+        flow: "paginated",
+        spread: "none",
       });
 
       bookRef.current = book;
       renditionRef.current = rendition;
 
-      // 특정 위치로 이동
       rendition.display().then(() => {
-        // 첫 번째 문장의 위치로 이동
         if (firstVisibleCfi) {
-          renditionRef.current.display(firstVisibleCfi).catch((err) => {
-            console.error("Error displaying first visible CFI after initial load:", err);
+          rendition.display(firstVisibleCfi).catch((err) => {
+            console.error(
+              "Error displaying first visible CFI after initial load:",
+              err
+            );
           });
         }
       });
 
-      // 페이지 수를 계산하고 설정합니다.
-      const generateLocations = () => {
-        book.ready
-          .then(() => {
-            book.locations.generate().then(() => {
-              setTotalPages(book.locations.length());
-            });
-          })
-          .catch((err) => {
-            console.error("Error generating locations:", err);
-          });
-      };
-
-      generateLocations();
-
+      // `relocated` 이벤트를 통해 현재 페이지와 총 페이지를 가져옵니다.
       rendition.on("relocated", (location) => {
-        // 페이지 번호와 총 페이지 수를 1씩 증가시켜서 사용자에게 1부터 시작하는 것처럼 보이게 함
         const currentPage = location.start.displayed.page;
         const totalPages = location.start.displayed.total;
 
         setCurrentPage(currentPage);
         setTotalPages(totalPages);
 
-        if (shouldSaveCfi) {
-          // 페이지가 변경될 때만 CFI 저장
-          setFirstVisibleCfi(location.start.cfi);
-        }
-
-        // 페이지 번호와 총 페이지 수를 콘솔에 출력
-        console.log(`Current Page: ${currentPage}, Total Pages: ${totalPages}`);
+        console.log(
+          `Current Page: ${currentPage}, Total Pages: ${totalPages}`
+        );
 
         dispatch(updateCurrentPage({ currentPage, totalPages }));
       });
 
       const handleResize = () => {
-        setShouldSaveCfi(true); // 크기 변경 시에는 CFI를 저장해야 함
         if (renditionRef.current) {
           renditionRef.current.resize();
           generateLocations().then(() => {
-            // 페이지 렌더링이 완료된 후 첫 번째 문장의 위치로 다시 이동
             if (firstVisibleCfi) {
-              renditionRef.current.display(firstVisibleCfi).catch((err) => {
-                console.error("Error displaying first visible CFI after resize:", err);
-              });
+              renditionRef.current
+                .display(firstVisibleCfi)
+                .catch((err) => {
+                  console.error(
+                    "Error displaying first visible CFI after resize:",
+                    err
+                  );
+                });
             }
           });
         }
@@ -121,16 +106,30 @@ const EpubReader = ({ url }) => {
 
       window.addEventListener("resize", handleResize);
 
-      // 컴포넌트 언마운트 시 ePub 책을 정리하고 이벤트 리스너를 제거합니다.
       return () => {
         book.destroy();
         window.removeEventListener("resize", handleResize);
       };
     }
-  }, [url, dispatch, bookOption, firstVisibleCfi]);
+  }, [url, dispatch, firstVisibleCfi]);
+
+
+  const generateLocations = () => {
+    return bookRef.current.ready
+      .then(() => {
+        return bookRef.current.locations.generate();
+      })
+      .catch((err) => {
+        console.error("Error generating locations:", err);
+      });
+  };
+
+  useLayoutEffect(() => {
+    // 렌더링이 완료된 후 totalPages 값 확인
+  }, [totalPages]);
 
   const updateStyles = () => {
-    setShouldSaveCfi(true); // 스타일 변경 시에는 CFI를 저장해야 함
+    setShouldSaveCfi(true); // 스타일 변경 시 CFI를 저장해야 함
     if (renditionRef.current) {
       renditionRef.current.themes.default({
         body: {
@@ -142,15 +141,15 @@ const EpubReader = ({ url }) => {
       });
       renditionRef.current.themes.fontSize(fontSize);
 
-      // 페이지 수를 다시 계산
+      // 페이지 수를 업데이트하지 않음 (relocated 이벤트에서 처리됨)
       if (bookRef.current) {
-        bookRef.current.locations.generate().then(() => {
-          setTotalPages(bookRef.current.locations.length());
-
-          // 페이지 렌더링이 완료된 후 첫 번째 문장의 위치로 다시 이동
+        generateLocations().then(() => {
           if (firstVisibleCfi) {
             renditionRef.current.display(firstVisibleCfi).catch((err) => {
-              console.error("Error displaying first visible CFI after style change:", err);
+              console.error(
+                "Error displaying first visible CFI after style change:",
+                err
+              );
             });
           }
         }).catch((err) => {
@@ -365,8 +364,7 @@ const EpubReader = ({ url }) => {
       >
         <button onClick={() => onPageMove("PREV")}>Previous</button>
         <span>
-          Progress: {calculateReadingProgress()}% | Page {currentPage} of{" "}
-          {totalPages}
+          Progress: {calculateReadingProgress()}% | Page {currentPage} of {totalPages}
         </span>
         <button onClick={() => onPageMove("NEXT")}>Next</button>
       </div>
