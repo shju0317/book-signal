@@ -378,7 +378,7 @@ const Reader = () => {
   const location = useLocation();
   const { bookPath } = location.state || {};
 
-  const epubUrl = `files/무정.epub`;
+  const epubUrl = `book_file/${bookPath}.epub`;
   console.log(epubUrl);
 
   return (
