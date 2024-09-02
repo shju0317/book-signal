@@ -1,11 +1,15 @@
-// EpubjsReader.jsx
+// Epubjs.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { Provider } from "react-redux";
 import { useLocation } from "react-router-dom";
 import ePub from "epubjs";
 // containers
+import Footer from "containers/Footer";
+import Nav from "containers/menu/Nav";
+import Snackbar from "containers/commons/Snackbar";
 // components
+import ViewerWrapper from "components/commons/ViewerWrapper";
 // slices
 import store from "slices";
 import { updateCurrentPage } from "slices/book";
@@ -13,13 +17,12 @@ import { updateCurrentPage } from "slices/book";
 // styles
 import "lib/styles/readerStyle.css";
 
-const EpubReader = () => {
+const EpubReader = ({ url }) => {
   const dispatch = useDispatch();
   const viewerRef = useRef(null);
   const bookRef = useRef(null);
   const renditionRef = useRef(null);
 
-  const defaultUrl = "files/무정.epub"; // 기본 ePub 파일 URL
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [bookmarks, setBookmarks] = useState([]); // 북마크를 저장합니다.
@@ -29,76 +32,62 @@ const EpubReader = () => {
   const [fontFamily, setFontFamily] = useState("Arial"); // 글꼴 상태
 
   useEffect(() => {
-    const generateLocations = () => {
-      if (bookRef.current) {
-        bookRef.current.ready
+    if (url && viewerRef.current) {
+      const book = ePub(url);
+      const rendition = book.renderTo(viewerRef.current, {
+        width: "100%",
+        height: "100%",
+        flow: "paginated", // 페이지 방식
+        spread: "none", // 페이지 확장 없음
+      });
+
+      bookRef.current = book;
+      renditionRef.current = rendition;
+
+      // 특정 위치로 이동
+      rendition.display();
+
+      // 페이지 수를 계산하고 설정합니다.
+      const generateLocations = () => {
+        book.ready
           .then(() => {
-            bookRef.current.locations.generate().then(() => {
-              const total = bookRef.current.locations.length();
-              setTotalPages(total);
-              if (total > 0) setCurrentPage(1); // 첫 페이지 설정
-            }).catch((err) => {
-              console.error("Error generating locations:", err);
+            book.locations.generate().then(() => {
+              setTotalPages(book.locations.length());
             });
           })
           .catch((err) => {
-            console.error("Error loading book:", err);
+            console.error("Error generating locations:", err);
           });
-      }
-    };
+      };
 
-    const initializeBook = () => {
-      if (defaultUrl && viewerRef.current) {
-        const book = ePub(defaultUrl);
-        const rendition = book.renderTo(viewerRef.current, {
-          width: "100%",
-          height: "100%",
-          flow: "paginated", // 페이지 방식
-          spread: "none", // 페이지 확장 없음
-        });
+      generateLocations();
 
-        bookRef.current = book;
-        renditionRef.current = rendition;
+      // 페이지가 이동할 때마다 페이지 번호를 업데이트합니다.
+      rendition.on("relocated", (location) => {
+        if (location.start) {
+          const page = book.locations.locationFromCfi(location.start.cfi);
+          setCurrentPage(page + 1); // 페이지는 0부터 시작하므로 +1
+          dispatch(updateCurrentPage({ currentPage: page + 1, totalPages }));
+        }
+      });
 
-        // 첫 페이지로 이동
-        rendition.display().catch((err) => {
-          console.error("Error displaying first page:", err);
-        });
+      // 페이지 크기나 스타일이 변경될 때 페이지 수를 다시 계산합니다.
+      const handleResize = () => {
+        if (renditionRef.current) {
+          renditionRef.current.resize();
+          generateLocations();
+        }
+      };
 
-        generateLocations(); // 초기 로딩 시 페이지 수 계산
+      window.addEventListener("resize", handleResize);
 
-        // 페이지가 이동할 때마다 페이지 번호를 업데이트합니다.
-        rendition.on("relocated", (location) => {
-          if (location.start) {
-            const page = book.locations.locationFromCfi(location.start.cfi);
-            setCurrentPage(page + 1); // 페이지는 0부터 시작하므로 +1
-            console.log(`Current Page: ${page + 1}, Total Pages: ${totalPages}`);
-            dispatch(updateCurrentPage({ currentPage: page + 1, totalPages }));
-          }
-        });
-
-        // 컴포넌트 언마운트 시 ePub 책을 정리하고 이벤트 리스너를 제거합니다.
-        return () => {
-          book.destroy();
-          window.removeEventListener("resize", handleResize);
-        };
-      }
-    };
-
-    const handleResize = () => {
-      if (renditionRef.current) {
-        renditionRef.current.resize();
-        generateLocations();
-      }
-    };
-
-    initializeBook();
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [defaultUrl, dispatch]); // defaultUrl이 변경될 때마다 useEffect가 실행됩니다.
+      // 컴포넌트 언마운트 시 ePub 책을 정리하고 이벤트 리스너를 제거합니다.
+      return () => {
+        book.destroy();
+        window.removeEventListener("resize", handleResize);
+      };
+    }
+  }, [url, dispatch]); // url이 변경될 때마다 useEffect가 실행됩니다.
 
   // 스타일 업데이트 함수
   const updateStyles = () => {
@@ -116,8 +105,7 @@ const EpubReader = () => {
       // 페이지 수를 다시 계산
       if (bookRef.current) {
         bookRef.current.locations.generate().then(() => {
-          const total = bookRef.current.locations.length();
-          setTotalPages(total);
+          setTotalPages(bookRef.current.locations.length());
         }).catch((err) => {
           console.error("Error regenerating locations after style change:", err);
         });
@@ -193,12 +181,15 @@ const EpubReader = () => {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          flexWrap: "wrap"
+          flexWrap: "wrap",
         }}
       >
         <div>
           <label>Font Size: </label>
-          <select value={fontSize} onChange={(e) => setFontSize(e.target.value)}>
+          <select
+            value={fontSize}
+            onChange={(e) => setFontSize(e.target.value)}
+          >
             <option value="80%">80%</option>
             <option value="100%">100%</option>
             <option value="120%">120%</option>
@@ -206,7 +197,10 @@ const EpubReader = () => {
           </select>
 
           <label style={{ marginLeft: "10px" }}>Line Height: </label>
-          <select value={lineHeight} onChange={(e) => setLineHeight(e.target.value)}>
+          <select
+            value={lineHeight}
+            onChange={(e) => setLineHeight(e.target.value)}
+          >
             <option value="1.2">1.2</option>
             <option value="1.5">1.5</option>
             <option value="1.8">1.8</option>
@@ -221,29 +215,56 @@ const EpubReader = () => {
           </select>
 
           <label style={{ marginLeft: "10px" }}>Font Family: </label>
-          <select value={fontFamily} onChange={(e) => setFontFamily(e.target.value)}>
+          <select
+            value={fontFamily}
+            onChange={(e) => setFontFamily(e.target.value)}
+          >
             <option value="Arial">Arial</option>
             <option value="Georgia">Georgia</option>
             <option value="Times New Roman">Times New Roman</option>
             <option value="Courier New">Courier New</option>
           </select>
         </div>
-        
+
         <div>
-          <button onClick={addBookmark} style={{ padding: "8px", marginRight: "10px" }}>
+          <button
+            onClick={addBookmark}
+            style={{ padding: "8px", marginRight: "10px" }}
+          >
             Add Bookmark
           </button>
-          <button onClick={() => setBookmarks([])} style={{ padding: "8px", backgroundColor: "red", color: "white" }}>
+          <button
+            onClick={() => setBookmarks([])}
+            style={{ padding: "8px", backgroundColor: "red", color: "white" }}
+          >
             Clear Bookmarks
           </button>
         </div>
       </div>
 
       {/* 북마크 메뉴 */}
-      <div style={{ padding: "10px", background: "#f8f8f8", display: "flex", justifyContent: "center", flexWrap: "wrap" }}>
+      <div
+        style={{
+          padding: "10px",
+          background: "#f8f8f8",
+          display: "flex",
+          justifyContent: "center",
+          flexWrap: "wrap",
+        }}
+      >
         {bookmarks.map((bookmark, index) => (
-          <div key={index} style={{ display: "flex", alignItems: "center", marginRight: "10px" }}>
-            <button onClick={() => goToBookmark(bookmark)} style={{ margin: "5px" }}>
+          <div
+            key={index}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginRight: "10px",
+            }}
+          >
+            <button
+              onClick={() => goToBookmark(bookmark)}
+              style={{ margin: "5px" }}
+            >
               Bookmark {index + 1}
             </button>
             <button
@@ -276,7 +297,8 @@ const EpubReader = () => {
       >
         <button onClick={goToPreviousPage}>Previous</button>
         <span>
-          Progress: {calculateReadingProgress()}% | Page {currentPage} of {totalPages}
+          Progress: {calculateReadingProgress()}% | Page {currentPage} of{" "}
+          {totalPages}
         </span>
         <button onClick={goToNextPage}>Next</button>
       </div>
@@ -284,7 +306,7 @@ const EpubReader = () => {
   );
 };
 
-const Epubjs = () => {
+const Reader = () => {
   const location = useLocation();
   const { bookPath } = location.state || {};
 
@@ -293,9 +315,9 @@ const Epubjs = () => {
 
   return (
     <Provider store={store}>
-      <EpubReader />
+      <EpubReader url={epubUrl} />
     </Provider>
   );
 };
 
-export default Epubjs;
+export default Reader;
