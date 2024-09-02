@@ -22,7 +22,9 @@ const EpubReader = ({ url }) => {
   const bookRef = useRef(null);
   const renditionRef = useRef(null);
 
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState();
+  console.log(currentPage);
+  
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
@@ -42,11 +44,15 @@ const EpubReader = ({ url }) => {
       rendition.display();
 
       rendition.on("relocated", (location) => {
+        // 페이지 번호와 총 페이지 수를 1씩 증가시켜서 사용자에게 1부터 시작하는 것처럼 보이게 함
         const currentPage = location.start.displayed.page;
         const totalPages = location.start.displayed.total;
 
         setCurrentPage(currentPage);
         setTotalPages(totalPages);
+
+        // 페이지 번호와 총 페이지 수를 콘솔에 출력
+        console.log(`Current Page: ${currentPage}, Total Pages: ${totalPages}`);
 
         dispatch(updateCurrentPage({ currentPage, totalPages }));
       });
@@ -97,7 +103,9 @@ const Reader = () => {
   const location = useLocation();
   const { bookPath } = location.state || {};
 
-  const epubUrl = `${process.env.PUBLIC_URL}/book_file/${bookPath}.epub`;
+  const epubUrl = `book_file/${bookPath}.epub`;
+  console.log(epubUrl);
+
 
   return (
     <Provider store={store}>
