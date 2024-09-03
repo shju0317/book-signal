@@ -217,12 +217,12 @@ const EpubReader = ({ url }) => {
           const observer = new IntersectionObserver((entries) => {
             entries.forEach((entry) => {
               if (entry.isIntersecting) {
-                // 페이지의 모든 텍스트 요소를 배열에 추가
-                allVisibleTexts.push(entry.target.innerText || entry.target.textContent);
+                allVisibleTexts.push(
+                  entry.target.innerText || entry.target.textContent
+                );
               }
             });
 
-            // 모든 텍스트를 수집한 후 상태로 설정
             setPageTextArray(allVisibleTexts);
 
             const combinedText = allVisibleTexts.join(' ');
@@ -251,6 +251,11 @@ const EpubReader = ({ url }) => {
       setBookmarks(newBookmarks);
       localStorage.setItem("bookmarks", JSON.stringify(newBookmarks));
     }
+  };
+
+  const handleFontChange = (font) => {
+    setFontFamily(font);
+    updateStyles();
   };
 
   const goToBookmark = (cfi) => {
@@ -311,8 +316,8 @@ const EpubReader = ({ url }) => {
     }
   }, [rate]); // 배속 또는 성별이 변경될 때만 실행
 
-   // 성별 변경 시 효과 적용
-   useEffect(() => {
+  // 성별 변경 시 효과 적용
+  useEffect(() => {
     if (isPlaying) {
       // 성별 변경 시 현재 재생 중인 오디오를 멈추고, 새로운 설정으로 재생
       stopTTS();
@@ -329,7 +334,6 @@ const EpubReader = ({ url }) => {
       setIsPaused(false);
     }
   }, [audioSource]); // 오디오 소스가 변경될 때만 실행
-
 
   const handleTTS = async () => {
     if (viewerRef.current && !isPlaying) {
@@ -353,7 +357,7 @@ const EpubReader = ({ url }) => {
               audioRef.current.src = audioUrl;
               audioRef.current.playbackRate = rate;
               audioRef.current.play();
-              console.log('재생중');
+              console.log("재생중");
               return new Promise((resolve) => {
                 audioRef.current.onended = () => resolve();
               });
@@ -402,6 +406,8 @@ const EpubReader = ({ url }) => {
           onTTSStop={stopTTS}
           onRateChange={setRate}
           onVoiceChange={setGender}
+          onBookmarkAdd={addBookmark} // 북마크 추가 핸들러 전달
+          onFontChange={handleFontChange} // 폰트 변경 핸들러 전달
           rate={rate}
           gender={gender}
         />
