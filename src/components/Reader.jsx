@@ -3,33 +3,68 @@ import { useDispatch } from "react-redux";
 import { Provider } from "react-redux";
 import { useLocation } from "react-router-dom";
 import ePub from "epubjs";
+// containers
+import Footer from "containers/Footer";
+import Nav from "containers/menu/Nav";
+import Snackbar from "containers/commons/Snackbar";
+import Header from "containers/Header";
+// components
+import ViewerWrapper from "components/commons/ViewerWrapper";
 // slices
 import store from "slices";
 import { updateCurrentPage } from "slices/book";
 
 // styles
 import "lib/styles/readerStyle.css";
+import viewerLayout from "lib/styles/viewerLayout";
+import LoadingView from "LoadingView";
+import EyeGaze from "pages/EyeGaze";
 
 const EpubReader = ({ url }) => {
   const dispatch = useDispatch();
   const viewerRef = useRef(null);
+  const saveGazeTimeRef = useRef(null);
   const bookRef = useRef(null);
   const renditionRef = useRef(null);
+  const audioRef = useRef(new Audio());
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [rate, setRate] = useState(1);
+  const [gender, setGender] = useState("MALE");
+  const [isPaused, setIsPaused] = useState(false);
+  const [audioSource, setAudioSource] = useState(null);
+  const [isContextMenu, setIsContextMenu] = useState(false);
+  const [pageTextArray, setPageTextArray] = useState([]); // 현재 페이지의 모든 텍스트 상태
+  const [bookStyle, setBookStyle] = useState({
+    fontFamily: "Arial",
+    fontSize: 16,
+    lineHeight: 1.6,
+    marginHorizontal: 50,
+    marginVertical: 5,
+  });
 
+  const [bookOption, setBookOption] = useState({
+    flow: "paginated",
+    resizeOnOrientationChange: true,
+    spread: "none",
+  });
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [bookmarks, setBookmarks] = useState([]);
   const [fontSize, setFontSize] = useState("100%");
   const [lineHeight, setLineHeight] = useState("1.5");
   const [margin, setMargin] = useState("0");
   const [fontFamily, setFontFamily] = useState("Arial");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true); // 로딩 상태 관리
-  const [bookmarks, setBookmarks] = useState([]); // 북마크 관리
+  const [firstVisibleCfi, setFirstVisibleCfi] = useState(null);
+  const [shouldSaveCfi, setShouldSaveCfi] = useState(true);
+  const [currentBookText, setCurrentBookText] = useState('');
 
-  // ePub 책과 렌더링 초기화
   useEffect(() => {
     if (viewerRef.current) {
       setLoading(true); // 로딩 시작
       const book = ePub(url);
+      bookRef.current = book;
       const rendition = book.renderTo(viewerRef.current, {
         width: "100%",
         height: "100%",
@@ -37,7 +72,6 @@ const EpubReader = ({ url }) => {
         spread: "none",
       });
 
-      bookRef.current = book;
       renditionRef.current = rendition;
 
       // 페이지 정보 업데이트 함수
@@ -61,7 +95,9 @@ const EpubReader = ({ url }) => {
 
       rendition.display().then(() => updatePageInfo());
 
+      // Cleanup 함수에서 TTS 중지 및 이벤트 핸들러 제거
       return () => {
+        stopTTS();  // 컴포넌트가 언마운트될 때 TTS를 중지
         book.destroy();
         rendition.off("rendered", updatePageInfo);
         rendition.off("relocated", updatePageInfo);
@@ -69,8 +105,8 @@ const EpubReader = ({ url }) => {
     }
   }, [url, dispatch]);
 
-  // 스타일 업데이트
-  useEffect(() => {
+  const updateStyles = useCallback(() => {
+    setShouldSaveCfi(true);
     if (renditionRef.current) {
       renditionRef.current.themes.default({
         body: {
@@ -91,6 +127,11 @@ const EpubReader = ({ url }) => {
 
   // 페이지 이동 핸들러
   const onPageMove = useCallback((type) => {
+    if (saveGazeTimeRef.current) {
+      saveGazeTimeRef.current(); // 페이지 이동 전 시선 추적 시간 저장
+    }
+    
+    setShouldSaveCfi(false);
     if (renditionRef.current) {
       setLoading(true); // 페이지 이동 시 로딩 상태로 변경
       const updateAfterMove = () => {
@@ -111,21 +152,69 @@ const EpubReader = ({ url }) => {
       renditionRef.current.on("relocated", updateAfterMove);
 
       if (type === "PREV") {
-        renditionRef.current.prev();
+        renditionRef.current.prev().then(() => {
+          logCurrentPageText();
+        });
       } else if (type === "NEXT") {
-        renditionRef.current.next();
+        renditionRef.current.next().then(() => {
+          logCurrentPageText();
+        });
       }
     }
   }, [dispatch]);
 
-  // 북마크 추가
+  // 페이지에 보이는 텍스트를 배열로 수집하는 함수
+  const logCurrentPageText = () => {
+    if (renditionRef.current) {
+      const contents = renditionRef.current.getContents();
+
+      let allVisibleTexts = []; // 모든 텍스트를 담을 배열
+
+      contents.forEach((content) => {
+        const iframeDoc = content.document;
+        if (iframeDoc) {
+          const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                allVisibleTexts.push(
+                  entry.target.innerText || entry.target.textContent
+                );
+              }
+            });
+
+            setPageTextArray(allVisibleTexts);
+
+            const combinedText = allVisibleTexts.join(' ');
+            setCurrentBookText(combinedText);
+
+            console.log("All Visible Texts on Current Page:", allVisibleTexts);
+          });
+
+          const textElements = iframeDoc.querySelectorAll(
+            "p, span, div, h1, h2, h3, h4, h5, h6"
+          );
+          textElements.forEach((element) => observer.observe(element));
+        } else {
+          console.warn("Could not access iframe content.");
+        }
+      });
+    } else {
+      console.warn("Rendition is not available.");
+    }
+  };
+
   const addBookmark = () => {
     const currentLocation = renditionRef.current.currentLocation();
     if (currentLocation && currentLocation.start) {
       const newBookmarks = [...bookmarks, currentLocation.start.cfi];
       setBookmarks(newBookmarks);
-      localStorage.setItem("bookmarks", JSON.stringify(newBookmarks)); // 북마크를 로컬 스토리지에 저장
+      localStorage.setItem("bookmarks", JSON.stringify(newBookmarks));
     }
+  };
+
+  const handleFontChange = (font) => {
+    setFontFamily(font);
+    updateStyles();
   };
 
   // 북마크로 이동
@@ -141,7 +230,7 @@ const EpubReader = ({ url }) => {
   const removeBookmark = (cfi) => {
     const newBookmarks = bookmarks.filter((bookmark) => bookmark !== cfi);
     setBookmarks(newBookmarks);
-    localStorage.setItem("bookmarks", JSON.stringify(newBookmarks)); // 업데이트된 북마크를 로컬 스토리지에 저장
+    localStorage.setItem("bookmarks", JSON.stringify(newBookmarks));
   };
 
   useEffect(() => {
@@ -158,137 +247,134 @@ const EpubReader = ({ url }) => {
     return "0.00"; // 페이지 수가 0일 때는 0%로 표시
   };
 
+  // TTS 관련 함수들
+  const handleTTS = async () => {
+    if (viewerRef.current && !isPlaying) {
+      setIsPlaying(true);
+      setIsPaused(false);
+
+      for (const text of pageTextArray) {
+        console.log("TTS로 읽을 텍스트:", text);
+        const textParts = splitText(text);
+
+        for (const part of textParts) {
+          await fetch("http://localhost:3001/tts", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: part, rate, gender }),
+          })
+            .then((response) => response.arrayBuffer())
+            .then((audioContent) => {
+              const audioBlob = new Blob([audioContent], { type: "audio/mp3" });
+              const audioUrl = URL.createObjectURL(audioBlob);
+              audioRef.current.src = audioUrl;
+              audioRef.current.playbackRate = rate;
+              audioRef.current.play();
+              console.log("재생중");
+              return new Promise((resolve) => {
+                audioRef.current.onended = () => resolve();
+              });
+            });
+        }
+      }
+
+      setIsPlaying(false);
+
+      if (renditionRef.current) {
+        renditionRef.current.next();
+      }
+    }
+  };
+
+  const stopTTS = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      console.log("tts 정지");
+    }
+    setIsPlaying(false);
+    setIsPaused(false);
+  };
+
+  const pauseTTS = () => {
+    if (audioRef.current && isPlaying) {
+      audioRef.current.pause();
+      setIsPaused(true);
+    }
+  };
+
+  const resumeTTS = () => {
+    if (audioRef.current && isPaused) {
+      audioRef.current.play();
+      setIsPaused(false);
+    }
+  };
+
+  function splitText(text, maxBytes = 5000) {
+    const textParts = [];
+    let currentPart = "";
+
+    for (const char of text) {
+      const charByteLength = new Blob([char]).size;
+
+      if (new Blob([currentPart + char]).size > maxBytes) {
+        textParts.push(currentPart);
+        currentPart = char;
+      } else {
+        currentPart += char;
+      }
+    }
+
+    if (currentPart) {
+      textParts.push(currentPart);
+    }
+
+    return textParts;
+  }
+
   return (
-    <div style={{ width: "100%", height: "100vh", position: "relative" }}>
-      {/* 설정 메뉴 */}
-      <div
-        style={{
-          padding: "10px",
-          background: "#f0f0f0",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-        }}
-      >
-        <div>
-          <label>Font Size: </label>
-          <select
-            value={fontSize}
-            onChange={(e) => setFontSize(e.target.value)}
-          >
-            <option value="80%">80%</option>
-            <option value="100%">100%</option>
-            <option value="120%">120%</option>
-            <option value="150%">150%</option>
-          </select>
+    <div className="max-w-screen-xl m-auto">
+      <ViewerWrapper className="m-auto">
+        <Header
+          onTTSResume={resumeTTS}
+          onTTSToggle={handleTTS}
+          onTTSPause={pauseTTS}
+          onTTSStop={stopTTS}
+          onRateChange={setRate}
+          onVoiceChange={setGender}
+          onBookmarkAdd={addBookmark} // 북마크 추가 핸들러 전달
+          onFontChange={handleFontChange} // 폰트 변경 핸들러 전달
+          rate={rate}
+          gender={gender}
+        />
 
-          <label style={{ marginLeft: "10px" }}>Line Height: </label>
-          <select
-            value={lineHeight}
-            onChange={(e) => setLineHeight(e.target.value)}
-          >
-            <option value="1.2">1.2</option>
-            <option value="1.5">1.5</option>
-            <option value="1.8">1.8</option>
-          </select>
+        <div
+          ref={viewerRef}
+          style={{ width: "100%", height: "100%", border: "1px solid #ccc" }}
+        />
 
-          <label style={{ marginLeft: "10px" }}>Margin: </label>
-          <select value={margin} onChange={(e) => setMargin(e.target.value)}>
-            <option value="0">0</option>
-            <option value="10px">10px</option>
-            <option value="20px">20px</option>
-            <option value="30px">30px</option>
-          </select>
+        <Footer
+          title="Chapter Title"
+          nowPage={currentPage}
+          totalPage={totalPages}
+          onPageMove={onPageMove}
+        />
+      </ViewerWrapper>
 
-          <label style={{ marginLeft: "10px" }}>Font Family: </label>
-          <select
-            value={fontFamily}
-            onChange={(e) => setFontFamily(e.target.value)}
-          >
-            <option value="Arial">Arial</option>
-            <option value="Georgia">Georgia</option>
-            <option value="Times New Roman">Times New Roman</option>
-            <option value="Courier New">Courier New</option>
-          </select>
-        </div>
+      <Nav
+        control={() => {}}
+        onToggle={() => {}}
+        onLocation={() => {}}
+        ref={null}
+      />
 
-        <div>
-          <button
-            onClick={addBookmark}
-            style={{ padding: "8px", marginRight: "10px" }}
-          >
-            Add Bookmark
-          </button>
-          <button
-            onClick={() => setBookmarks([])}
-            style={{ padding: "8px", backgroundColor: "red", color: "white" }}
-          >
-            Clear Bookmarks
-          </button>
-        </div>
-      </div>
-
-      {/* 북마크 메뉴 */}
-      <div
-        style={{
-          padding: "10px",
-          background: "#f8f8f8",
-          display: "flex",
-          justifyContent: "center",
-          flexWrap: "wrap",
-        }}
-      >
-        {bookmarks.map((bookmark, index) => (
-          <div
-            key={index}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              marginRight: "10px",
-            }}
-          >
-            <button
-              onClick={() => goToBookmark(bookmark)}
-              style={{ margin: "5px" }}
-            >
-              Bookmark {index + 1}
-            </button>
-            <button
-              onClick={() => removeBookmark(bookmark)}
-              style={{ margin: "5px", backgroundColor: "red", color: "white" }}
-            >
-              Remove
-            </button>
-          </div>
-        ))}
-      </div>
-
-      {/* ePub 뷰어가 렌더링될 컨테이너 */}
-      <div
-        ref={viewerRef}
-        style={{ width: "100%", height: "60vh", border: "1px solid #ccc" }}
-      ></div>
-
-      {/* 페이지 탐색 버튼 및 정보 표시 */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: 0,
-          width: "100%",
-          display: "flex",
-          justifyContent: "space-between",
-          padding: "10px",
-          background: "#f0f0f0",
-        }}
-      >
-        <button onClick={() => onPageMove("PREV")}>Previous</button>
-        <span>
-          Progress: {calculateReadingProgress()}% | Page {currentPage} of {totalPages - 1}{" "}
-          {loading ? "로딩 중..." : ""}
-        </span>
-        <button onClick={() => onPageMove("NEXT")}>Next</button>
-      </div>
+      <Snackbar />
+      <EyeGaze 
+        viewerRef={viewerRef} 
+        onSaveGazeTime={(saveGazeTime) => {
+        saveGazeTimeRef.current = saveGazeTime;}}
+        bookText={currentBookText}
+        />
     </div>
   );
 };
@@ -298,6 +384,8 @@ const Reader = () => {
   const { bookPath } = location.state || {};
 
   const epubUrl = `book_file/${bookPath}.epub`;
+  console.log(epubUrl);
+
   return (
     <Provider store={store}>
       <EpubReader url={epubUrl} />
