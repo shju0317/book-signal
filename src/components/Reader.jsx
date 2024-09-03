@@ -27,6 +27,7 @@ const EpubReader = ({ url }) => {
   const bookRef = useRef(null);
   const renditionRef = useRef(null);
   const audioRef = useRef(new Audio());
+  // const stopGazeTrackingRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [rate, setRate] = useState(1);
   const [gender, setGender] = useState("MALE");
@@ -138,7 +139,14 @@ const EpubReader = ({ url }) => {
       window.addEventListener("resize", handleResize);
 
       return () => {
+        stopTTS();
         book.destroy();
+
+        // // 페이지가 언마운트될 때 시선 추적 중지
+        // if (stopGazeTrackingRef.current) {
+        //   stopGazeTrackingRef.current(); // 시선 추적 중지 함수 호출
+        // }
+
         window.removeEventListener("resize", handleResize);
       };
     }
@@ -454,6 +462,9 @@ const EpubReader = ({ url }) => {
         viewerRef={viewerRef} 
         onSaveGazeTime={(saveGazeTime) => {
         saveGazeTimeRef.current = saveGazeTime;}}
+        // onStopGazeTracking={(stopGazeTracking) => {
+        //   stopGazeTrackingRef.current = stopGazeTracking;
+        // }}
         bookText={currentBookText}
         />
     </div>

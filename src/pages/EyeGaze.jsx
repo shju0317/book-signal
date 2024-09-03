@@ -2,15 +2,16 @@ import React, { useState, useEffect, useRef, useCallback, useContext } from 'rea
 import EasySeeSo from 'seeso/easy-seeso';
 import axios from 'axios';
 import { AuthContext } from '../App';
+// import CalibrationButton from './CalibrationButton';
 
 const SEESO_API_KEY = process.env.REACT_APP_SEESO_API_KEY;
 // console.log(SEESO_API_KEY);
 
 
-const EyeGaze = ({ viewerRef, onSaveGazeTime, bookText }) => {
+const EyeGaze = ({ viewerRef, onSaveGazeTime, onStopGazeTracking, bookText }) => {
   const { user } = useContext(AuthContext);
   // console.log('user!!', user.mem_id);
-  const memId = user.mem_id;
+    const memId = user?.mem_id || null;
 
   const canvasRef = useRef(null);
   const seesoRef = useRef(null);
@@ -44,7 +45,7 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime, bookText }) => {
       // console.log('canvas 높이: ', canvas.height);
       
 
-      // 영역 확인용
+      // 시선추적 영역 확인용
       // const ctx = canvas.getContext('2d');
       // ctx.strokeStyle = '#800080'; // 보라색
       // ctx.lineWidth = 2;
@@ -161,29 +162,30 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime, bookText }) => {
 }
 
 
-  /******************** 시선추적 초기화 ********************/  
+  /******************** 시선추적 초기화 및 교정 데이터 적용 ********************/  
   function afterInitialized() {
-    console.log('Seeso SDK 초기화 성공!');
+    console.log('SeeSo SDK 초기화 성공!');
     const seeso = seesoRef.current;
     seeso.setMonitorSize(16);
     seeso.setFaceDistance(50);
     seeso.setCameraPosition(window.outerWidth / 2, true);
+
+    // 시선 교정
+    const calibrationData = parseCalibrationDataInQueryString();
+    if (calibrationData) {
+      seeso.setCalibrationData(calibrationData);
+      console.log("Calibration data applied.");
+    }
+
     seeso.startTracking(onGaze, onDebug);
   }
 
   function afterFailed() {
-    console.log('SDK 초기화 실패!');
+    console.log('SeeSo SDK 초기화 실패!');
   }
 
   function onGaze(gazeInfo) {
     showGaze(gazeInfo);
-
-    if (!gazeInfo || typeof gazeInfo.screen_x === 'undefined' || typeof gazeInfo.screen_y === 'undefined') {
-      // console.error('Invalid gazeInfo:', gazeInfo);
-      // console.log('흠',gazeInfo.screen_x);
-      
-      return;
-    }
 
     if (seesoRef.current) {
         showGaze(gazeInfo);
@@ -193,7 +195,7 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime, bookText }) => {
   }
 
   function onDebug(FPS, latency_min, latency_max, latency_avg) {
-    // Debug 정보를 처리하는 로직
+    // console.log("Debug Info:", FPS, latency_min, latency_max, latency_avg);
   }
 
   useEffect(() => {
@@ -210,13 +212,32 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime, bookText }) => {
 
     initializeSeeso();
 
+    /******************** 컴포넌트 언마운트 시 모든 타이머와 시선 추적 중지 ********************/
     return () => {
-      const seeso = seesoRef.current;
-      if (seeso) {
-        seeso.stopTracking();
+      clearInterval(insideTimerRef.current);
+      clearInterval(outsideTimerRef.current);
+      
+      if (seesoRef.current) {
+        seesoRef.current.stopTracking(); 
+        console.log("Eye tracking stopped.");
       }
     };
   }, []);
+
+
+  /******************** 시선 교정 ********************/
+  const parseCalibrationDataInQueryString = () => {
+    const href = window.location.href;
+    const queryString = new URLSearchParams(href.split('?')[1]);
+    const calibrationData = queryString.get('calibrationData');
+    return calibrationData;
+  };
+
+  const startCalibration = () => {
+    const redirectUrl = window.location.href;
+    const calibrationPoint = 5;
+    EasySeeSo.openCalibrationPage(SEESO_API_KEY, memId, redirectUrl, calibrationPoint);
+  };
 
   
   /******************** 시선 추적 시간 저장 ********************/
@@ -253,14 +274,15 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime, bookText }) => {
     }
   };
 
-useEffect(() => {
-  if (onSaveGazeTime) {
-    onSaveGazeTime(saveGazeTime);
-  }
-}, [onSaveGazeTime]);
+  useEffect(() => {
+    if (onSaveGazeTime) {
+      onSaveGazeTime(saveGazeTime);
+    }
+  }, [onSaveGazeTime]);
 
   return (
     <>
+      <button onClick={startCalibration}>Start Calibration</button>
       <canvas ref={canvasRef} className="absolute pointer-events-none"></canvas>
     </>
   );
