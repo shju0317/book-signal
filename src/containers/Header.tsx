@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // useNavigate import 추가
 import Wrapper from 'components/header/Wrapper';
 import Layout, { AutoLayout } from 'components/header/Layout';
-import Logo from 'components/header/Logo';
 import ControlBtn from 'components/header/ControlBtn';
 import TTSManager from 'components/tts/TTSManager';
 import TTSWrapper from 'components/tts/TTSWrapper';
@@ -16,14 +15,17 @@ const Header = ({
   onTTSPause,
   onTTSStop,
   onTTSResume,
-  onBookmarkAdd = () => {},
-  onFontChange = () => {},
-  setAudioSource
+  onBookmarkAdd = () => { },
+  onFontChange = () => { },
+  setAudioSource,
+  book,
 }: Props) => {
   const [showTTSSettings, setShowTTSSettings] = useState(false);
   const [showBookmarkSettings, setShowBookmarkSettings] = useState(false);
   const [showFontSettings, setShowFontSettings] = useState(false);
-  
+  const [bookmarkMessage, setBookmarkMessage] = useState(''); // 북마크 메시지 상태 추가
+
+
   const navigate = useNavigate(); // useNavigate 훅 초기화
 
   const handleSoundClick = () => {
@@ -44,14 +46,23 @@ const Header = ({
 
   // 독서 완료 및 종료 버튼 클릭 시 도서 상세 페이지로 이동하는 함수
   const handleFinishReading = () => {
-    navigate('/detail');
+    navigate('/detail', { state: { book } }); // book 객체를 함께 전달
   };
+
+  const handleBookmarkAdd = async () => {
+    try {
+      await onBookmarkAdd();
+      setBookmarkMessage('북마크가 성공적으로 추가되었습니다.'); // 북마크 성공 메시지 설정
+    } catch (error) {
+      setBookmarkMessage('북마크 추가 중 오류가 발생했습니다.'); // 실패 메시지 설정
+    }
+  };
+
 
   return (
     <Wrapper>
       <Layout>
         <AutoLayout>
-          <Logo />
           <div>
             {/* Sound 버튼 */}
             <ControlBtn message="Sound" onClick={handleSoundClick} />
@@ -71,8 +82,8 @@ const Header = ({
 
       {/* TTS 설정 창 */}
       <TTSWrapper show={showTTSSettings} onClose={handleTTSSettingsClose}>
-        <TTSManager 
-          onTTSToggle={onTTSToggle} 
+        <TTSManager
+          onTTSToggle={onTTSToggle}
           onTTSStop={onTTSStop}
           onTTSPause={onTTSPause}
           onTTSResume={onTTSResume}
@@ -87,7 +98,8 @@ const Header = ({
       {/* Bookmark 설정을 위한 모달 또는 드롭다운을 설정할 수 있습니다. */}
       {showBookmarkSettings && (
         <div className="bookmark-settings">
-          <button onClick={onBookmarkAdd}>Add Current Page to Bookmarks</button>
+          <button onClick={handleBookmarkAdd}>Add Current Page to Bookmarks</button>
+          {bookmarkMessage && <p>{bookmarkMessage}</p>} {/* 북마크 메시지 표시 */}
         </div>
       )}
 
@@ -111,7 +123,7 @@ interface Props {
   onTTSToggle?: (settings: { rate: number, gender: 'MALE' | 'FEMALE' }) => void;
   onTTSStop?: () => void;
   onTTSPause?: () => void;
-  onTTSResume?: () => void; 
+  onTTSResume?: () => void;
   onBookmarkAdd?: () => void;
   onFontChange?: (font: string) => void;
   rate: number;
@@ -119,6 +131,8 @@ interface Props {
   onRateChange: (rate: number) => void;
   onVoiceChange: (gender: 'MALE' | 'FEMALE') => void;
   setAudioSource: (audioUrl: string) => void;
+  book?: { [key: string]: any }; // book 객체의 타입 추가 (적절한 타입으로 수정 가능)
+
 }
 
 export default Header;

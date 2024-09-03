@@ -26,14 +26,14 @@ const client = new textToSpeech.TextToSpeechClient();
 
 // 세션 설정 (기본 설정)
 app.use(session({
-    secret: 'MyKey', 
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        httpOnly: true,
-        secure: false, 
-        maxAge: null
-    }
+  secret: process.env.SESSION_SECRET || 'MyKey', 
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+      httpOnly: true,
+      secure: false, 
+      maxAge: null 
+  }
 }));
 
 app.use(express.json());
