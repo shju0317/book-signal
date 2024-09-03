@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import styled from 'styled-components';
 // components
 import OptionWrapper from 'components/option/OptionWrapper';
@@ -6,19 +6,19 @@ import OptionTitle from 'components/option/OptionTitle';
 import DropdownValue from 'components/option/DropdownValue';
 import DropdownItemWrapper from 'components/option/DropdownItemWrapper';
 import DropdownItem from 'components/option/DropdownItem';
-// types
-import { BookFontFamily } from 'types/book';
 
-const Dropdown = ({
-  title,
-  defaultValue,
-  valueList,
-  onSelect
-}: Props) => {
+interface Props<T extends string> {  // 제네릭 타입 T를 문자열로 제한
+  title: string;
+  defaultValue: T;
+  valueList: T[];
+  onSelect: (value: T) => void;
+}
+
+const Dropdown = <T extends string>({ title, defaultValue, valueList, onSelect }: Props<T>) => {
   const ref = useRef<HTMLDivElement | null>(null);
   const [visible, setVisible] = useState<boolean>(false);
-  const value = defaultValue === "Origin" ? "Original" : defaultValue;
-  
+  const value = defaultValue;
+
   /** Toggle dropdown */
   const onToggle = useCallback(() => setVisible(!visible), [visible]);
 
@@ -26,16 +26,14 @@ const Dropdown = ({
   const onClose = useCallback((e: MouseEvent) => {
     if (!ref.current) return;
 
-    // e.path 대신 e.composedPath()를 사용하여 이벤트 경로를 가져옵니다.
     const path = e.composedPath();
-    
     if (!path.includes(ref.current)) {
       onToggle();
     }
   }, [ref, onToggle]);
 
-  const Items = valueList.map(font => 
-    <DropdownItem key={font} value={font} onClick={() => {
+  const Items = valueList.map((font, index) => 
+    <DropdownItem key={index} value={font} onClick={() => {
       onSelect(font);
       onToggle();
     }} />
@@ -58,7 +56,7 @@ const Dropdown = ({
       <OptionTitle>{title}</OptionTitle>
 
       <DropdownWrapper ref={ref}>
-        <DropdownValue value={value} 
+        <DropdownValue value={value}  // value를 그대로 전달
                        isDropdown={visible} 
                        onClick={onToggle} />
         <DropdownItemWrapper show={visible}>
@@ -72,12 +70,5 @@ const Dropdown = ({
 const DropdownWrapper = styled.div`
   position: relative;
 `;
-
-interface Props {
-  title: string;
-  defaultValue: BookFontFamily;
-  valueList: BookFontFamily[];
-  onSelect: (font: BookFontFamily) => void;
-}
 
 export default Dropdown;

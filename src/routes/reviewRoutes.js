@@ -9,6 +9,7 @@ router.get('/:mem_id', reviewController.getUserReviews);
 router.delete('/:reviewId', reviewController.deleteReview);
 
 // 리뷰 등록 
-router.post('/', reviewController.addReview);
+router.post('/review', reviewController.addReview);
+
 
 module.exports = router;
