@@ -1,5 +1,6 @@
 import React, { useState, createContext, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { Toaster } from "react-hot-toast";
 import './App.css';
 import './css/fonts.css';
 import Home from './pages/Home';
@@ -67,6 +68,7 @@ function App() {
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated, user, setUser }}>
+      <Toaster />
       <ErrorBoundary>
         <Routes>
           <Route element={<RootLayout />}>

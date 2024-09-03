@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback, useContext } from 'rea
 import EasySeeSo from 'seeso/easy-seeso';
 import axios from 'axios';
 import { AuthContext } from '../App';
+import { alertMessage } from "../../src/utils/alertMessage";
 
 const SEESO_API_KEY = process.env.REACT_APP_SEESO_API_KEY;
 // console.log(SEESO_API_KEY);
@@ -132,7 +133,7 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime, bookText }) => {
 
                   // 영역 안에서의 30초 체크를 위한 타이머 설정
                   insideTimerRef.current = setTimeout(() => {
-                    alert('너무 오래 읽어');
+                    alertMessage('너무 오래 읽는 것 같은데?!','🤨');
                     clearTimeout(insideTimerRef.current); // 알림 후 타이머 해제
                   }, 30000); // 30초 후에 알림
               }
@@ -163,7 +164,7 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime, bookText }) => {
               outsideTimerRef.current = setInterval(() => {
                 const outsideDuration = Date.now() - gazeOutsideTimeRef.current;
                 if (outsideDuration >= 10000) { // 10초 이상 머물렀다면
-                  alert('집중!');
+                  alertMessage("집중!집중!", "👀");
                   clearInterval(outsideTimerRef.current); // 알림 후 타이머 해제
                 }
               }, 1000);

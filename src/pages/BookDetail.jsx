@@ -5,6 +5,7 @@ import '../css/bookDetail.css';
 import { IoMdHeartEmpty } from "react-icons/io";
 import { TiStarFullOutline } from "react-icons/ti";
 import '../css/sameBook.css';
+import { alertMessage } from "../../src/utils/alertMessage";
 
 const BookDetail = () => {
   const navigate = useNavigate();
@@ -70,7 +71,7 @@ const BookDetail = () => {
 
   const handleWishList = async () => {
     if (!isLoggedIn) {
-      alert('로그인이 필요합니다.');
+      alertMessage('로그인이 필요합니다.','❗');
       navigate('/login');
       return;
     }
@@ -78,10 +79,11 @@ const BookDetail = () => {
     try {
       if (isWishlisted) {
         await axios.post('http://localhost:3001/wishlist/remove', { mem_id: memId, book_idx: book.book_idx });
-        alert('찜한 도서에서 제거되었습니다.');
+
+        alertMessage('찜한 도서에서 제거되었습니다.','❤');
       } else {
         await axios.post('http://localhost:3001/wishlist', { mem_id: memId, book_idx: book.book_idx });
-        alert('찜한 도서에 추가되었습니다.');
+        alertMessage('찜한 도서에 추가되었습니다.','❤');
       }
       setIsWishlisted(!isWishlisted);
     } catch (error) {
@@ -91,7 +93,7 @@ const BookDetail = () => {
 
   const handleReadBook = async () => {
     if (!isLoggedIn) {
-      alert('로그인이 필요합니다.');
+      alertMessage('로그인이 필요합니다.','❗');
       navigate('/login');
       return;
     }
@@ -111,7 +113,7 @@ const BookDetail = () => {
       navigate('/reader', { state: { bookPath } });
     } catch (error) {
       console.error('책 읽기 처리 중 에러:', error);
-      alert('책을 읽는 중에 문제가 발생했습니다.');
+      alertMessage('책을 읽는 중에 문제가 발생했습니다.','❗');
     }
 
 
