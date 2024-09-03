@@ -32,7 +32,6 @@ const EpubReader = ({ url }) => {
   const [gender, setGender] = useState("MALE");
   const [isPaused, setIsPaused] = useState(false);
   const [audioSource, setAudioSource] = useState(null);
-
   const [isContextMenu, setIsContextMenu] = useState(false);
   const [pageTextArray, setPageTextArray] = useState([]); // 현재 페이지의 모든 텍스트 상태
   const [bookStyle, setBookStyle] = useState({
@@ -56,12 +55,7 @@ const EpubReader = ({ url }) => {
   const [lineHeight, setLineHeight] = useState("1.5");
   const [margin, setMargin] = useState("0");
   const [fontFamily, setFontFamily] = useState("Arial");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true); // 로딩 상태 관리
-  const [bookmarks, setBookmarks] = useState([]); // 북마크 관리
-
-  // ePub 책과 렌더링 초기화
   const [firstVisibleCfi, setFirstVisibleCfi] = useState(null);
   const [shouldSaveCfi, setShouldSaveCfi] = useState(true);
   const [currentBookText, setCurrentBookText] = useState('');
@@ -107,9 +101,9 @@ const EpubReader = ({ url }) => {
         rendition.off("relocated", updatePageInfo);
       };
     }
-  }, [url, dispatch, firstVisibleCfi]);
+  }, [url, dispatch]);
 
-  const updateStyles = () => {
+  const updateStyles = useCallback(() => {
     setShouldSaveCfi(true);
     if (renditionRef.current) {
       renditionRef.current.themes.default({
@@ -131,8 +125,6 @@ const EpubReader = ({ url }) => {
 
   // 페이지 이동 핸들러
   const onPageMove = useCallback((type) => {
-  const onPageMove = (type) => {
-    // 시선 추적 정보 저장 함수 연결
     if (saveGazeTimeRef.current) {
       saveGazeTimeRef.current(); // 페이지 이동 전 시선 추적 시간 저장
     }
@@ -162,16 +154,12 @@ const EpubReader = ({ url }) => {
           logCurrentPageText();
         });
       } else if (type === "NEXT") {
-        renditionRef.current.next();
-      }
-    }
-  }, [dispatch]);
         renditionRef.current.next().then(() => {
           logCurrentPageText();
         });
       }
     }
-  };
+  }, [dispatch]);
 
   // 페이지에 보이는 텍스트를 배열로 수집하는 함수
   const logCurrentPageText = () => {
@@ -195,7 +183,7 @@ const EpubReader = ({ url }) => {
             setPageTextArray(allVisibleTexts);
 
             const combinedText = allVisibleTexts.join(' ');
-            setCurrentBookText(combinedText)
+            setCurrentBookText(combinedText);
 
             console.log("All Visible Texts on Current Page:", allVisibleTexts);
           });
@@ -220,11 +208,6 @@ const EpubReader = ({ url }) => {
       setBookmarks(newBookmarks);
       localStorage.setItem("bookmarks", JSON.stringify(newBookmarks));
     }
-  };
-
-  const handleFontChange = (font) => {
-    setFontFamily(font);
-    updateStyles();
   };
 
   const handleFontChange = (font) => {
@@ -263,54 +246,6 @@ const EpubReader = ({ url }) => {
   };
 
   // TTS 관련 함수들
-  function splitText(text, maxBytes = 5000) {
-    const textParts = [];
-    let currentPart = "";
-
-    for (const char of text) {
-      const charByteLength = new Blob([char]).size;
-
-      if (new Blob([currentPart + char]).size > maxBytes) {
-        textParts.push(currentPart);
-        currentPart = char;
-      } else {
-        currentPart += char;
-      }
-    }
-
-    if (currentPart) {
-      textParts.push(currentPart);
-    }
-
-    return textParts;
-  }
-
-  useEffect(() => {
-    // 배속 변경될 때 오디오 설정만 업데이트
-    if (audioRef.current) {
-      audioRef.current.playbackRate = rate; // 실시간 배속 반영
-    }
-  }, [rate]); // 배속 또는 성별이 변경될 때만 실행
-
-  // 성별 변경 시 효과 적용
-  useEffect(() => {
-    if (isPlaying) {
-      // 성별 변경 시 현재 재생 중인 오디오를 멈추고, 새로운 설정으로 재생
-      stopTTS();
-      resumeTTS();
-    }
-  }, [gender]); // gender가 변경될 때마다 실행
-
-  useEffect(() => {
-    if (audioSource && audioRef.current) {
-      audioRef.current.src = audioSource;
-      audioRef.current.play();
-      audioRef.current.playbackRate = rate; // 배속 반영
-      setIsPlaying(true);
-      setIsPaused(false);
-    }
-  }, [audioSource]); // 오디오 소스가 변경될 때만 실행
-
   const handleTTS = async () => {
     if (viewerRef.current && !isPlaying) {
       setIsPlaying(true);
@@ -372,7 +307,6 @@ const EpubReader = ({ url }) => {
     }
   };
 
-  // TTS 관련 함수들
   function splitText(text, maxBytes = 5000) {
     const textParts = [];
     let currentPart = "";
@@ -394,98 +328,11 @@ const EpubReader = ({ url }) => {
 
     return textParts;
   }
-
-  useEffect(() => {
-    // 배속 변경될 때 오디오 설정만 업데이트
-    if (audioRef.current) {
-      audioRef.current.playbackRate = rate; // 실시간 배속 반영
-    }
-  }, [rate]); // 배속 또는 성별이 변경될 때만 실행
-
-  // 성별 변경 시 효과 적용
-  useEffect(() => {
-    if (isPlaying) {
-      // 성별 변경 시 현재 재생 중인 오디오를 멈추고, 새로운 설정으로 재생
-      stopTTS();
-      resumeTTS();
-    }
-  }, [gender]); // gender가 변경될 때마다 실행
-
-  useEffect(() => {
-    if (audioSource && audioRef.current) {
-      audioRef.current.src = audioSource;
-      audioRef.current.play();
-      audioRef.current.playbackRate = rate; // 배속 반영
-      setIsPlaying(true);
-      setIsPaused(false);
-    }
-  }, [audioSource]); // 오디오 소스가 변경될 때만 실행
-
-  const handleTTS = async () => {
-    if (viewerRef.current && !isPlaying) {
-      setIsPlaying(true);
-      setIsPaused(false);
-
-      for (const text of pageTextArray) {
-        console.log("TTS로 읽을 텍스트:", text);
-        const textParts = splitText(text);
-
-        for (const part of textParts) {
-          await fetch("http://localhost:3001/tts", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text: part, rate, gender }),
-          })
-            .then((response) => response.arrayBuffer())
-            .then((audioContent) => {
-              const audioBlob = new Blob([audioContent], { type: "audio/mp3" });
-              const audioUrl = URL.createObjectURL(audioBlob);
-              audioRef.current.src = audioUrl;
-              audioRef.current.playbackRate = rate;
-              audioRef.current.play();
-              console.log("재생중");
-              return new Promise((resolve) => {
-                audioRef.current.onended = () => resolve();
-              });
-            });
-        }
-      }
-
-      setIsPlaying(false);
-
-      if (renditionRef.current) {
-        renditionRef.current.next();
-      }
-    }
-  };
-
-  const stopTTS = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-    }
-    setIsPlaying(false);
-    setIsPaused(false);
-  };
-
-  const pauseTTS = () => {
-    if (audioRef.current && isPlaying) {
-      audioRef.current.pause();
-      setIsPaused(true);
-    }
-  };
-
-  const resumeTTS = () => {
-    if (audioRef.current && isPaused) {
-      audioRef.current.play();
-      setIsPaused(false);
-    }
-  };
 
   return (
     <div className="max-w-screen-xl m-auto">
       <ViewerWrapper className="m-auto">
-      <Header
+        <Header
           onTTSResume={resumeTTS}
           onTTSToggle={handleTTS}
           onTTSPause={pauseTTS}
@@ -498,47 +345,11 @@ const EpubReader = ({ url }) => {
           gender={gender}
         />
 
-        {/* <ReactEpubViewer
-        className="max-w-screen-xl bg-slate-500 "
-          url={url}
-          viewerLayout={viewerLayout}
-          viewerStyle={bookStyle}
-          viewerOption={bookOption}
-          onBookInfoChange={onBookInfoChange}
-          onPageChange={onPageChange}
-          onTocChange={onTocChange}
-          onSelection={onContextMenu}
-          loadingView={<LoadingView />}
-          ref={viewerRef}
-          style={{ width: "100%", height: "100%", border: "1px solid #ccc" }}
-        /> */}
-
-
         <div
           ref={viewerRef}
           style={{ width: "100%", height: "100%", border: "1px solid #ccc" }}
         />
 
-
-      {/* 페이지 탐색 버튼 및 정보 표시 */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: 0,
-          width: "100%",
-          display: "flex",
-          justifyContent: "space-between",
-          padding: "10px",
-          background: "#f0f0f0",
-        }}
-      >
-        <button onClick={() => onPageMove("PREV")}>Previous</button>
-        <span>
-          Progress: {calculateReadingProgress()}% | Page {currentPage} of {totalPages - 1}{" "}
-          {loading ? "로딩 중..." : ""}
-        </span>
-        <button onClick={() => onPageMove("NEXT")}>Next</button>
-      </div>
         <Footer
           title="Chapter Title"
           nowPage={currentPage}
@@ -569,10 +380,8 @@ const Reader = () => {
   const location = useLocation();
   const { bookPath } = location.state || {};
 
-  // const epubUrl = `${process.env.PUBLIC_URL}/book_file/${bookPath}.epub`;
   const epubUrl = `book_file/${bookPath}.epub`;
   console.log(epubUrl);
-
 
   return (
     <Provider store={store}>
