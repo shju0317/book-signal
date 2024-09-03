@@ -57,7 +57,8 @@ app.use('/ranking', rankingRoutes);
 app.use('/wishlist', wishListRoutes);
 app.use('/getBookPath', bookRoutes);
 app.use('/main', mainRoutes);
-app.use('/', reviewRoutes);
+app.use('/review', reviewRoutes)
+app.use('/sameBook', sameBookRoutes);
 
 app.post('/tts', async (req, res) => {
     const { text, rate, gender } = req.body;
@@ -86,9 +87,6 @@ app.post('/tts', async (req, res) => {
       res.status(500).send('TTS 변환 실패');
     }
   });
-
-app.use('/review', reviewRoutes)
-app.use('/sameBook', sameBookRoutes);
 
 // eye-gaze
 // Cross-Origin Isolation 헤더 설정

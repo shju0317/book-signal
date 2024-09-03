@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // useNavigate import 추가
 import Wrapper from 'components/header/Wrapper';
 import Layout, { AutoLayout } from 'components/header/Layout';
 import Logo from 'components/header/Logo';
@@ -22,6 +23,8 @@ const Header = ({
   const [showTTSSettings, setShowTTSSettings] = useState(false);
   const [showBookmarkSettings, setShowBookmarkSettings] = useState(false);
   const [showFontSettings, setShowFontSettings] = useState(false);
+  
+  const navigate = useNavigate(); // useNavigate 훅 초기화
 
   const handleSoundClick = () => {
     setShowTTSSettings(true);
@@ -39,10 +42,16 @@ const Header = ({
     setShowFontSettings(!showFontSettings);
   };
 
+  // 독서 완료 및 종료 버튼 클릭 시 도서 상세 페이지로 이동하는 함수
+  const handleFinishReading = () => {
+    navigate('/detail');
+  };
+
   return (
     <Wrapper>
       <Layout>
         <AutoLayout>
+          <Logo />
           <div>
             {/* Sound 버튼 */}
             <ControlBtn message="Sound" onClick={handleSoundClick} />
@@ -52,6 +61,10 @@ const Header = ({
 
             {/* Font Settings 버튼 */}
             <ControlBtn message="Font Settings" onClick={handleFontClick} />
+
+            {/* 독서 완료 및 종료 버튼 */}
+            <ControlBtn message="독서 완료" onClick={handleFinishReading} />
+            <ControlBtn message="독서 종료" onClick={handleFinishReading} />
           </div>
         </AutoLayout>
       </Layout>

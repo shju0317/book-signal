@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useDispatch } from "react-redux";
 import { Provider } from "react-redux";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom"; // navigate import 추가
 import ePub from "epubjs";
 // containers
 import Footer from "containers/Footer";
@@ -16,12 +16,13 @@ import { updateCurrentPage } from "slices/book";
 
 // styles
 import "lib/styles/readerStyle.css";
-import viewerLayout from "lib/styles/viewerLayout";
 import LoadingView from "LoadingView";
 import EyeGaze from "pages/EyeGaze";
+// book 정보 전달(detail부터)
 
-const EpubReader = ({ url }) => {
+const EpubReader = ({ url, book }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate(); // navigate 훅 추가
   const viewerRef = useRef(null);
   const saveGazeTimeRef = useRef(null);
   const bookRef = useRef(null);
@@ -247,6 +248,11 @@ const EpubReader = ({ url }) => {
     return "0.00"; // 페이지 수가 0일 때는 0%로 표시
   };
 
+  // 독서 완료 및 종료 처리
+  const handleReadingComplete = () => {
+    navigate('/detail', { state: { book } });
+  };
+
   // TTS 관련 함수들
   const handleTTS = async () => {
     if (viewerRef.current && !isPlaying) {
@@ -346,6 +352,7 @@ const EpubReader = ({ url }) => {
           onFontChange={handleFontChange} // 폰트 변경 핸들러 전달
           rate={rate}
           gender={gender}
+          onReadingComplete={handleReadingComplete} // 독서 완료 핸들러 전달
         />
 
         <div
@@ -381,14 +388,14 @@ const EpubReader = ({ url }) => {
 
 const Reader = () => {
   const location = useLocation();
-  const { bookPath } = location.state || {};
+  const { bookPath, book } = location.state || {}; // book 객체 추가
 
   const epubUrl = `book_file/${bookPath}.epub`;
   console.log(epubUrl);
 
   return (
     <Provider store={store}>
-      <EpubReader url={epubUrl} />
+      <EpubReader url={epubUrl} book={book} />
     </Provider>
   );
 };
