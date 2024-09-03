@@ -130,7 +130,7 @@ const EpubReader = ({ url }) => {
     if (saveGazeTimeRef.current) {
       saveGazeTimeRef.current(); // 페이지 이동 전 시선 추적 시간 저장
     }
-    
+
     setShouldSaveCfi(false);
     if (renditionRef.current) {
       setLoading(true); // 페이지 이동 시 로딩 상태로 변경
@@ -362,19 +362,20 @@ const EpubReader = ({ url }) => {
       </ViewerWrapper>
 
       <Nav
-        control={() => {}}
-        onToggle={() => {}}
-        onLocation={() => {}}
+        control={() => { }}
+        onToggle={() => { }}
+        onLocation={() => { }}
         ref={null}
       />
 
       <Snackbar />
-      <EyeGaze 
-        viewerRef={viewerRef} 
+      <EyeGaze
+        viewerRef={viewerRef}
         onSaveGazeTime={(saveGazeTime) => {
-        saveGazeTimeRef.current = saveGazeTime;}}
+          saveGazeTimeRef.current = saveGazeTime;
+        }}
         bookText={currentBookText}
-        />
+      />
     </div>
   );
 };
