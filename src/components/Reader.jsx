@@ -16,10 +16,14 @@ import { updateBook, updateCurrentPage, updateToc } from "slices/book";
 
 // styles
 import "lib/styles/readerStyle.css";
+import viewerLayout from "lib/styles/viewerLayout";
+import LoadingView from "LoadingView";
+import EyeGaze from "pages/EyeGaze";
 
 const EpubReader = ({ url }) => {
   const dispatch = useDispatch();
   const viewerRef = useRef(null);
+  const saveGazeTimeRef = useRef(null);
   const bookRef = useRef(null);
   const renditionRef = useRef(null);
   const audioRef = useRef(new Audio());
@@ -54,6 +58,7 @@ const EpubReader = ({ url }) => {
   const [fontFamily, setFontFamily] = useState("Arial");
   const [firstVisibleCfi, setFirstVisibleCfi] = useState(null);
   const [shouldSaveCfi, setShouldSaveCfi] = useState(true);
+  const [currentBookText, setCurrentBookText] = useState('');
 
   useEffect(() => {
     if (viewerRef.current) {
@@ -180,6 +185,11 @@ const EpubReader = ({ url }) => {
   useEffect(updateStyles, [fontSize, lineHeight, margin, fontFamily]);
 
   const onPageMove = (type) => {
+    // 시선 추적 정보 저장 함수 연결
+    if (saveGazeTimeRef.current) {
+      saveGazeTimeRef.current(); // 페이지 이동 전 시선 추적 시간 저장
+    }
+    
     setShouldSaveCfi(false);
     if (renditionRef.current) {
       if (type === "PREV") {
@@ -214,6 +224,10 @@ const EpubReader = ({ url }) => {
             });
 
             setPageTextArray(allVisibleTexts);
+
+            const combinedText = allVisibleTexts.join(' ');
+            setCurrentBookText(combinedText)
+
             console.log("All Visible Texts on Current Page:", allVisibleTexts);
           });
 
@@ -383,9 +397,9 @@ const EpubReader = ({ url }) => {
   };
 
   return (
-    <div>
-      <ViewerWrapper>
-        <Header
+    <div className="max-w-screen-xl m-auto">
+      <ViewerWrapper className="m-auto">
+      <Header
           onTTSResume={resumeTTS}
           onTTSToggle={handleTTS}
           onTTSPause={pauseTTS}
@@ -398,10 +412,27 @@ const EpubReader = ({ url }) => {
           gender={gender}
         />
 
+        {/* <ReactEpubViewer
+        className="max-w-screen-xl bg-slate-500 "
+          url={url}
+          viewerLayout={viewerLayout}
+          viewerStyle={bookStyle}
+          viewerOption={bookOption}
+          onBookInfoChange={onBookInfoChange}
+          onPageChange={onPageChange}
+          onTocChange={onTocChange}
+          onSelection={onContextMenu}
+          loadingView={<LoadingView />}
+          ref={viewerRef}
+          style={{ width: "100%", height: "100%", border: "1px solid #ccc" }}
+        /> */}
+
+
         <div
           ref={viewerRef}
           style={{ width: "100%", height: "100%", border: "1px solid #ccc" }}
         />
+
 
         <Footer
           title="Chapter Title"
@@ -419,6 +450,12 @@ const EpubReader = ({ url }) => {
       />
 
       <Snackbar />
+      <EyeGaze 
+        viewerRef={viewerRef} 
+        onSaveGazeTime={(saveGazeTime) => {
+        saveGazeTimeRef.current = saveGazeTime;}}
+        bookText={currentBookText}
+        />
     </div>
   );
 };
@@ -427,8 +464,10 @@ const Reader = () => {
   const location = useLocation();
   const { bookPath } = location.state || {};
 
-  const epubUrl = `files/무정.epub`;
+  // const epubUrl = `${process.env.PUBLIC_URL}/book_file/${bookPath}.epub`;
+  const epubUrl = `book_file/${bookPath}.epub`;
   console.log(epubUrl);
+
 
   return (
     <Provider store={store}>

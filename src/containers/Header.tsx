@@ -43,7 +43,6 @@ const Header = ({
     <Wrapper>
       <Layout>
         <AutoLayout>
-          <Logo />
           <div>
             {/* Sound 버튼 */}
             <ControlBtn message="Sound" onClick={handleSoundClick} />
