@@ -6,7 +6,7 @@ import MoveBtn from 'components/footer/MoveBtn'
 
 const Footer = ({ title, nowPage, totalPage, onPageMove }: Props) => {
   return (
-    <Wrapper>
+    <Wrapper className='max-w-screen-xl m-auto'>
       <MoveBtn type="PREV" onClick={() => onPageMove("PREV")} />
       <Item text={title} />
       <Item text={`${nowPage} / ${totalPage}`} />

@@ -1,13 +1,10 @@
-const { log } = require('console');
 const conn = require('../config/database');
-const fs = require('fs');
-const path = require('path');
 
 
 // 도서 정보 검색 함수
 exports.searchBooks = (searchQuery) => {
   return new Promise((resolve, reject) => {
-    const sql = `SELECT book_name, book_writer, book_cover FROM book_db WHERE book_name LIKE ?`;
+    const sql = `SELECT * FROM book_db WHERE book_name LIKE ?`;
     const formattedQuery = `%${searchQuery}%`;
 
     conn.query(sql, [formattedQuery], (err, results) => {
@@ -196,6 +193,26 @@ exports.removeWishlist = (mem_id, book_idx) => {
       }
 
       resolve({ message: '도서가 찜 목록에서 제거되었습니다.' });
+    });
+  });
+};
+
+/******************** 시선 추적 시간 저장 ********************/
+exports.saveGazeTime = (book_idx, mem_id, book_text, gaze_duration) => {
+  return new Promise((resolve, reject) => {
+    const sql = `
+      INSERT INTO book_eyegaze (book_idx, mem_id, book_text, gaze_duration, gaze_recorded_at)
+      VALUES (?, ?, ?, ?, NOW())
+    `;
+
+    conn.query(sql, [book_idx, mem_id, book_text, gaze_duration], (err, result) => {
+      if (err) {
+        console.error('Error saving gaze time:', err);
+        reject(err);
+        return;
+      }
+
+      resolve(result);
     });
   });
 };

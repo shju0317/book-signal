@@ -3,9 +3,9 @@ import styled from 'styled-components'
 import palette from 'lib/styles/palette'
 
 const Wrapper = styled.div`
-  position: fixed;
-  left: 0;
-  bottom: 0;
+  // position: fixed;
+  // left: 0;
+  // bottom: 0;
   width: 100%;
   height: 60px;
   display: flex;
