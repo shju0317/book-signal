@@ -8,7 +8,6 @@ import ePub from "epubjs";
 import Footer from "containers/Footer";
 import Nav from "containers/menu/Nav";
 import Snackbar from "containers/commons/Snackbar";
-import Header from "containers/Header";
 // components
 import ViewerWrapper from "components/commons/ViewerWrapper";
 // slices
@@ -67,7 +66,7 @@ const EpubReader = ({ url }) => {
         spread: bookOption.spread,
       });
 
-      renditionRef.current = rendition;
+   renditionRef.current = rendition;
 
       rendition.display().then(() => {
         if (firstVisibleCfi) {
