@@ -88,7 +88,6 @@ app.post('/tts', async (req, res) => {
     }
   });
 
-
 // eye-gaze
 // Cross-Origin Isolation 헤더 설정
 // app.use(helmet.crossOriginOpenerPolicy({ policy: 'same-origin' }));

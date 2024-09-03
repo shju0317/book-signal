@@ -36,18 +36,20 @@ function SummarizePage() {
     return (
         <div>
             <h1>텍스트 요약 생성</h1>
-            <div>
+            <div style={{ marginBottom: '20px' }}>
                 <input
                     type="text"
                     placeholder="회원 ID 입력"
                     value={memId}
                     onChange={(e) => setMemId(e.target.value)}
+                    style={{ marginRight: '10px' }}
                 />
                 <input
                     type="text"
                     placeholder="책 인덱스 입력"
                     value={bookIdx}
                     onChange={(e) => setBookIdx(e.target.value)}
+                    style={{ marginRight: '10px' }}
                 />
                 <button onClick={handleSummarize} disabled={loading}>
                     {loading ? '요약 중...' : '요약 생성'}
