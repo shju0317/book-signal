@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useDispatch } from "react-redux";
 import { Provider } from "react-redux";
 import { useLocation } from "react-router-dom";
@@ -12,7 +12,7 @@ import Header from "containers/Header";
 import ViewerWrapper from "components/commons/ViewerWrapper";
 // slices
 import store from "slices";
-import { updateBook, updateCurrentPage, updateToc } from "slices/book";
+import { updateCurrentPage } from "slices/book";
 
 // styles
 import "lib/styles/readerStyle.css";
@@ -56,90 +56,55 @@ const EpubReader = ({ url }) => {
   const [lineHeight, setLineHeight] = useState("1.5");
   const [margin, setMargin] = useState("0");
   const [fontFamily, setFontFamily] = useState("Arial");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(true); // 로딩 상태 관리
+  const [bookmarks, setBookmarks] = useState([]); // 북마크 관리
+
+  // ePub 책과 렌더링 초기화
   const [firstVisibleCfi, setFirstVisibleCfi] = useState(null);
   const [shouldSaveCfi, setShouldSaveCfi] = useState(true);
   const [currentBookText, setCurrentBookText] = useState('');
 
   useEffect(() => {
     if (viewerRef.current) {
+      setLoading(true); // 로딩 시작
       const book = ePub(url);
       bookRef.current = book;
       const rendition = book.renderTo(viewerRef.current, {
         width: "100%",
         height: "100%",
-        flow: bookOption.flow,
-        spread: bookOption.spread,
+        flow: "paginated",
+        spread: "none",
       });
 
       renditionRef.current = rendition;
 
-      rendition.display().then(() => {
-        if (firstVisibleCfi) {
-          renditionRef.current.display(firstVisibleCfi).catch((err) => {
-            console.error(
-              "Error displaying first visible CFI after initial load:",
-              err
-            );
-          });
-        } else {
-          logCurrentPageText();
-        }
-      });
+      // 페이지 정보 업데이트 함수
+      const updatePageInfo = () => {
+        const location = renditionRef.current.currentLocation();
+        if (location && location.start && location.start.displayed) {
+          const page = location.start.displayed.page;
+          const total = location.start.displayed.total;
 
-      const generateLocations = () => {
-        book.ready
-          .then(() => {
-            book.locations.generate().then(() => {
-              setTotalPages(book.locations.length());
-            });
-          })
-          .catch((err) => {
-            console.error("Error generating locations:", err);
-          });
-      };
-
-      generateLocations();
-
-      rendition.on("relocated", (location) => {
-        const currentPage = location.start.displayed.page;
-        const totalPages = location.start.displayed.total;
-
-        setCurrentPage(currentPage);
-        setTotalPages(totalPages);
-
-        if (shouldSaveCfi) {
-          setFirstVisibleCfi(location.start.cfi);
-        }
-
-        console.log(`Current Page: ${currentPage}, Total Pages: ${totalPages}`);
-
-        dispatch(updateCurrentPage({ currentPage, totalPages }));
-
-        logCurrentPageText();
-      });
-
-      const handleResize = () => {
-        setShouldSaveCfi(true);
-        if (renditionRef.current) {
-          renditionRef.current.resize();
-          generateLocations().then(() => {
-            if (firstVisibleCfi) {
-              renditionRef.current.display(firstVisibleCfi).catch((err) => {
-                console.error(
-                  "Error displaying first visible CFI after resize:",
-                  err
-                );
-              });
-            }
-          });
+          if (page !== currentPage || total !== totalPages) {
+            setCurrentPage(page || 1);
+            setTotalPages(total || 1);
+            dispatch(updateCurrentPage({ currentPage: page || 1, totalPages: total || 1 }));
+          }
+          setLoading(false); // 로딩 완료
         }
       };
 
-      window.addEventListener("resize", handleResize);
+      rendition.on("rendered", updatePageInfo);
+      rendition.on("relocated", updatePageInfo);
+
+      rendition.display().then(() => updatePageInfo());
 
       return () => {
         book.destroy();
-        window.removeEventListener("resize", handleResize);
+        rendition.off("rendered", updatePageInfo);
+        rendition.off("relocated", updatePageInfo);
       };
     }
   }, [url, dispatch, firstVisibleCfi]);
@@ -155,35 +120,17 @@ const EpubReader = ({ url }) => {
           "font-family": fontFamily,
         },
       });
-      renditionRef.current.themes.fontSize(fontSize);
 
       if (bookRef.current) {
-        bookRef.current.locations
-          .generate()
-          .then(() => {
-            setTotalPages(bookRef.current.locations.length());
-
-            if (firstVisibleCfi) {
-              renditionRef.current.display(firstVisibleCfi).catch((err) => {
-                console.error(
-                  "Error displaying first visible CFI after style change:",
-                  err
-                );
-              });
-            }
-          })
-          .catch((err) => {
-            console.error(
-              "Error regenerating locations after style change:",
-              err
-            );
-          });
+        bookRef.current.ready
+          .then(() => bookRef.current.locations.generate())
+          .catch((err) => console.error("스타일 업데이트 또는 위치 생성 중 오류:", err));
       }
     }
-  };
+  }, [fontSize, lineHeight, margin, fontFamily]);
 
-  useEffect(updateStyles, [fontSize, lineHeight, margin, fontFamily]);
-
+  // 페이지 이동 핸들러
+  const onPageMove = useCallback((type) => {
   const onPageMove = (type) => {
     // 시선 추적 정보 저장 함수 연결
     if (saveGazeTimeRef.current) {
@@ -192,11 +139,33 @@ const EpubReader = ({ url }) => {
     
     setShouldSaveCfi(false);
     if (renditionRef.current) {
+      setLoading(true); // 페이지 이동 시 로딩 상태로 변경
+      const updateAfterMove = () => {
+        const location = renditionRef.current.currentLocation();
+        if (location) {
+          const page = location.start.displayed.page;
+          const total = location.start.displayed.total;
+
+          setCurrentPage(page || 1);
+          setTotalPages(total || 1);
+
+          dispatch(updateCurrentPage({ currentPage: page || 1, totalPages: total || 1 }));
+          setLoading(false); // 페이지 이동 후 로딩 완료
+        }
+      };
+
+      renditionRef.current.off("relocated", updateAfterMove);
+      renditionRef.current.on("relocated", updateAfterMove);
+
       if (type === "PREV") {
         renditionRef.current.prev().then(() => {
           logCurrentPageText();
         });
       } else if (type === "NEXT") {
+        renditionRef.current.next();
+      }
+    }
+  }, [dispatch]);
         renditionRef.current.next().then(() => {
           logCurrentPageText();
         });
@@ -258,14 +227,21 @@ const EpubReader = ({ url }) => {
     updateStyles();
   };
 
+  const handleFontChange = (font) => {
+    setFontFamily(font);
+    updateStyles();
+  };
+
+  // 북마크로 이동
   const goToBookmark = (cfi) => {
     if (renditionRef.current) {
       renditionRef.current.display(cfi).catch((err) => {
-        console.error("Error displaying bookmark:", err);
+        console.error("북마크 이동 중 오류:", err);
       });
     }
   };
 
+  // 북마크 제거
   const removeBookmark = (cfi) => {
     const newBookmarks = bookmarks.filter((bookmark) => bookmark !== cfi);
     setBookmarks(newBookmarks);
@@ -280,10 +256,120 @@ const EpubReader = ({ url }) => {
   }, []);
 
   const calculateReadingProgress = () => {
-    if (totalPages > 1) {
+    if (totalPages > 0 && currentPage > 0) {
       return ((currentPage / totalPages) * 100).toFixed(2);
     }
-    return 0;
+    return "0.00"; // 페이지 수가 0일 때는 0%로 표시
+  };
+
+  // TTS 관련 함수들
+  function splitText(text, maxBytes = 5000) {
+    const textParts = [];
+    let currentPart = "";
+
+    for (const char of text) {
+      const charByteLength = new Blob([char]).size;
+
+      if (new Blob([currentPart + char]).size > maxBytes) {
+        textParts.push(currentPart);
+        currentPart = char;
+      } else {
+        currentPart += char;
+      }
+    }
+
+    if (currentPart) {
+      textParts.push(currentPart);
+    }
+
+    return textParts;
+  }
+
+  useEffect(() => {
+    // 배속 변경될 때 오디오 설정만 업데이트
+    if (audioRef.current) {
+      audioRef.current.playbackRate = rate; // 실시간 배속 반영
+    }
+  }, [rate]); // 배속 또는 성별이 변경될 때만 실행
+
+  // 성별 변경 시 효과 적용
+  useEffect(() => {
+    if (isPlaying) {
+      // 성별 변경 시 현재 재생 중인 오디오를 멈추고, 새로운 설정으로 재생
+      stopTTS();
+      resumeTTS();
+    }
+  }, [gender]); // gender가 변경될 때마다 실행
+
+  useEffect(() => {
+    if (audioSource && audioRef.current) {
+      audioRef.current.src = audioSource;
+      audioRef.current.play();
+      audioRef.current.playbackRate = rate; // 배속 반영
+      setIsPlaying(true);
+      setIsPaused(false);
+    }
+  }, [audioSource]); // 오디오 소스가 변경될 때만 실행
+
+  const handleTTS = async () => {
+    if (viewerRef.current && !isPlaying) {
+      setIsPlaying(true);
+      setIsPaused(false);
+
+      for (const text of pageTextArray) {
+        console.log("TTS로 읽을 텍스트:", text);
+        const textParts = splitText(text);
+
+        for (const part of textParts) {
+          await fetch("http://localhost:3001/tts", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: part, rate, gender }),
+          })
+            .then((response) => response.arrayBuffer())
+            .then((audioContent) => {
+              const audioBlob = new Blob([audioContent], { type: "audio/mp3" });
+              const audioUrl = URL.createObjectURL(audioBlob);
+              audioRef.current.src = audioUrl;
+              audioRef.current.playbackRate = rate;
+              audioRef.current.play();
+              console.log("재생중");
+              return new Promise((resolve) => {
+                audioRef.current.onended = () => resolve();
+              });
+            });
+        }
+      }
+
+      setIsPlaying(false);
+
+      if (renditionRef.current) {
+        renditionRef.current.next();
+      }
+    }
+  };
+
+  const stopTTS = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    setIsPlaying(false);
+    setIsPaused(false);
+  };
+
+  const pauseTTS = () => {
+    if (audioRef.current && isPlaying) {
+      audioRef.current.pause();
+      setIsPaused(true);
+    }
+  };
+
+  const resumeTTS = () => {
+    if (audioRef.current && isPaused) {
+      audioRef.current.play();
+      setIsPaused(false);
+    }
   };
 
   // TTS 관련 함수들
@@ -434,6 +520,25 @@ const EpubReader = ({ url }) => {
         />
 
 
+      {/* 페이지 탐색 버튼 및 정보 표시 */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 0,
+          width: "100%",
+          display: "flex",
+          justifyContent: "space-between",
+          padding: "10px",
+          background: "#f0f0f0",
+        }}
+      >
+        <button onClick={() => onPageMove("PREV")}>Previous</button>
+        <span>
+          Progress: {calculateReadingProgress()}% | Page {currentPage} of {totalPages - 1}{" "}
+          {loading ? "로딩 중..." : ""}
+        </span>
+        <button onClick={() => onPageMove("NEXT")}>Next</button>
+      </div>
         <Footer
           title="Chapter Title"
           nowPage={currentPage}
