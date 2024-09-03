@@ -66,6 +66,9 @@ const EpubReader = ({ url, book }) => {
       setLoading(true); // 로딩 시작
       const book = ePub(url);
       bookRef.current = book;
+
+      console.log("book",book);
+      
       const rendition = book.renderTo(viewerRef.current, {
         width: "100%",
         height: "100%",
@@ -106,7 +109,7 @@ const EpubReader = ({ url, book }) => {
         rendition.off("relocated", updatePageInfo);
       };
     }
-  }, [url, dispatch]);
+  }, [url, dispatch, book]);
 
   const updateStyles = useCallback(() => {
     setShouldSaveCfi(true);
@@ -395,7 +398,7 @@ const Reader = () => {
   const location = useLocation();
   const { bookPath, book } = location.state || {}; // book 객체 추가
 
-  const epubUrl = `book_file/${bookPath}.epub`;
+  const epubUrl = `book_file/${book.book_path}.epub`;
   console.log(epubUrl);
 
   return (
