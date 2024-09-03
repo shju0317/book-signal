@@ -95,7 +95,9 @@ const EpubReader = ({ url }) => {
 
       rendition.display().then(() => updatePageInfo());
 
+      // Cleanup 함수에서 TTS 중지 및 이벤트 핸들러 제거
       return () => {
+        stopTTS();  // 컴포넌트가 언마운트될 때 TTS를 중지
         book.destroy();
         rendition.off("rendered", updatePageInfo);
         rendition.off("relocated", updatePageInfo);
@@ -288,6 +290,7 @@ const EpubReader = ({ url }) => {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
+      console.log("tts 정지");
     }
     setIsPlaying(false);
     setIsPaused(false);
