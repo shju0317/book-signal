@@ -22,14 +22,14 @@ const app = express();
 
 // 세션 설정 (기본 설정)
 app.use(session({
-    secret: 'MyKey', 
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        httpOnly: true,
-        secure: false, 
-        maxAge: null // 기본 설정에서는 세션 종료 시 만료
-    }
+  secret: process.env.SESSION_SECRET || 'MyKey', 
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+      httpOnly: true,
+      secure: false, 
+      maxAge: null 
+  }
 }));
 
 app.use(express.json());

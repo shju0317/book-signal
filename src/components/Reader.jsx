@@ -3,6 +3,7 @@ import { useDispatch } from "react-redux";
 import { Provider } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom"; // navigate import 추가
 import ePub from "epubjs";
+import axios from "axios";
 // containers
 import Footer from "containers/Footer";
 import Nav from "containers/menu/Nav";
@@ -60,6 +61,26 @@ const EpubReader = ({ url, book }) => {
   const [firstVisibleCfi, setFirstVisibleCfi] = useState(null);
   const [shouldSaveCfi, setShouldSaveCfi] = useState(true);
   const [currentBookText, setCurrentBookText] = useState('');
+
+  // 사용자 정보를 상태로 관리
+
+  useEffect(() => {
+    // 서버에서 세션 정보를 가져옴
+    axios.get('http://localhost:3001/check-session', { withCredentials: true })
+      .then(response => {
+        setUserInfo(response.data.user); // 세션 정보를 설정
+      })
+      .catch(error => {
+        if (error.response && error.response.status === 401) {
+          // 로그인이 필요하면 로그인 페이지로 이동
+          alert('로그인이 필요합니다.');
+          navigate('/login');
+        } else {
+          console.error('세션 정보 확인 중 오류 발생:', error);
+        }
+      });
+  }, [navigate]);
+  const [userInfo, setUserInfo] = useState(null);
 
   useEffect(() => {
     if (viewerRef.current) {
@@ -210,14 +231,31 @@ const EpubReader = ({ url, book }) => {
     }
   };
 
-  const addBookmark = () => {
+
+  const addBookmark = async () => {
     const currentLocation = renditionRef.current.currentLocation();
     if (currentLocation && currentLocation.start) {
-      const newBookmarks = [...bookmarks, currentLocation.start.cfi];
+      const cfi = currentLocation.start.cfi;
+      const pageText = pageTextArray.join(' ');
+      const newBookmarks = [...bookmarks, { cfi, pageText }];
       setBookmarks(newBookmarks);
       localStorage.setItem("bookmarks", JSON.stringify(newBookmarks));
+
+      try {
+        await axios.post('http://localhost:3001/getBookPath/saveBookmark', {
+          book_name: book.book_name,
+          book_idx: book.book_idx,
+          mem_id: userInfo.mem_id, // 세션에서 가져온 사용자 ID 사용
+          cfi,
+          page_text: pageText,
+        });
+        console.log("북마크가 DB에 저장되었습니다.");
+      } catch (error) {
+        console.error("북마크 저장 중 오류:", error);
+      }
     }
   };
+
 
   const handleFontChange = (font) => {
     setFontFamily(font);
@@ -361,7 +399,7 @@ const EpubReader = ({ url, book }) => {
           rate={rate}
           gender={gender}
           onReadingComplete={handleReadingComplete} // 독서 완료 핸들러 전달
-           book={book} // book prop을 전달
+          book={book} // book prop을 전달
         />
 
         <div

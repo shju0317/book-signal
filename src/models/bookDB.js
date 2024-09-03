@@ -216,3 +216,47 @@ exports.saveGazeTime = (book_idx, mem_id, book_text, gaze_duration) => {
     });
   });
 };
+
+
+// 북마크 저장 함수
+exports.saveBookmark = (book_name, book_idx, mem_id, cfi, page_text) => {
+
+  return new Promise((resolve, reject) => {
+    const sql = `
+      INSERT INTO book_reading (book_name, book_idx, mem_id,book_mark, book_text)
+      VALUES (?, ?, ?, ?, ?)
+    `;
+
+    conn.query(sql, [book_name, book_idx, mem_id, cfi, page_text], (err, result) => {
+      if (err) {
+        console.error('북마크 저장 중 오류 발생:', err);
+        reject(new Error('북마크를 저장하는 중 오류가 발생했습니다.'));
+        return;
+      }
+
+      resolve({ message: '북마크가 저장되었습니다.', bookmarkId: result.insertId });
+    });
+  });
+};
+
+// 사용자의 북마크를 가져오는 함수
+exports.getBookmarks = (book_idx, mem_id) => {
+  return new Promise((resolve, reject) => {
+    const sql = `
+      SELECT book_mark, book_text
+      FROM book_reading
+      WHERE book_idx = ? AND mem_id = ?
+      ORDER BY created_at DESC
+    `;
+
+    conn.query(sql, [book_idx, mem_id], (err, results) => {
+      if (err) {
+        console.error('북마크를 가져오는 중 오류 발생:', err);
+        reject(new Error('북마크를 가져오는 중 오류가 발생했습니다.'));
+        return;
+      }
+
+      resolve(results);
+    });
+  });
+};
