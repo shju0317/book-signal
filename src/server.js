@@ -1,7 +1,9 @@
 require('dotenv').config({ path: './src/tts.env' });
-console.log('GOOGLE_APPLICATION_CREDENTIALS:', process.env.GOOGLE_APPLICATION_CREDENTIALS); // 환경 변수 출력 확인
 const express = require('express');
 const cors = require('cors');
+const mysql = require('mysql2/promise');
+const session = require('express-session');
+const axios = require('axios'); // Axios 추가
 const userRoutes = require('./routes/userRoutes');
 const gazeRoutes = require('./routes/gazeRoutes');
 const searchRoutes = require('./routes/searchRoutes');
@@ -12,13 +14,15 @@ const mainRoutes = require('./routes/mainRoutes');
 const path = require('path');
 const helmet = require('helmet');
 const reviewRoutes = require('./routes/reviewRoutes');
-const fs = require('fs'); // 파일 시스템 접근을 위한 모듈 추가
-const tts = require('./tts'); // TTS 기능 추가
+const fs = require('fs');
+const tts = require('./tts');
 const textToSpeech = require('@google-cloud/text-to-speech');
-const client = new textToSpeech.TextToSpeechClient();
 const sameBookRoutes = require('./routes/sameBookRoutes');
-const session = require('express-session');
 const app = express();
+const pool = require('./config/database'); 
+
+const client = new textToSpeech.TextToSpeechClient();
+
 
 // 세션 설정 (기본 설정)
 app.use(session({
@@ -28,20 +32,19 @@ app.use(session({
     cookie: {
         httpOnly: true,
         secure: false, 
-        maxAge: null // 기본 설정에서는 세션 종료 시 만료
+        maxAge: null
     }
 }));
 
 app.use(express.json());
+
 app.use(cors({
     origin: 'http://localhost:3000',
     credentials: true,
 }));
 
-// 정적 파일 제공을 위한 경로 설정
-app.use('/images', express.static(path.join(__dirname, 'public/images')));
+app.use('/images', express.static(path.join(__dirname, '../public/images')));
 
-// 세션 상태 확인을 위한 엔드포인트
 app.get('/check-session', (req, res) => {
     if (req.session.user) {
         res.status(200).json({ user: req.session.user });
@@ -57,45 +60,101 @@ app.use('/ranking', rankingRoutes);
 app.use('/wishlist', wishListRoutes);
 app.use('/getBookPath', bookRoutes);
 app.use('/main', mainRoutes);
-app.use('/review', reviewRoutes)
+app.use('/review', reviewRoutes);
 app.use('/sameBook', sameBookRoutes);
 
+// TTS 엔드포인트
 app.post('/tts', async (req, res) => {
-    const { text, rate, gender } = req.body;
+  const { text, rate, gender } = req.body;
   
-    const request = {
-      input: { text: text },
-      voice: { 
-        languageCode: 'ko-KR', 
-        ssmlGender: gender 
-      },
-      audioConfig: { 
-        audioEncoding: 'MP3',
-        speakingRate: rate 
-      },
-    };
+  const request = {
+    input: { text: text },
+    voice: { 
+      languageCode: 'ko-KR', 
+      ssmlGender: gender 
+    },
+    audioConfig: { 
+      audioEncoding: 'MP3',
+      speakingRate: rate 
+    },
+  };
   
-    try {
-      const [response] = await client.synthesizeSpeech(request);
-      res.set({
-        'Content-Type': 'audio/mp3',
-        'Content-Length': response.audioContent.length,
-      });
-      res.send(response.audioContent);
-    } catch (err) {
-      console.error('ERROR:', err);
-      res.status(500).send('TTS 변환 실패');
-    }
-  });
+  try {
+    const [response] = await client.synthesizeSpeech(request);
+    res.set({
+      'Content-Type': 'audio/mp3',
+      'Content-Length': response.audioContent.length,
+    });
+    res.send(response.audioContent);
+  } catch (err) {
+    console.error('ERROR:', err);
+    res.status(500).send('TTS 변환 실패');
+  }
+});
 
-// eye-gaze
-// Cross-Origin Isolation 헤더 설정
-// app.use(helmet.crossOriginOpenerPolicy({ policy: 'same-origin' }));
-// app.use(helmet.crossOriginEmbedderPolicy({ policy: 'require-corp' }));
-  
-// 정적 파일 서빙
-app.use(express.static('public'));
+// 요약 생성 엔드포인트
+app.post('/summarize', async (req, res) => {
+  const { memId, bookIdx } = req.body;
+  console.log('요약 요청 받음:', req.body);
+
+  let connection;
+  try {
+    connection = await pool.getConnection();
+
+    // book_eyegaze 테이블에서 book_text 가져오기
+    const [textRows] = await connection.query('SELECT book_text FROM book_eyegaze WHERE mem_id = ? AND book_idx = ?', [memId, bookIdx]);
+
+    if (textRows.length === 0) {
+      return res.status(404).json({ error: '데이터를 찾을 수 없습니다.' });
+    }
+
+    const bookText = textRows.map(row => row.book_text).join(' ');
+
+    // book_db 테이블에서 book_name 가져오기
+    const [nameRows] = await connection.query('SELECT book_name FROM book_db WHERE book_idx = ?', [bookIdx]);
+
+    if (nameRows.length === 0) {
+      return res.status(404).json({ error: '해당 책 정보를 찾을 수 없습니다.' });
+    }
+
+    const bookName = nameRows[0].book_name;
+
+    // 텍스트 길이 제한을 초과하지 않도록 처리
+    const trimmedText = bookText.length > 2000 ? bookText.slice(0, 2000) : bookText;
+
+    // OpenAI API를 사용하여 요약 생성
+    const response = await axios.post('https://api.openai.com/v1/chat/completions', {
+      model: 'gpt-3.5-turbo',
+      messages: [{ role: "user", content: `다음 텍스트를 요약해줘: ${trimmedText}` }],
+      max_tokens: 100,
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+      }
+    });
+
+    const summary = response.data.choices[0].message.content.trim();
+    console.log('요약 생성 성공:', summary);
+
+    // DALL-E 이미지 생성 및 저장
+    const dalleImagePath = path.join(__dirname, '../public/dalle', `${bookIdx}.png`);
+    await fs.promises.writeFile(dalleImagePath, "이미지 데이터"); // 예제: 이미지 데이터를 저장
+    console.log('이미지 생성 및 저장 성공:', dalleImagePath);
+
+    // book_extract_data 테이블에 데이터 저장
+    await connection.query('INSERT INTO book_extract_data (mem_id, book_idx, book_name, book_extract, dalle_path) VALUES (?, ?, ?, ?, ?)', [memId, bookIdx, bookName, summary, `/images/dalle/${bookIdx}.png`]);
+
+    console.log('데이터베이스에 요약 및 이미지 경로 저장 성공');
+    res.json({ summary });
+  } catch (err) {
+    console.error('Error generating summary:', err.response ? err.response.data : err.message);
+    res.status(500).json({ error: '요약 생성에 실패했습니다.' });
+  } finally {
+    if (connection) connection.release();
+  }
+});
 
 app.listen(3001, () => {
-    console.log('서버 실행: http://localhost:3001');
+  console.log('서버 실행: http://localhost:3001');
 });

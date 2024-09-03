@@ -12,14 +12,19 @@ function SummarizePage() {
         setError('');
         setSummary('');
 
+        console.log('요약 요청 시작:', { memId, bookIdx }); // 디버깅 로그
+
         try {
-            const response = await fetch('http://localhost:3001/summary/summarize', {
+            const response = await fetch('http://localhost:3001/summarize', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ memId, bookIdx })
             });
 
+            console.log('서버 응답 상태:', response.status); // 디버깅 로그
             const data = await response.json();
+            console.log('서버 응답 데이터:', data); // 디버깅 로그
+
             if (response.ok) {
                 setSummary(data.summary); // 서버로부터 받은 한글 요약 결과를 표시
             } else {
