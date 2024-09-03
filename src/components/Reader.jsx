@@ -361,7 +361,7 @@ const EpubReader = ({ url, book }) => {
           rate={rate}
           gender={gender}
           onReadingComplete={handleReadingComplete} // 독서 완료 핸들러 전달
-          book={book} // book prop을 전달
+           book={book} // book prop을 전달
         />
 
         <div
@@ -399,8 +399,9 @@ const EpubReader = ({ url, book }) => {
 
 const Reader = () => {
   const location = useLocation();
-  const { bookPath, book } = location.state || {};
+  const { bookPath, book } = location.state || {}; // book 객체를 추출
 
+  // book 객체가 없을 경우 에러 방지를 위해 기본값을 설정
   if (!book) {
     console.error("Book object is undefined.");
     return <div>Error: Book data is missing.</div>;
@@ -415,6 +416,5 @@ const Reader = () => {
     </Provider>
   );
 };
-
 
 export default Reader;

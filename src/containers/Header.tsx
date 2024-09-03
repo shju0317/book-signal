@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // useNavigate import 추가
 import Wrapper from 'components/header/Wrapper';
 import Layout, { AutoLayout } from 'components/header/Layout';
-import Logo from 'components/header/Logo';
 import ControlBtn from 'components/header/ControlBtn';
 import TTSManager from 'components/tts/TTSManager';
 import TTSWrapper from 'components/tts/TTSWrapper';
@@ -57,7 +56,6 @@ const Header = ({
     <Wrapper>
       <Layout>
         <AutoLayout>
-          <Logo />
           <div>
             {/* Sound 버튼 */}
             <ControlBtn message="Sound" onClick={handleSoundClick} />
