@@ -98,6 +98,7 @@ const EpubReader = ({ url, book }) => {
 
       // Cleanup 함수에서 TTS 중지 및 이벤트 핸들러 제거
       return () => {
+        // 컴포넌트가 언마운트될 때 실행하는 함수 저장공간
         stopTTS();  // 컴포넌트가 언마운트될 때 TTS를 중지
         book.destroy();
         rendition.off("rendered", updatePageInfo);
