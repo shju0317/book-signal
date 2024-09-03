@@ -21,10 +21,12 @@ import BookDetail from './pages/BookDetail';
 import DeleteUser from './pages/DeleteUser';
 import SearchReport from './pages/searchReport';
 import RankingBookList from './pages/RankingBookList';
-import EyeGazeTest from './pages/EyeGazeTest';
+// import EyeGazeTest from './pages/EyeGazeTest';
+import EyeGaze from './pages/EyeGaze';
 import Modal from './components/Modal';
 import ReaderWrapper from '../src/containers/Reader';
-import Reader from './components/Reader';
+import Reader from 'components/Reader';
+import EyeGazeCalibration from 'pages/EyeGazeCalibration';
 import SummarizePage from './components/SummarizePage';
 import Epubjs from 'components/Epubjs';
 
@@ -86,6 +88,7 @@ function App() {
             <Route path="/detail" element={<BookDetail />} />
             <Route path="/modal" element={<Modal />} />
             <Route path="/reader" element={<Reader />} />
+            <Route path="/test" element={<EyeGazeCalibration />} />
             <Route path="/summarizepage" element={<SummarizePage />} />
             <Route path="/epubjs" element={<Epubjs />} />
 
@@ -102,7 +105,7 @@ function App() {
           <Route path='/getreview' element={<GetReview />} />
           <Route path='/deleteuser' element={<DeleteUser />} />
           <Route path='/searchreport' element={<SearchReport />} />
-          <Route path='/test' element={<EyeGazeTest />} />
+          <Route path='/test' element={<EyeGaze />} />
         </Routes>
       </ErrorBoundary>
     </AuthContext.Provider>
