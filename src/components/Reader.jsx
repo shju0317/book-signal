@@ -67,8 +67,8 @@ const EpubReader = ({ url, book }) => {
       const book = ePub(url);
       bookRef.current = book;
 
-      console.log("book",book);
-      
+      console.log("book", book);
+
       const rendition = book.renderTo(viewerRef.current, {
         width: "100%",
         height: "100%",
@@ -256,6 +256,8 @@ const EpubReader = ({ url, book }) => {
 
   // 독서 완료 및 종료 처리
   const handleReadingComplete = () => {
+    console.log(book.book_genre);
+
     navigate('/detail', { state: { book } });
   };
 
@@ -359,6 +361,7 @@ const EpubReader = ({ url, book }) => {
           rate={rate}
           gender={gender}
           onReadingComplete={handleReadingComplete} // 독서 완료 핸들러 전달
+          book={book} // book prop을 전달
         />
 
         <div
@@ -396,7 +399,12 @@ const EpubReader = ({ url, book }) => {
 
 const Reader = () => {
   const location = useLocation();
-  const { bookPath, book } = location.state || {}; // book 객체 추가
+  const { bookPath, book } = location.state || {};
+
+  if (!book) {
+    console.error("Book object is undefined.");
+    return <div>Error: Book data is missing.</div>;
+  }
 
   const epubUrl = `book_file/${book.book_path}.epub`;
   console.log(epubUrl);
@@ -407,5 +415,6 @@ const Reader = () => {
     </Provider>
   );
 };
+
 
 export default Reader;

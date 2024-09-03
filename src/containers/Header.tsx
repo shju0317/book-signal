@@ -16,14 +16,15 @@ const Header = ({
   onTTSPause,
   onTTSStop,
   onTTSResume,
-  onBookmarkAdd = () => {},
-  onFontChange = () => {},
-  setAudioSource
+  onBookmarkAdd = () => { },
+  onFontChange = () => { },
+  setAudioSource,
+  book,
 }: Props) => {
   const [showTTSSettings, setShowTTSSettings] = useState(false);
   const [showBookmarkSettings, setShowBookmarkSettings] = useState(false);
   const [showFontSettings, setShowFontSettings] = useState(false);
-  
+
   const navigate = useNavigate(); // useNavigate 훅 초기화
 
   const handleSoundClick = () => {
@@ -44,8 +45,13 @@ const Header = ({
 
   // 독서 완료 및 종료 버튼 클릭 시 도서 상세 페이지로 이동하는 함수
   const handleFinishReading = () => {
-    navigate('/detail');
+    if (book) {
+      navigate('/detail', { state: { book } });
+    } else {
+      console.error("Book data is missing, cannot navigate.");
+    }
   };
+
 
   return (
     <Wrapper>
@@ -71,8 +77,8 @@ const Header = ({
 
       {/* TTS 설정 창 */}
       <TTSWrapper show={showTTSSettings} onClose={handleTTSSettingsClose}>
-        <TTSManager 
-          onTTSToggle={onTTSToggle} 
+        <TTSManager
+          onTTSToggle={onTTSToggle}
           onTTSStop={onTTSStop}
           onTTSPause={onTTSPause}
           onTTSResume={onTTSResume}
@@ -111,7 +117,7 @@ interface Props {
   onTTSToggle?: (settings: { rate: number, gender: 'MALE' | 'FEMALE' }) => void;
   onTTSStop?: () => void;
   onTTSPause?: () => void;
-  onTTSResume?: () => void; 
+  onTTSResume?: () => void;
   onBookmarkAdd?: () => void;
   onFontChange?: (font: string) => void;
   rate: number;
@@ -119,6 +125,7 @@ interface Props {
   onRateChange: (rate: number) => void;
   onVoiceChange: (gender: 'MALE' | 'FEMALE') => void;
   setAudioSource: (audioUrl: string) => void;
+  book?: { [key: string]: any }; // book 객체의 타입 추가 (적절한 타입으로 수정 가능)
 }
 
 export default Header;
