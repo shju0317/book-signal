@@ -90,6 +90,7 @@ const EpubReader = ({ url }) => {
         }
       };
 
+
       rendition.on("rendered", updatePageInfo);
       rendition.on("relocated", updatePageInfo);
 
@@ -162,6 +163,7 @@ const EpubReader = ({ url }) => {
       }
     }
   }, [dispatch]);
+
 
   // 페이지에 보이는 텍스트를 배열로 수집하는 함수
   const logCurrentPageText = () => {
@@ -358,6 +360,7 @@ const EpubReader = ({ url }) => {
           nowPage={currentPage}
           totalPage={totalPages}
           onPageMove={onPageMove}
+          loading={loading}
         />
       </ViewerWrapper>
 
