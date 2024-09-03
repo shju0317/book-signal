@@ -21,7 +21,6 @@ import BookDetail from './pages/BookDetail';
 import DeleteUser from './pages/DeleteUser';
 import SearchReport from './pages/searchReport';
 import RankingBookList from './pages/RankingBookList';
-import EyeGaze from './pages/EyeGaze';
 import Modal from './components/Modal';
 import ReaderWrapper from '../src/containers/Reader';
 import Reader from 'components/Reader';
@@ -102,7 +101,6 @@ function App() {
           <Route path='/getreview' element={<GetReview />} />
           <Route path='/deleteuser' element={<DeleteUser />} />
           <Route path='/searchreport' element={<SearchReport />} />
-          <Route path='/test' element={<EyeGaze />} />
         </Routes>
       </ErrorBoundary>
     </AuthContext.Provider>

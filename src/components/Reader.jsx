@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { Provider } from "react-redux";
 import { useLocation } from "react-router-dom";
@@ -16,8 +16,6 @@ import { updateBook, updateCurrentPage, updateToc } from "slices/book";
 
 // styles
 import "lib/styles/readerStyle.css";
-import viewerLayout from "lib/styles/viewerLayout";
-import LoadingView from "LoadingView";
 import EyeGaze from "pages/EyeGaze";
 
 const EpubReader = ({ url }) => {
@@ -27,7 +25,7 @@ const EpubReader = ({ url }) => {
   const bookRef = useRef(null);
   const renditionRef = useRef(null);
   const audioRef = useRef(new Audio());
-  // const stopGazeTrackingRef = useRef(null);
+
   const [isPlaying, setIsPlaying] = useState(false);
   const [rate, setRate] = useState(1);
   const [gender, setGender] = useState("MALE");
@@ -141,11 +139,6 @@ const EpubReader = ({ url }) => {
       return () => {
         stopTTS();
         book.destroy();
-
-        // // 페이지가 언마운트될 때 시선 추적 중지
-        // if (stopGazeTrackingRef.current) {
-        //   stopGazeTrackingRef.current(); // 시선 추적 중지 함수 호출
-        // }
 
         window.removeEventListener("resize", handleResize);
       };

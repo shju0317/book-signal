@@ -2,13 +2,12 @@ import React, { useState, useEffect, useRef, useCallback, useContext } from 'rea
 import EasySeeSo from 'seeso/easy-seeso';
 import axios from 'axios';
 import { AuthContext } from '../App';
-// import CalibrationButton from './CalibrationButton';
 
 const SEESO_API_KEY = process.env.REACT_APP_SEESO_API_KEY;
 // console.log(SEESO_API_KEY);
 
 
-const EyeGaze = ({ viewerRef, onSaveGazeTime, onStopGazeTracking, bookText }) => {
+const EyeGaze = ({ viewerRef, onSaveGazeTime, bookText }) => {
   const { user } = useContext(AuthContext);
   // console.log('user!!', user.mem_id);
     const memId = user?.mem_id || null;
@@ -16,7 +15,7 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime, onStopGazeTracking, bookText }) =>
   const canvasRef = useRef(null);
   const seesoRef = useRef(null);
 
-  const gazeInsideTimeRef = useRef(0);
+  const gazeInsideTimeRef = useRef(0); // 영역 안에서 머문 시간
   const gazeOutsideTimeRef = useRef(0); // 영역 바깥에서 머문 시간
 
   const isGazeInsideRef = useRef(false);
@@ -25,7 +24,8 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime, onStopGazeTracking, bookText }) =>
 
   const [insideTimeTotal, setInsideTimeTotal] = useState(0);
   const insideTimeTotalRef = useRef(insideTimeTotal); // 최신 상태를 관리하기 위한 ref
-  const [gazeTimeOutside, setGazeTimeOutside] = useState(0);
+
+  const [calibrationData, setCalibrationData] = useState(null);
 
   /******************** 화면 크기에 맞춰 canvas 크기 조정 ********************/
   const resizeCanvas = useCallback(() => {
@@ -41,9 +41,6 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime, onStopGazeTracking, bookText }) =>
       canvas.height = rect.height;
       canvas.style.left = `${rect.left}px`;
       canvas.style.top = `${rect.top}px`;
-      // console.log('canvas 너비: ', canvas.width);
-      // console.log('canvas 높이: ', canvas.height);
-      
 
       // 시선추적 영역 확인용
       // const ctx = canvas.getContext('2d');
@@ -54,14 +51,43 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime, onStopGazeTracking, bookText }) =>
     }
   }, [viewerRef]);
 
+
   useEffect(() => {
     resizeCanvas();
-
+    
     window.addEventListener('resize', resizeCanvas);
     return () => {
       window.removeEventListener('resize', resizeCanvas);
     };
   }, [viewerRef, resizeCanvas]);
+  
+  
+  /******************** 로컬 스토리지에서 교정 데이터 로드 ********************/
+  useEffect(() => {
+    const savedCalibrationData = localStorage.getItem('calibrationData');
+    console.log('calibrationData 로컬스토리지', savedCalibrationData);
+    
+    if (savedCalibrationData) {
+      setCalibrationData(savedCalibrationData);
+    }
+  }, []);
+
+  // useEffect(() => {
+  //   const savedCalibrationData = localStorage.getItem('calibrationData');
+  //   if (savedCalibrationData) {
+  //     try {
+  //       // Base64 문자열이 올바르게 인코딩되었는지 확인
+  //       atob(savedCalibrationData);
+  //       setCalibrationData(savedCalibrationData);
+  //       console.log('Calibration data loaded from localStorage');
+  //     } catch (e) {
+  //       console.error('Invalid calibration data in localStorage:', e);
+  //       // 필요 시 로컬스토리지에서 잘못된 데이터를 제거할 수 있습니다.
+  //       // localStorage.removeItem('calibrationData');
+  //     }
+  //   }
+  // }, []);
+  
 
 
   /******************** 시선 추적 시간 계산 ********************/  
@@ -75,7 +101,6 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime, onStopGazeTracking, bookText }) =>
     // console.log(`[좌표] X: ${gazeInfo.x}, Y: ${gazeInfo.y}`);
     
     const canvas = canvasRef.current;
-    // const viewer = document.querySelector('.calibre.main');
     const viewer = document.querySelector('iframe');
 
     if (canvas && viewer) {
@@ -115,13 +140,6 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime, onStopGazeTracking, bookText }) =>
             if (isGazeInsideRef.current) {
               // 시선이 영역 밖으로 나갔을 때 영역 안에 머문 시간을 계산하고 누적
               const timeSpentInside = Date.now() - gazeInsideTimeRef.current;
-
-            //   setInsideTimeTotal(prevTime => {
-            //     const newTotal = prevTime + timeSpentInside;
-            //     insideTimeTotalRef.current = newTotal; // 최신 상태를 ref로 업데이트
-            //     console.log(`영역 안 머문 누적 시간: ${newTotal / 1000}초`);
-            //     return newTotal;
-            // });
 
             if (timeSpentInside > 0 && timeSpentInside < 30000) { // 비정상적으로 큰 값 방지
               setInsideTimeTotal(prevTime => {
@@ -163,7 +181,7 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime, onStopGazeTracking, bookText }) =>
 
 
   /******************** 시선추적 초기화 및 교정 데이터 적용 ********************/  
-  function afterInitialized() {
+  async function afterInitialized() {
     console.log('SeeSo SDK 초기화 성공!');
     const seeso = seesoRef.current;
     seeso.setMonitorSize(16);
@@ -171,10 +189,23 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime, onStopGazeTracking, bookText }) =>
     seeso.setCameraPosition(window.outerWidth / 2, true);
 
     // 시선 교정
-    const calibrationData = parseCalibrationDataInQueryString();
+    // calibrationData = parseCalibrationDataInQueryString();
+    // console.log('cal', calibrationData);
+    
+  //   if (calibrationData){
+  //     const seeSo = new EasySeeSo();
+  //     await seeSo.init(SEESO_API_KEY,
+  //         async () => {        
+  //             await seeSo.startTracking(onGaze, onDebug)
+  //             await seeSo.setCalibrationData(calibrationData)
+  //             console.log("시선 교정 적용 완료");
+  //         }, // callback when init succeeded.
+  //         () => console.log("callback when init failed.") // callback when init failed.
+  //     )
+  // }
     if (calibrationData) {
       seeso.setCalibrationData(calibrationData);
-      console.log("Calibration data applied.");
+      console.log("시선 교정 적용 완료");
     }
 
     seeso.startTracking(onGaze, onDebug);
@@ -222,22 +253,7 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime, onStopGazeTracking, bookText }) =>
         console.log("Eye tracking stopped.");
       }
     };
-  }, []);
-
-
-  /******************** 시선 교정 ********************/
-  const parseCalibrationDataInQueryString = () => {
-    const href = window.location.href;
-    const queryString = new URLSearchParams(href.split('?')[1]);
-    const calibrationData = queryString.get('calibrationData');
-    return calibrationData;
-  };
-
-  const startCalibration = () => {
-    const redirectUrl = window.location.href;
-    const calibrationPoint = 5;
-    EasySeeSo.openCalibrationPage(SEESO_API_KEY, memId, redirectUrl, calibrationPoint);
-  };
+  }, [calibrationData]);
 
   
   /******************** 시선 추적 시간 저장 ********************/
@@ -282,7 +298,6 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime, onStopGazeTracking, bookText }) =>
 
   return (
     <>
-      <button onClick={startCalibration}>Start Calibration</button>
       <canvas ref={canvasRef} className="absolute pointer-events-none"></canvas>
     </>
   );
