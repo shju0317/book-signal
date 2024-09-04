@@ -1,5 +1,6 @@
 import React, { useState, createContext, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { Toaster } from "react-hot-toast";
 import './App.css';
 import './css/fonts.css';
 import Home from './pages/Home';
@@ -21,12 +22,9 @@ import BookDetail from './pages/BookDetail';
 import DeleteUser from './pages/DeleteUser';
 import SearchReport from './pages/searchReport';
 import RankingBookList from './pages/RankingBookList';
-// import EyeGazeTest from './pages/EyeGazeTest';
-import EyeGaze from './pages/EyeGaze';
 import Modal from './components/Modal';
 import ReaderWrapper from '../src/containers/Reader';
 import Reader from 'components/Reader';
-import EyeGazeCalibration from 'pages/EyeGazeCalibration';
 import Epubjs from 'components/Epubjs';
 
 // 로그인 상태를 관리하기 위한 Context 생성
@@ -69,6 +67,7 @@ function App() {
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated, user, setUser }}>
+      <Toaster />
       <ErrorBoundary>
         <Routes>
           <Route element={<RootLayout />}>
@@ -87,7 +86,6 @@ function App() {
             <Route path="/detail" element={<BookDetail />} />
             <Route path="/modal" element={<Modal />} />
             <Route path="/reader" element={<Reader />} />
-            <Route path="/test" element={<EyeGazeCalibration />} />
             <Route path="/epubjs" element={<Epubjs />} />
 
           </Route>
@@ -103,7 +101,6 @@ function App() {
           <Route path='/getreview' element={<GetReview />} />
           <Route path='/deleteuser' element={<DeleteUser />} />
           <Route path='/searchreport' element={<SearchReport />} />
-          <Route path='/test' element={<EyeGaze />} />
         </Routes>
       </ErrorBoundary>
     </AuthContext.Provider>
