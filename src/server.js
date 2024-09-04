@@ -1,9 +1,7 @@
 require('dotenv').config({ path: './src/tts.env' });
+console.log('GOOGLE_APPLICATION_CREDENTIALS:', process.env.GOOGLE_APPLICATION_CREDENTIALS); // 환경 변수 출력 확인
 const express = require('express');
 const cors = require('cors');
-const mysql = require('mysql2/promise');
-const session = require('express-session');
-const axios = require('axios'); // Axios 추가
 const userRoutes = require('./routes/userRoutes');
 const gazeRoutes = require('./routes/gazeRoutes');
 const searchRoutes = require('./routes/searchRoutes');
@@ -14,37 +12,43 @@ const mainRoutes = require('./routes/mainRoutes');
 const path = require('path');
 const helmet = require('helmet');
 const reviewRoutes = require('./routes/reviewRoutes');
-const fs = require('fs');
-const tts = require('./tts');
+const fs = require('fs'); // 파일 시스템 접근을 위한 모듈 추가
+const tts = require('./tts'); // TTS 기능 추가
 const textToSpeech = require('@google-cloud/text-to-speech');
+const client = new textToSpeech.TextToSpeechClient();
 const sameBookRoutes = require('./routes/sameBookRoutes');
+const session = require('express-session');
 const app = express();
 const pool = require('./config/database');
+const axios = require('axios')
 
-const client = new textToSpeech.TextToSpeechClient();
 
 
 // 세션 설정 (기본 설정)
 app.use(session({
+  secret: process.env.SESSION_SECRET || 'MyKey',
   secret: process.env.SESSION_SECRET || 'MyKey',
   resave: false,
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
     secure: false,
-    maxAge: null
+    maxAge: null,
   }
 }));
 
 app.use(express.json());
-
 app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true,
   origin: 'http://localhost:3000',
   credentials: true,
 }));
 
-app.use('/images', express.static(path.join(__dirname, '../public/images')));
+// 정적 파일 제공을 위한 경로 설정
+app.use('/images', express.static(path.join(__dirname, 'public/images')));
 
+// 세션 상태 확인을 위한 엔드포인트
 app.get('/check-session', (req, res) => {
   if (req.session.user) {
     res.status(200).json({ user: req.session.user });
@@ -60,10 +64,9 @@ app.use('/ranking', rankingRoutes);
 app.use('/wishlist', wishListRoutes);
 app.use('/getBookPath', bookRoutes);
 app.use('/main', mainRoutes);
-app.use('/review', reviewRoutes);
+app.use('/review', reviewRoutes)
 app.use('/sameBook', sameBookRoutes);
 
-// TTS 엔드포인트
 app.post('/tts', async (req, res) => {
   const { text, rate, gender } = req.body;
 
@@ -146,7 +149,9 @@ app.post('/summarize', async (req, res) => {
         model: 'gpt-3.5-turbo',
         messages: [{
           role: "user",
-          content: `책의 제목은 "${bookName}"입니다. 아래는 이 책의 한 부분입니다: "${selectedText}". 이 부분을 요약해 주세요. 요약은 주요 등장인물, 배경, 사건을 포함하고, 이 텍스트가 전달하는 주요 메시지나 테마를 간결하게 설명해 주세요.`
+          // content: `책의 제목은 "${bookName}"입니다. 아래는 이 책의 한 부분입니다: "${selectedText}". 이 부분을 요약해 주세요. 요약은 주요 등장인물, 배경, 사건을 포함하고, 이 텍스트가 전달하는 주요 메시지나 테마를 간결하게 설명해 주세요.`
+          // 대표 문장
+          // content: `"${bookName}"의 대표 문장을 알려줘`
         }],
         max_tokens: 150,
       }, {
@@ -159,9 +164,18 @@ app.post('/summarize', async (req, res) => {
       const summary = summaryResponse.data.choices[0].message.content.trim();
       summaries.push(summary);
       console.log('요약 생성 성공:', summary);
-
       // 요약을 기반으로 텍스트 프롬프트를 생성
-      const promptForImage = `책 "${bookName}"의 한 부분의 요약입니다: "${summary}". 이 내용을 바탕으로, 주요 등장 인물의 외모와 의상, 배경의 색상과 분위기, 그리고 그들이 경험하는 주요 사건을 시각적으로 상상하고 구체적으로 묘사한 이미지를 생성해주세요. 이미지에는 다음 요소들이 포함되어야 합니다: [예시: "인물은 중세 의상을 입고 있으며, 배경은 성의 내부를 나타내며 어두운 조명과 긴장된 분위기가 감돌아야 합니다"].`;
+      const promptForImage = `
+      책 "${bookName}"의 한 부분을 시각적으로 묘사한 이미지입니다. 
+      이 책의 요약된 내용은 다음과 같습니다: "${summary}".
+      이미지에는 다음의 요소들이 포함되어야 합니다:
+      - 의상 스타일 (예: 중세 의상, 현대적 드레스 등)
+      - 배경의 색상과 분위기 (예: 어두운 조명, 밝고 따뜻한 톤 등)
+      - 발생하는 주요 사건이나 감정 (예: 긴장된 대치, 행복한 순간 등).
+      이미지는 사실적이고 디테일이 풍부하며, ${bookName}의 특유의 분위기를 잘 반영해야 합니다.
+       `;
+      // 도서 대표 이미지 생성
+      // const promptForImage = `책 "${bookName}"에 어울리는 이미지를 생성해줘`
 
       // DALL·E 이미지 생성
       const dalleResponse = await axios.post('https://api.openai.com/v1/images/generations', {
@@ -185,6 +199,7 @@ app.post('/summarize', async (req, res) => {
 
       imagePaths.push(`/dalle/${bookIdx}_${summaries.length}.png`);
 
+
       // book_extract_data 테이블에 데이터 저장
       await connection.query('INSERT INTO book_extract_data (mem_id, book_idx, book_name, book_extract, dalle_path) VALUES (?, ?, ?, ?, ?)', [memId, bookIdx, bookName, summary, imagePaths[imagePaths.length - 1]]);
     }
@@ -199,6 +214,7 @@ app.post('/summarize', async (req, res) => {
     if (connection) connection.release();
   }
 });
+
 
 
 // 정적 파일 서빙

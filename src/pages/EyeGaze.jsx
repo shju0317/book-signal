@@ -8,7 +8,8 @@ import { AuthContext } from '../App';
 const SEESO_API_KEY = process.env.REACT_APP_SEESO_API_KEY;
 // console.log(SEESO_API_KEY);
 
-const EyeGaze = ({ viewerRef, onSaveGazeTime, book, bookText }) => {
+
+const EyeGaze = ({ viewerRef, onSaveGazeTime, bookText, book }) => {
   const { user } = useContext(AuthContext);
   const memId = user?.mem_id || null;
   // console.log('user!!!', user);
@@ -32,36 +33,6 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime, book, bookText }) => {
   const [insideTimeTotal, setInsideTimeTotal] = useState(0);
   const insideTimeTotalRef = useRef(insideTimeTotal); // 최신 상태를 관리하기 위한 ref
 
-
-
-    // 사용자 정보를 상태로 관리
-    // useEffect(() => {
-    //   const fetchUserInfo = async () => {
-    //     try {
-    //       console.log("useEffect 실행됨");
-    //       const response = await axios.get("http://localhost:3001/check-session", { withCredentials: true });
-    //       setUserInfo(response.data.user);
-    //       console.log('userInfo:', response.data.user);
-    //     } catch (error) {
-    //       console.error("세션 정보 확인 중 오류 발생:", error);
-    //       if (error.response && error.response.status === 401) {
-    //         alert("로그인이 필요합니다.");
-    //         navigate("/login");
-    //       }
-    //     }
-    //   };
-    
-    //   fetchUserInfo();
-    // }, [navigate]);
-    
-
-    // const memId = userInfo ? userInfo.mem_id : null;
-  
- //   if (!memId) {
- //     console.error('사용자 정보가 없습니다.');
- //     return <div>사용자 정보를 불러오는 중입니다...</div>;
- //   }
-    // console.log('user!!', userInfo.mem_id);
 
   /******************** 화면 크기에 맞춰 canvas 크기 조정 ********************/
   const resizeCanvas = useCallback(() => {
@@ -294,6 +265,8 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime, book, bookText }) => {
   
   /******************** 시선 추적 시간 저장 ********************/
   const bookIdx = book?.book_idx; 
+  // 임의로 지정된 값들(테스트용)
+  // const bookIdx = 1; 
   // memId = 'zzang';
   // bookText = '텍스트';
 
