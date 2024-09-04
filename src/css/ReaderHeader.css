@@ -1,4 +1,4 @@
-.custom-button {
+.Header-custom-button {
     background-color: white;
     color: black;
     padding: 10px;
@@ -11,20 +11,18 @@
     width: 100%;
     box-sizing: border-box;
     border: 2px solid transparent;
-    /* 기본 테두리 설정 */
     margin-right: 10px;
 }
 
-.custom-button:hover {
+.Header-custom-button:hover {
     border-color: #5b8cff;
-    /* hover 시 테두리 색상 변경 */
 }
 
-.bookmark-settings {
+.Header-bookmark-settings {
     padding: 20px;
 }
 
-.remove-button {
+.Header-remove-button {
     background-color: transparent;
     border: none;
     color: red;
@@ -34,49 +32,44 @@
     justify-content: center;
     align-items: center;
     width: 14px;
-    height: 14px
+    height: 14px;
 }
 
-.remove-button:hover {
+.Header-remove-button:hover {
     color: darkred;
 }
 
-.bookmark-list {
+.Header-bookmark-list {
     margin-top: 10px;
     padding-left: 20px;
-    /* 들여쓰기 효과를 위해 padding-left 추가 */
 }
 
-
-.custom-button:active {
+.Header-custom-button:active {
     background-color: #004085;
-    /* 클릭 시 배경색 변경 */
     transform: translateY(0);
-    /* 클릭 시 원래 위치로 */
 }
 
-.bookmark-list button {
+.Header-bookmark-list button {
     margin-bottom: 10px;
     text-align: left;
 }
 
-.bookmark-list button:hover {
+.Header-bookmark-list button:hover {
     background-color: #f0f0f0;
-    /* 호버 시 배경색 변경 */
 }
 
-.bookmark-settings,
-.font-settings {
+.Header-bookmark-settings,
+.Header-font-settings {
     padding: 20px;
 }
 
-.bookmark-settings h3,
-.font-settings h3 {
+.Header-bookmark-settings h3,
+.Header-font-settings h3 {
     font-size: 18px;
     margin-bottom: 10px;
 }
 
-.font-settings button {
+.Header-font-settings button {
     margin: 5px 0;
     padding: 10px;
     width: 100%;
@@ -87,15 +80,15 @@
     cursor: pointer;
 }
 
-.font-settings button:hover {
+.Header-font-settings button:hover {
     background-color: #e2e6ea;
 }
 
-.font-settings button:active {
+.Header-font-settings button:active {
     background-color: #dae0e5;
 }
 
-.bookmark-item {
+.Header-bookmark-item {
     display: flex;
     align-items: center;
     margin-bottom: 5px;

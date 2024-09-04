@@ -152,21 +152,21 @@ const Header: React.FC<Props> = ({
       </TTSWrapper>
 
       <TTSWrapper show={showBookmarkSettings} onClose={handleClose} title="Bookmark">
-        <div className="bookmark-settings">
-          <button className="custom-button" onClick={handleBookmarkAdd}>Add Current Page to Bookmarks</button>
+        <div className="Header-bookmark-settings">
+          <button className="Header-custom-button" onClick={handleBookmarkAdd}>Add Current Page to Bookmarks</button>
           <br />
-          <button className="custom-button" onClick={handleFetchBookmarks}>
+          <button className="Header-custom-button" onClick={handleFetchBookmarks}>
             {showBookmarksList ? 'Hide Bookmarks' : 'View Bookmarks'}
           </button>
           {bookmarkMessage && <p>{bookmarkMessage}</p>}
           {showBookmarksList && (
-            <div className="bookmark-list">
+            <div className="Header-bookmark-list">
               {bookmarks.map((bookmark, index) => (
-                <div key={index} className="bookmark-item">
-                  <button className="custom-button" onClick={() => handleBookmarkClick(bookmark.book_mark)}>
+                <div key={index} className="Header-bookmark-item">
+                  <button className="Header-custom-button" onClick={() => handleBookmarkClick(bookmark.book_mark)}>
                     {`Bookmark ${index + 1}`}
                   </button>
-                  <button className="remove-button" onClick={() => handleBookmarkRemove(bookmark.book_mark)}>  {/* 여기 수정 */}
+                  <button className="Header-remove-button" onClick={() => handleBookmarkRemove(bookmark.book_mark)}>  {/* 여기 수정 */}
                     -
                   </button>
                 </div>
@@ -177,7 +177,7 @@ const Header: React.FC<Props> = ({
       </TTSWrapper>
 
       <TTSWrapper show={showFontSettings} onClose={handleClose} title="Font Settings">
-        <div className="font-settings">
+        <div className="Header-font-settings">
           <button onClick={() => onFontChange('Arial')}>Arial</button>
           <button onClick={() => onFontChange('Georgia')}>Georgia</button>
           <button onClick={() => onFontChange('Times New Roman')}>Times New Roman</button>
