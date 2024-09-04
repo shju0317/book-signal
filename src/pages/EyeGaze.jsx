@@ -1,17 +1,24 @@
 import React, { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import EasySeeSo from 'seeso/easy-seeso';
 import axios from 'axios';
-import { AuthContext } from '../App';
+import { useNavigate } from "react-router-dom";
 import { alertMessage } from "../../src/utils/alertMessage";
+import { AuthContext } from '../App';
 
 const SEESO_API_KEY = process.env.REACT_APP_SEESO_API_KEY;
 // console.log(SEESO_API_KEY);
 
 
-const EyeGaze = ({ viewerRef, onSaveGazeTime, bookText }) => {
+const EyeGaze = ({ viewerRef, onSaveGazeTime, bookText, book }) => {
   const { user } = useContext(AuthContext);
-  // console.log('user!!', user.mem_id);
-    const memId = user?.mem_id || null;
+  const memId = user?.mem_id || null;
+  // console.log('user!!!', user);
+  
+
+  const [userInfo, setUserInfo] = useState(null);
+  const [calibrationData, setCalibrationData] = useState(null);
+  
+  const navigate = useNavigate();
 
   const canvasRef = useRef(null);
   const seesoRef = useRef(null);
@@ -26,7 +33,6 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime, bookText }) => {
   const [insideTimeTotal, setInsideTimeTotal] = useState(0);
   const insideTimeTotalRef = useRef(insideTimeTotal); // 최신 상태를 관리하기 위한 ref
 
-  const [calibrationData, setCalibrationData] = useState(null);
 
   /******************** 화면 크기에 맞춰 canvas 크기 조정 ********************/
   const resizeCanvas = useCallback(() => {
@@ -258,8 +264,9 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime, bookText }) => {
 
   
   /******************** 시선 추적 시간 저장 ********************/
+  const bookIdx = book?.book_idx; 
   // 임의로 지정된 값들(테스트용)
-  const bookIdx = 1; 
+  // const bookIdx = 1; 
   // memId = 'zzang';
   // bookText = '텍스트';
 
@@ -296,6 +303,11 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime, bookText }) => {
       onSaveGazeTime(saveGazeTime);
     }
   }, [onSaveGazeTime]);
+
+    // userInfo가 null일 때 로딩 상태를 표시
+    if (!userInfo) {
+      return <div>로딩 중...</div>;
+    }
 
   return (
     <>

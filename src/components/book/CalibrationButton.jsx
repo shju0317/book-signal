@@ -7,6 +7,8 @@ const SEESO_API_KEY = process.env.REACT_APP_SEESO_API_KEY;
 const CalibrationButton = () => {
   const { user } = useContext(AuthContext);
   const memId = user?.mem_id || null;
+  // console.log('흐아ㅏㅇ', memId);
+  
 
   const startCalibration = () => {
     const redirectUrl = window.location.href;
