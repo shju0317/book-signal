@@ -20,8 +20,8 @@ const sameBookRoutes = require('./routes/sameBookRoutes');
 const session = require('express-session');
 const app = express();
 const pool = require('./config/database');
+const axios = require('axios')
 
-const client = new textToSpeech.TextToSpeechClient();
 
 
 // 세션 설정 (기본 설정)
@@ -33,10 +33,7 @@ app.use(session({
   cookie: {
     httpOnly: true,
     secure: false,
-    maxAge: null
-    httpOnly: true,
-    secure: false,
-    maxAge: null
+    maxAge: null,
   }
 }));
 
@@ -164,7 +161,6 @@ app.post('/summarize', async (req, res) => {
         }
       });
 
-      const summary = summaryResponse.data.choices[0].message.content.trim();
       const summary = summaryResponse.data.choices[0].message.content.trim();
       summaries.push(summary);
       console.log('요약 생성 성공:', summary);
