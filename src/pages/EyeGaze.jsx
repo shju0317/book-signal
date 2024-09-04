@@ -305,9 +305,9 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime, bookText, book }) => {
   }, [onSaveGazeTime]);
 
     // userInfo가 null일 때 로딩 상태를 표시
-    if (!userInfo) {
-      return <div>로딩 중...</div>;
-    }
+    // if (!userInfo) {
+    //   return <div>로딩 중...</div>;
+    // }
 
   return (
     <>
