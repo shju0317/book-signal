@@ -47,7 +47,7 @@ const BookDetail = () => {
     axios.get('http://localhost:3001/sameBook', {
       params: { genre: book.book_genre, idx: book.book_idx }
     })
-      .then(response => {
+    .then(response => {
         const { sameBooks } = response.data;
         setSameBooks(sameBooks);
       })

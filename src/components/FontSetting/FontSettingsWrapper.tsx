@@ -5,19 +5,19 @@ import palette from 'lib/styles/palette';
 import * as styles from 'lib/styles/styles';
 import Slider from 'components/option/Slider'; // Slider 컴포넌트 가져오기
 
-interface BookmarkWrapperProps {
+interface FontSettingsWrapperProps {
   show: boolean;
   onClose: () => void;
-  onBookmarkSizeChange: (size: number) => void; // 북마크 크기 변경 함수
-  bookmarkSize: number; // 현재 북마크 크기 상태
+  onFontSizeChange: (size: number) => void; // 폰트 크기 변경 함수
+  fontSize: number; // 현재 폰트 크기 상태
   children: React.ReactNode;
 }
 
-const BookmarkWrapper: React.FC<BookmarkWrapperProps> = ({
+const FontSettingsWrapper: React.FC<FontSettingsWrapperProps> = ({
   show,
   onClose,
-  onBookmarkSizeChange,
-  bookmarkSize,
+  onFontSizeChange,
+  fontSize,
   children
 }) => {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
@@ -43,25 +43,27 @@ const BookmarkWrapper: React.FC<BookmarkWrapperProps> = ({
   return (
     <Wrapper show={show} ref={wrapperRef}>
       <Header>
-        <Title>Bookmark</Title>
+        <Title>Font Settings</Title>
         <CloseButton onClick={onClose}>✕</CloseButton>
       </Header>
       <Content>
         {children}
-        {/* 북마크 크기 조절 슬라이더 추가 */}
+        {/* 폰트 크기 조절 슬라이더 추가 */}
         <Slider
           active={true}
-          title="Bookmark Size"
+          title="Font Size"
           minValue={10}
-          maxValue={100}
-          defaultValue={bookmarkSize}
+          maxValue={40}
+          defaultValue={fontSize}
           step={1}
-          onChange={(e) => onBookmarkSizeChange(Number(e.target.value))}
+          onChange={(e) => onFontSizeChange(Number(e.target.value))}
         />
-        {/* 여기에 북마크 목록 또는 다른 기능 추가 */}
-        <div className="bookmark-settings">
-          <button onClick={() => console.log('Bookmark added')}>북마크 추가</button>
-          {/* 여기에 이전에 북마크한 페이지 목록을 추가로 렌더링 */}
+        {/* 폰트 선택 버튼 */}
+        <div className="font-settings">
+          <button onClick={() => onFontSizeChange(12)}>Arial</button>
+          <button onClick={() => onFontSizeChange(16)}>Georgia</button>
+          <button onClick={() => onFontSizeChange(18)}>Times New Roman</button>
+          <button onClick={() => onFontSizeChange(24)}>Courier New</button>
         </div>
       </Content>
     </Wrapper>
@@ -118,4 +120,4 @@ const Content = styled.div`
   padding: 16px;
 `;
 
-export default BookmarkWrapper;
+export default FontSettingsWrapper;
