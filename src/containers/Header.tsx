@@ -1,17 +1,49 @@
-import React, { useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import zIndex from 'lib/styles/zIndex';
-import palette from 'lib/styles/palette';
-import * as styles from 'lib/styles/styles';
-import Slider from 'components/option/Slider'; // Slider 컴포넌트 가져오기
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // useNavigate import 추가
+import Wrapper from "components/header/Wrapper";
+import Layout, { AutoLayout } from "components/header/Layout";
+import ControlBtn from "components/header/ControlBtn";
+import TTSManager from "components/tts/TTSManager";
+import TTSWrapper from "components/tts/TTSWrapper";
+import { handleSummarize } from "../components/SummarizePage"; // handleSummarize 함수 import 추가
 
-interface BookmarkWrapperProps {
-  show: boolean;
-  onClose: () => void;
-  onBookmarkSizeChange: (size: number) => void; // 북마크 크기 변경 함수
-  bookmarkSize: number; // 현재 북마크 크기 상태
-  children: React.ReactNode;
-}
+const Header = ({
+  rate,
+  gender,
+  onRateChange,
+  onVoiceChange,
+  onTTSToggle,
+  onTTSPause,
+  onTTSStop,
+  onTTSResume,
+  onBookmarkAdd = () => {},
+  onFontChange = () => {},
+  setAudioSource,
+  book,
+  userInfo, // userInfo를 props로 받아야 합니다.
+}: Props) => {
+  // Props 확인 로그
+  console.log("Header Props:", {
+    rate,
+    gender,
+    onRateChange,
+    onVoiceChange,
+    onTTSToggle,
+    onTTSPause,
+    onTTSStop,
+    onTTSResume,
+    onBookmarkAdd,
+    onFontChange,
+    setAudioSource,
+    book,
+    userInfo,
+  });
+  const [showTTSSettings, setShowTTSSettings] = useState(false);
+  const [showBookmarkSettings, setShowBookmarkSettings] = useState(false);
+  const [showFontSettings, setShowFontSettings] = useState(false);
+  const [bookmarkMessage, setBookmarkMessage] = useState(""); // 북마크 메시지 상태 추가
+
+  const navigate = useNavigate(); // useNavigate 훅 초기화
 
 const BookmarkWrapper: React.FC<BookmarkWrapperProps> = ({
   show,
@@ -40,82 +72,128 @@ const BookmarkWrapper: React.FC<BookmarkWrapperProps> = ({
     };
   }, [show, onClose]);
 
+  // 독서 완료 처리 함수
+  const handleReadingComplete = async () => {
+    console.log("독서 완료 처리 시작"); // 함수 호출 시작 로그
+
+    if (userInfo && book) {
+      const { mem_id } = userInfo;
+      const { book_idx } = book;
+
+      console.log("사용자 정보:", { mem_id }); // 사용자 ID 로그
+      console.log("책 정보:", { book_idx }); // 책 인덱스 로그
+
+      // 요약 생성 요청
+      console.log("요약 생성 요청 중..."); // 요약 요청 시작 로그
+      const summarizeResult = await handleSummarize(mem_id, book_idx);
+
+      if (summarizeResult.success) {
+        console.log("요약 생성 및 저장 성공:", summarizeResult.summary); // 성공 로그
+      } else {
+        console.error("요약 생성 실패:", summarizeResult.error); // 실패 로그
+      }
+
+      console.log("상세 페이지로 네비게이션 중..."); // 페이지 이동 로그
+      navigate("/detail", { state: { book } });
+    } else {
+      console.warn("사용자 정보 또는 책 정보가 없습니다."); // 사용자 또는 책 정보가 없을 때 경고 로그
+    }
+  };
+
+  const handleReadingQuit = () => {
+    console.log("독서 중단 처리"); // 함수 호출 시작 로그
+    console.log("상세 페이지로 네비게이션 중...", { book }); // 페이지 이동 로그
+    navigate("/detail", { state: { book } });
+  };
+
+  // 북마크 추가 함수
+  const handleBookmarkAdd = async () => {
+    try {
+      await onBookmarkAdd();
+      setBookmarkMessage("북마크가 성공적으로 추가되었습니다."); // 북마크 성공 메시지 설정
+    } catch (error) {
+      setBookmarkMessage("북마크 추가 중 오류가 발생했습니다."); // 실패 메시지 설정
+    }
+  };
+
   return (
-    <Wrapper show={show} ref={wrapperRef}>
-      <Header>
-        <Title>Bookmark</Title>
-        <CloseButton onClick={onClose}>✕</CloseButton>
-      </Header>
-      <Content>
-        {children}
-        {/* 북마크 크기 조절 슬라이더 추가 */}
-        <Slider
-          active={true}
-          title="Bookmark Size"
-          minValue={10}
-          maxValue={100}
-          defaultValue={bookmarkSize}
-          step={1}
-          onChange={(e) => onBookmarkSizeChange(Number(e.target.value))}
+    <Wrapper>
+      <Layout>
+        <AutoLayout>
+          <div>
+            {/* Sound 버튼 */}
+            <ControlBtn message="Sound" onClick={handleSoundClick} />
+
+            {/* Bookmark 버튼, Sound 버튼과 동일한 스타일로 적용 */}
+            <ControlBtn message="Bookmark" onClick={handleBookmarkClick} />
+
+            {/* Font Settings 버튼 */}
+            <ControlBtn message="Font Settings" onClick={handleFontClick} />
+
+            {/* 독서 완료 및 종료 버튼 */}
+            <ControlBtn message="독서 완료" onClick={handleReadingComplete} />
+            <ControlBtn message="독서 종료" onClick={handleReadingQuit} />
+          </div>
+        </AutoLayout>
+      </Layout>
+
+      {/* TTS 설정 창 */}
+      <TTSWrapper show={showTTSSettings} onClose={handleTTSSettingsClose}>
+        <TTSManager
+          onTTSToggle={onTTSToggle}
+          onTTSStop={onTTSStop}
+          onTTSPause={onTTSPause}
+          onTTSResume={onTTSResume}
+          rate={rate}
+          gender={gender}
+          onRateChange={onRateChange}
+          onVoiceChange={onVoiceChange}
+          setAudioSource={setAudioSource}
         />
         {/* 여기에 북마크 목록 또는 다른 기능 추가 */}
         <div className="bookmark-settings">
-          <button onClick={() => console.log('Bookmark added')}>북마크 추가</button>
-          {/* 여기에 이전에 북마크한 페이지 목록을 추가로 렌더링 */}
+          <button onClick={handleBookmarkAdd}>
+            Add Current Page to Bookmarks
+          </button>
+          {bookmarkMessage && <p>{bookmarkMessage}</p>}{" "}
+          {/* 북마크 메시지 표시 */}
         </div>
-      </Content>
+      )}
+
+      {/* Font 설정 창 */}
+      {showFontSettings && (
+        <div className="font-settings">
+          <button onClick={() => onFontChange("Arial")}>Arial</button>
+          <button onClick={() => onFontChange("Georgia")}>Georgia</button>
+          <button onClick={() => onFontChange("Times New Roman")}>
+            Times New Roman
+          </button>
+          <button onClick={() => onFontChange("Courier New")}>
+            Courier New
+          </button>
+        </div>
+      )}
     </Wrapper>
   );
 };
 
-const Wrapper = styled.div<{ show: boolean }>`
-  display: flex;
-  flex-direction: column;
-  position: fixed;
-  width: 340px;
-  max-width: 95vw;
-  height: 100vh;
-  top: 0;
-  right: 0;
-  z-index: ${zIndex.menu};
-  box-shadow: -4px 0 8px 0 rgba(0,0,0,.16);
-  background-color: ${palette.white};
-  border-radius: 16px 0 0 16px;
-  transform: ${({ show }) => show ? `translateX(0px) scale(1)` : `translateX(420px) scale(.9)`};
-  transition: .4s ${styles.transition};
-  overflow-y: auto;
-  ${styles.scrollbar(0)};
-`;
+interface Props {
+  onNavToggle: (value?: boolean) => void;
+  onOptionToggle: (value?: boolean) => void;
+  onLearningToggle: (value?: boolean) => void;
+  onTTSToggle?: (settings: { rate: number; gender: "MALE" | "FEMALE" }) => void;
+  onTTSStop?: () => void;
+  onTTSPause?: () => void;
+  onTTSResume?: () => void;
+  onBookmarkAdd?: () => void;
+  onFontChange?: (font: string) => void;
+  rate: number;
+  gender: "MALE" | "FEMALE";
+  onRateChange: (rate: number) => void;
+  onVoiceChange: (gender: "MALE" | "FEMALE") => void;
+  setAudioSource: (audioUrl: string) => void;
+  book?: { [key: string]: any }; // book 객체의 타입 추가 (적절한 타입으로 수정 가능)
+  userInfo?: { mem_id: string }; // userInfo 객체의 타입 추가 (적절한 타입으로 수정 가능)
+}
 
-const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px;
-  border-bottom: 1px solid ${palette.gray2};
-`;
-
-const Title = styled.div`
-  font-size: 18px;
-  font-weight: 600;
-  color: ${palette.black};
-`;
-
-const CloseButton = styled.button`
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: ${palette.black};
-
-  &:hover {
-    color: ${palette.red0};
-  }
-`;
-
-const Content = styled.div`
-  flex: 1;
-  padding: 16px;
-`;
-
-export default BookmarkWrapper;
+export default Header;

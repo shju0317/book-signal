@@ -108,14 +108,15 @@ const BookDetail = () => {
       });
 
       const bookPath = response.data.book_path;
-      navigate('/reader', { state: { bookPath } });
+
+      // 전체 book 객체를 Reader 컴포넌트로 전달
+      navigate('/reader', { state: { book: { ...book, bookPath } } });
     } catch (error) {
       console.error('책 읽기 처리 중 에러:', error);
       alert('책을 읽는 중에 문제가 발생했습니다.');
     }
-
-
   };
+
 
 
   return (
