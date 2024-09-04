@@ -31,6 +31,7 @@ const EpubReader = ({ url, book }) => {
   const bookRef = useRef(null);
   const renditionRef = useRef(null);
   const audioRef = useRef(new Audio());
+
   const [isPlaying, setIsPlaying] = useState(false);
   const [rate, setRate] = useState(1);
   const [gender, setGender] = useState("MALE");
@@ -127,6 +128,8 @@ const EpubReader = ({ url, book }) => {
         book.destroy();
         rendition.off("rendered", updatePageInfo);
         rendition.off("relocated", updatePageInfo);
+
+        // window.removeEventListener("resize", handleResize);
       };
     }
   }, [url, dispatch]);
@@ -467,6 +470,9 @@ const EpubReader = ({ url, book }) => {
         }}
         book={book} // book 객체 전달
         bookText={currentBookText}
+        // onStopGazeTracking={(stopGazeTracking) => {
+        //   stopGazeTrackingRef.current = stopGazeTracking;
+        // }}
       />
     </div>
   );
