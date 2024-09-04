@@ -460,6 +460,7 @@ const EpubReader = ({ url, book }) => {
         onSaveGazeTime={(saveGazeTime) => {
           saveGazeTimeRef.current = saveGazeTime;
         }}
+        book={book} // book 객체 전달
         bookText={currentBookText}
       />
     </div>
