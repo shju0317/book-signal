@@ -7,7 +7,8 @@ import { alertMessage } from "../../src/utils/alertMessage";
 const SEESO_API_KEY = process.env.REACT_APP_SEESO_API_KEY;
 // console.log(SEESO_API_KEY);
 
-const EyeGaze = ({ viewerRef, onSaveGazeTime, book, bookText }) => {
+
+const EyeGaze = ({ viewerRef, onSaveGazeTime, bookText }) => {
   const { user } = useContext(AuthContext);
   // console.log('user!!', user.mem_id);
     const memId = user?.mem_id || null;
@@ -258,7 +259,7 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime, book, bookText }) => {
   
   /******************** 시선 추적 시간 저장 ********************/
   // 임의로 지정된 값들(테스트용)
-  const bookIdx = book?.book_idx; 
+  const bookIdx = 1; 
   // memId = 'zzang';
   // bookText = '텍스트';
 
