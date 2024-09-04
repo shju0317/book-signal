@@ -34,6 +34,7 @@ const EpubReader = ({ url }) => {
   const [audioSource, setAudioSource] = useState(null);
   const [isContextMenu, setIsContextMenu] = useState(false);
   const [pageTextArray, setPageTextArray] = useState([]); // 현재 페이지의 모든 텍스트 상태
+  const [currentTextIndex, setCurrentTextIndex] = useState(0); // 현재 읽고 있는 텍스트의 인덱스
   const [bookStyle, setBookStyle] = useState({
     fontFamily: "Arial",
     fontSize: 16,
@@ -86,6 +87,7 @@ const EpubReader = ({ url }) => {
             setTotalPages(total || 1);
             dispatch(updateCurrentPage({ currentPage: page || 1, totalPages: total || 1 }));
           }
+          logCurrentPageText(); // 페이지 정보 업데이트 후 텍스트 가져오기
           setLoading(false); // 로딩 완료
         }
       };
@@ -164,44 +166,45 @@ const EpubReader = ({ url }) => {
   }, [dispatch]);
 
   // 페이지에 보이는 텍스트를 배열로 수집하는 함수
-  const logCurrentPageText = () => {
-    if (renditionRef.current) {
-      const contents = renditionRef.current.getContents();
+const logCurrentPageText = () => {
+  if (renditionRef.current) {
+    const contents = renditionRef.current.getContents();
 
-      let allVisibleTexts = []; // 모든 텍스트를 담을 배열
+    let allVisibleTexts = []; // 모든 텍스트를 담을 배열
 
-      contents.forEach((content) => {
-        const iframeDoc = content.document;
-        if (iframeDoc) {
-          const observer = new IntersectionObserver((entries) => {
-            entries.forEach((entry) => {
-              if (entry.isIntersecting) {
-                allVisibleTexts.push(
-                  entry.target.innerText || entry.target.textContent
-                );
-              }
-            });
-
-            setPageTextArray(allVisibleTexts);
-
-            const combinedText = allVisibleTexts.join(' ');
-            setCurrentBookText(combinedText);
-
-            console.log("All Visible Texts on Current Page:", allVisibleTexts);
+    contents.forEach((content) => {
+      const iframeDoc = content.document;
+      if (iframeDoc) {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              allVisibleTexts.push(
+                entry.target.innerText || entry.target.textContent
+              );
+            }
           });
 
-          const textElements = iframeDoc.querySelectorAll(
-            "p, span, div, h1, h2, h3, h4, h5, h6"
-          );
-          textElements.forEach((element) => observer.observe(element));
-        } else {
-          console.warn("Could not access iframe content.");
-        }
-      });
-    } else {
-      console.warn("Rendition is not available.");
-    }
-  };
+          setPageTextArray(allVisibleTexts);
+          
+          
+          const combinedText = allVisibleTexts.join(" ");
+          setCurrentBookText(combinedText);
+
+          console.log("All Visible Texts on Current Page:", allVisibleTexts);
+        });
+
+        const textElements = iframeDoc.querySelectorAll(
+          "p, span, div, h1, h2, h3, h4, h5, h6"
+        );
+        textElements.forEach((element) => observer.observe(element));
+      } else {
+        console.warn("Could not access iframe content.");
+      }
+    });
+  } else {
+    console.warn("Rendition is not available.");
+  }
+};
 
   const addBookmark = () => {
     const currentLocation = renditionRef.current.currentLocation();
@@ -247,44 +250,151 @@ const EpubReader = ({ url }) => {
     return "0.00"; // 페이지 수가 0일 때는 0%로 표시
   };
 
-  // TTS 관련 함수들
-  const handleTTS = async () => {
-    if (viewerRef.current && !isPlaying) {
-      setIsPlaying(true);
-      setIsPaused(false);
+  
+ // TTS 관련 함수들
+const handleTTS = async () => {
+  if (!isPlaying) {
+    setIsPlaying(true);
+    setIsPaused(false);
 
+    // TTS 시작 전에 현재 페이지의 텍스트 업데이트
+    await logCurrentPageText(); // 텍스트 업데이트 완료를 기다림
+  }
+};
+
+// TTS를 실행하는 useEffect
+useEffect(() => {
+  if (isPlaying && pageTextArray.length > 0) {
+    (async () => {
       for (const text of pageTextArray) {
         console.log("TTS로 읽을 텍스트:", text);
         const textParts = splitText(text);
 
         for (const part of textParts) {
-          await fetch("http://localhost:3001/tts", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text: part, rate, gender }),
-          })
-            .then((response) => response.arrayBuffer())
-            .then((audioContent) => {
-              const audioBlob = new Blob([audioContent], { type: "audio/mp3" });
-              const audioUrl = URL.createObjectURL(audioBlob);
-              audioRef.current.src = audioUrl;
-              audioRef.current.playbackRate = rate;
-              audioRef.current.play();
-              console.log("재생중");
-              return new Promise((resolve) => {
-                audioRef.current.onended = () => resolve();
-              });
+          try {
+            const response = await fetch("http://localhost:3001/tts", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ text: part, rate, gender }),
             });
+
+            const audioContent = await response.arrayBuffer();
+            const audioBlob = new Blob([audioContent], { type: "audio/mp3" });
+            const audioUrl = URL.createObjectURL(audioBlob);
+
+            if (!audioRef.current.paused) {
+              audioRef.current.pause();
+              audioRef.current.currentTime = 0;
+            }
+
+            audioRef.current.src = audioUrl;
+            audioRef.current.load();
+
+            // 항상 설정된 배속으로 유지
+            audioRef.current.onloadedmetadata = () => {
+              audioRef.current.playbackRate = rate; // 항상 현재 설정된 배속 유지
+              audioRef.current.play().catch((error) => {
+                console.error("오디오 재생 중 오류:", error);
+              });
+            };
+
+
+            console.log("재생 중");
+            await new Promise((resolve) => {
+              audioRef.current.onended = () => {
+                resolve(); // 현재 TTS가 끝날 때까지 기다림
+              };
+            });
+          } catch (error) {
+            console.error("오디오 재생 중 오류:", error);
+          }
         }
       }
 
-      setIsPlaying(false);
+      // TTS가 끝난 후 다음 페이지로 이동
+      await moveToNextPage(); // 다음 페이지로 이동 후 TTS 실행
+    })();
+  }
+}, [isPlaying, pageTextArray,gender,rate]);
 
-      if (renditionRef.current) {
-        renditionRef.current.next();
-      }
+// 배속 변경에 따른 효과 적용
+useEffect(() => {
+  if (audioRef.current) {
+    audioRef.current.playbackRate = rate; // 항상 최신 배속으로 설정
+    if (!audioRef.current.paused) {
+      audioRef.current.play().catch((error) => {
+        console.error("오디오 재생 중 오류:", error);
+      });
     }
-  };
+  }
+}, [rate]); // 배속이 변경될 때마다 실행
+
+// 성별 변경 시 효과 적용
+useEffect(() => {
+  if (isPlaying) {
+    // 성별이 변경될 때 TTS를 중단하고 새로 시작
+    stopTTS();  // 기존 재생 중단
+    handleTTS(rate, gender);  // 새로운 성별에 따라 TTS 다시 시작
+  }
+}, [gender]); // gender가 변경될 때마다 실행
+
+
+// 오디오 소스가 변경될 때만 실행
+useEffect(() => {
+  if (audioSource && audioRef.current) {
+    audioRef.current.src = audioSource;
+    audioRef.current.play();
+    audioRef.current.playbackRate = rate; // 배속 반영
+    setIsPlaying(true);
+    setIsPaused(false);
+  }
+}, [audioSource]); // 오디오 소스가 변경될 때만 실행
+
+// 페이지 이동 후 텍스트를 추출하는 함수
+const moveToNextPage = async () => {
+  if (renditionRef.current) {
+    await renditionRef.current.next();
+    
+    // 페이지 이동 후 텍스트를 다시 로드
+    await logCurrentPageText();
+
+    // 페이지 이동 후 TTS 재실행을 위해 isPlaying을 false로 설정 후 다시 true로 변경
+    setIsPlaying(false); // 일시적으로 false로 설정하여 useEffect가 다시 트리거되도록 함
+    setTimeout(() => {
+      setIsPlaying(true);  // 상태를 다시 true로 설정하여 TTS 재실행
+    }, 500); 
+  }
+};
+
+ // 배속 변경에 따른 효과 적용
+useEffect(() => {
+  if (audioRef.current) {
+    audioRef.current.playbackRate = rate; // 배속 변경 시 항상 최신 배속을 적용
+    if (!audioRef.current.paused) {
+      audioRef.current.play(); // 현재 재생 중이면 재생 상태를 유지하면서 배속 변경
+    }
+  }
+}, [rate]); // 배속이 변경될 때마다 실행
+
+   // 성별 변경 시 효과 적용
+   useEffect(() => {
+    if (isPlaying) {
+      // 성별 변경 시 현재 재생 중인 오디오를 멈추고, 새로운 설정으로 재생
+      stopTTS();
+      resumeTTS();
+    }
+  }, [gender]); // gender가 변경될 때마다 실행
+
+  useEffect(() => {
+    if (audioSource && audioRef.current) {
+      audioRef.current.src = audioSource;
+      audioRef.current.play();
+      audioRef.current.playbackRate = rate; // 배속 반영
+      setIsPlaying(true);
+      setIsPaused(false);
+    }
+  }, [audioSource]); // 오디오 소스가 변경될 때만 실행
+
 
   const stopTTS = () => {
     if (audioRef.current) {
