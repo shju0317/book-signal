@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useDispatch } from "react-redux";
 import { Provider } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom"; // navigate import 추가
+import { useLocation, useNavigate } from "react-router-dom";
 import ePub from "epubjs";
 import axios from "axios";
 // containers
@@ -19,11 +19,10 @@ import { updateCurrentPage } from "slices/book";
 import "lib/styles/readerStyle.css";
 import LoadingView from "LoadingView";
 import EyeGaze from "pages/EyeGaze";
-// book 정보 전달(detail부터)
 
 const EpubReader = ({ url, book }) => {
   const dispatch = useDispatch();
-  const navigate = useNavigate(); // navigate 훅 추가
+  const navigate = useNavigate();
   const viewerRef = useRef(null);
   const saveGazeTimeRef = useRef(null);
   const bookRef = useRef(null);
@@ -35,7 +34,7 @@ const EpubReader = ({ url, book }) => {
   const [isPaused, setIsPaused] = useState(false);
   const [audioSource, setAudioSource] = useState(null);
   const [isContextMenu, setIsContextMenu] = useState(false);
-  const [pageTextArray, setPageTextArray] = useState([]); // 현재 페이지의 모든 텍스트 상태
+  const [pageTextArray, setPageTextArray] = useState([]);
   const [bookStyle, setBookStyle] = useState({
     fontFamily: "Arial",
     fontSize: 16,
@@ -57,22 +56,19 @@ const EpubReader = ({ url, book }) => {
   const [lineHeight, setLineHeight] = useState("1.5");
   const [margin, setMargin] = useState("0");
   const [fontFamily, setFontFamily] = useState("Arial");
-  const [loading, setLoading] = useState(true); // 로딩 상태 관리
+  const [loading, setLoading] = useState(true);
   const [firstVisibleCfi, setFirstVisibleCfi] = useState(null);
   const [shouldSaveCfi, setShouldSaveCfi] = useState(true);
   const [currentBookText, setCurrentBookText] = useState('');
-
-  // 사용자 정보를 상태로 관리
+  const [userInfo, setUserInfo] = useState(null);
 
   useEffect(() => {
-    // 서버에서 세션 정보를 가져옴
     axios.get('http://localhost:3001/check-session', { withCredentials: true })
       .then(response => {
-        setUserInfo(response.data.user); // 세션 정보를 설정
+        setUserInfo(response.data.user);
       })
       .catch(error => {
         if (error.response && error.response.status === 401) {
-          // 로그인이 필요하면 로그인 페이지로 이동
           alert('로그인이 필요합니다.');
           navigate('/login');
         } else {
@@ -80,15 +76,25 @@ const EpubReader = ({ url, book }) => {
         }
       });
   }, [navigate]);
-  const [userInfo, setUserInfo] = useState(null);
+
+  const fetchBookmarks = async () => {
+    try {
+      const response = await axios.get('http://localhost:3001/getBookPath/getBookmarks', {
+        params: { book_idx: book.book_idx, mem_id: userInfo.mem_id },
+      });
+      console.log('Fetched bookmarks:', response.data); // 이 부분에서 데이터 구조를 확인하세요
+      return response.data; // 성공적으로 북마크를 가져오면 반환
+    } catch (error) {
+      console.error('북마크를 가져오는 중 오류 발생:', error);
+      return [];
+    }
+  };
 
   useEffect(() => {
     if (viewerRef.current) {
-      setLoading(true); // 로딩 시작
+      setLoading(true);
       const book = ePub(url);
       bookRef.current = book;
-
-      console.log("book", book);
 
       const rendition = book.renderTo(viewerRef.current, {
         width: "100%",
@@ -99,7 +105,6 @@ const EpubReader = ({ url, book }) => {
 
       renditionRef.current = rendition;
 
-      // 페이지 정보 업데이트 함수
       const updatePageInfo = () => {
         const location = renditionRef.current.currentLocation();
         if (location && location.start && location.start.displayed) {
@@ -111,20 +116,18 @@ const EpubReader = ({ url, book }) => {
             setTotalPages(total || 1);
             dispatch(updateCurrentPage({ currentPage: page || 1, totalPages: total || 1 }));
           }
-          setLoading(false); // 로딩 완료
+          setLoading(false);
         }
       };
-
 
       rendition.on("rendered", updatePageInfo);
       rendition.on("relocated", updatePageInfo);
 
       rendition.display().then(() => updatePageInfo());
 
-      // Cleanup 함수에서 TTS 중지 및 이벤트 핸들러 제거
+      // Cleanup
       return () => {
-        // 컴포넌트가 언마운트될 때 실행하는 함수 저장공간
-        stopTTS();  // 컴포넌트가 언마운트될 때 TTS를 중지
+        stopTTS();
         book.destroy();
         rendition.off("rendered", updatePageInfo);
         rendition.off("relocated", updatePageInfo);
@@ -152,15 +155,14 @@ const EpubReader = ({ url, book }) => {
     }
   }, [fontSize, lineHeight, margin, fontFamily]);
 
-  // 페이지 이동 핸들러
   const onPageMove = useCallback((type) => {
     if (saveGazeTimeRef.current) {
-      saveGazeTimeRef.current(); // 페이지 이동 전 시선 추적 시간 저장
+      saveGazeTimeRef.current();
     }
 
     setShouldSaveCfi(false);
     if (renditionRef.current) {
-      setLoading(true); // 페이지 이동 시 로딩 상태로 변경
+      setLoading(true);
       const updateAfterMove = () => {
         const location = renditionRef.current.currentLocation();
         if (location) {
@@ -171,7 +173,7 @@ const EpubReader = ({ url, book }) => {
           setTotalPages(total || 1);
 
           dispatch(updateCurrentPage({ currentPage: page || 1, totalPages: total || 1 }));
-          setLoading(false); // 페이지 이동 후 로딩 완료
+          setLoading(false);
         }
       };
 
@@ -190,13 +192,11 @@ const EpubReader = ({ url, book }) => {
     }
   }, [dispatch]);
 
-
-  // 페이지에 보이는 텍스트를 배열로 수집하는 함수
   const logCurrentPageText = () => {
     if (renditionRef.current) {
       const contents = renditionRef.current.getContents();
 
-      let allVisibleTexts = []; // 모든 텍스트를 담을 배열
+      let allVisibleTexts = [];
 
       contents.forEach((content) => {
         const iframeDoc = content.document;
@@ -231,7 +231,6 @@ const EpubReader = ({ url, book }) => {
     }
   };
 
-
   const addBookmark = async () => {
     const currentLocation = renditionRef.current.currentLocation();
     if (currentLocation && currentLocation.start) {
@@ -245,7 +244,7 @@ const EpubReader = ({ url, book }) => {
         await axios.post('http://localhost:3001/getBookPath/saveBookmark', {
           book_name: book.book_name,
           book_idx: book.book_idx,
-          mem_id: userInfo.mem_id, // 세션에서 가져온 사용자 ID 사용
+          mem_id: userInfo.mem_id,
           cfi,
           page_text: pageText,
         });
@@ -256,13 +255,11 @@ const EpubReader = ({ url, book }) => {
     }
   };
 
-
   const handleFontChange = (font) => {
     setFontFamily(font);
     updateStyles();
   };
 
-  // 북마크로 이동
   const goToBookmark = (cfi) => {
     if (renditionRef.current) {
       renditionRef.current.display(cfi).catch((err) => {
@@ -271,9 +268,8 @@ const EpubReader = ({ url, book }) => {
     }
   };
 
-  // 북마크 제거
   const removeBookmark = (cfi) => {
-    const newBookmarks = bookmarks.filter((bookmark) => bookmark !== cfi);
+    const newBookmarks = bookmarks.filter((bookmark) => bookmark.cfi !== cfi);
     setBookmarks(newBookmarks);
     localStorage.setItem("bookmarks", JSON.stringify(newBookmarks));
   };
@@ -289,17 +285,14 @@ const EpubReader = ({ url, book }) => {
     if (totalPages > 0 && currentPage > 0) {
       return ((currentPage / totalPages) * 100).toFixed(2);
     }
-    return "0.00"; // 페이지 수가 0일 때는 0%로 표시
+    return "0.00";
   };
 
-  // 독서 완료 및 종료 처리
   const handleReadingComplete = () => {
     console.log(book.book_genre);
-
     navigate('/detail', { state: { book } });
   };
 
-  // TTS 관련 함수들
   const handleTTS = async () => {
     if (viewerRef.current && !isPlaying) {
       setIsPlaying(true);
@@ -394,12 +387,15 @@ const EpubReader = ({ url, book }) => {
           onTTSStop={stopTTS}
           onRateChange={setRate}
           onVoiceChange={setGender}
-          onBookmarkAdd={addBookmark} // 북마크 추가 핸들러 전달
-          onFontChange={handleFontChange} // 폰트 변경 핸들러 전달
+          onBookmarkAdd={addBookmark}
+          onFontChange={handleFontChange}
           rate={rate}
           gender={gender}
-          onReadingComplete={handleReadingComplete} // 독서 완료 핸들러 전달
-          book={book} // book prop을 전달
+          onReadingComplete={handleReadingComplete}
+          book={book}
+          goToBookmark={goToBookmark}  // 전달
+          userInfo={userInfo}
+          fetchBookmarks={fetchBookmarks}  // 전달
         />
 
         <div
@@ -414,6 +410,15 @@ const EpubReader = ({ url, book }) => {
           onPageMove={onPageMove}
           loading={loading}
         />
+
+        {/* 북마크 목록을 추가 */}
+        <div className="bookmark-list">
+          {bookmarks.map((bookmark, index) => (
+            <div key={index} className="bookmark-item" onClick={() => goToBookmark(bookmark.book_mark)}>
+              <p>{bookmark.book_text}</p>
+            </div>
+          ))}
+        </div>
       </ViewerWrapper>
 
       <Nav
@@ -437,9 +442,8 @@ const EpubReader = ({ url, book }) => {
 
 const Reader = () => {
   const location = useLocation();
-  const { bookPath, book } = location.state || {}; // book 객체를 추출
+  const { bookPath, book } = location.state || {};
 
-  // book 객체가 없을 경우 에러 방지를 위해 기본값을 설정
   if (!book) {
     console.error("Book object is undefined.");
     return <div>Error: Book data is missing.</div>;

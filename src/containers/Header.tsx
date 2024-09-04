@@ -1,12 +1,32 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // useNavigate import 추가
+import { useNavigate } from 'react-router-dom';
 import Wrapper from 'components/header/Wrapper';
 import Layout, { AutoLayout } from 'components/header/Layout';
 import ControlBtn from 'components/header/ControlBtn';
 import TTSManager from 'components/tts/TTSManager';
 import TTSWrapper from 'components/tts/TTSWrapper';
 
-const Header = ({
+interface Props {
+  onNavToggle: (value?: boolean) => void;
+  onOptionToggle: (value?: boolean) => void;
+  onLearningToggle: (value?: boolean) => void;
+  onTTSToggle?: (settings: { rate: number; gender: 'MALE' | 'FEMALE' }) => void;
+  onTTSStop?: () => void;
+  onTTSPause?: () => void;
+  onTTSResume?: () => void;
+  onBookmarkAdd?: () => void;
+  onFontChange?: (font: string) => void;
+  rate: number;
+  gender: 'MALE' | 'FEMALE';
+  onRateChange: (rate: number) => void;
+  onVoiceChange: (gender: 'MALE' | 'FEMALE') => void;
+  setAudioSource: (audioUrl: string) => void;
+  book?: { [key: string]: any };
+  fetchBookmarks?: () => Promise<{ book_mark: string; book_text: string }[]>; // 이 부분 추가
+  goToBookmark?: (cfi: string) => void; // 이 부분 추가
+}
+
+const Header: React.FC<Props> = ({
   rate,
   gender,
   onRateChange,
@@ -19,14 +39,16 @@ const Header = ({
   onFontChange = () => { },
   setAudioSource,
   book,
-}: Props) => {
+  fetchBookmarks,
+  goToBookmark, // 추가된 prop
+}) => {
   const [showTTSSettings, setShowTTSSettings] = useState(false);
   const [showBookmarkSettings, setShowBookmarkSettings] = useState(false);
   const [showFontSettings, setShowFontSettings] = useState(false);
-  const [bookmarkMessage, setBookmarkMessage] = useState(''); // 북마크 메시지 상태 추가
+  const [bookmarkMessage, setBookmarkMessage] = useState('');
+  const [bookmarks, setBookmarks] = useState<{ book_mark: string; book_text: string }[]>([]); // 북마크 타입 지정
 
-
-  const navigate = useNavigate(); // useNavigate 훅 초기화
+  const navigate = useNavigate();
 
   const handleSoundClick = () => {
     setShowTTSSettings(true);
@@ -36,7 +58,7 @@ const Header = ({
     setShowTTSSettings(false);
   };
 
-  const handleBookmarkClick = () => {
+  const handleBookmarkToggle = () => {
     setShowBookmarkSettings(!showBookmarkSettings);
   };
 
@@ -44,43 +66,50 @@ const Header = ({
     setShowFontSettings(!showFontSettings);
   };
 
-  // 독서 완료 및 종료 버튼 클릭 시 도서 상세 페이지로 이동하는 함수
   const handleFinishReading = () => {
-    navigate('/detail', { state: { book } }); // book 객체를 함께 전달
+    navigate('/detail', { state: { book } });
   };
 
   const handleBookmarkAdd = async () => {
     try {
       await onBookmarkAdd();
-      setBookmarkMessage('북마크가 성공적으로 추가되었습니다.'); // 북마크 성공 메시지 설정
+      setBookmarkMessage('북마크가 성공적으로 추가되었습니다.');
     } catch (error) {
-      setBookmarkMessage('북마크 추가 중 오류가 발생했습니다.'); // 실패 메시지 설정
+      setBookmarkMessage('북마크 추가 중 오류가 발생했습니다.');
     }
   };
 
+  const handleBookmarkClick = (book_mark: string) => {
+    if (goToBookmark) { // goToBookmark가 정의되어 있는지 확인
+      goToBookmark(book_mark);
+    }
+  };
+
+  const handleFetchBookmarks = async () => {
+    if (fetchBookmarks) { // fetchBookmarks가 정의되어 있는지 확인
+      try {
+        const bookmarks = await fetchBookmarks();
+        setBookmarks(bookmarks);
+      } catch (error) {
+        setBookmarkMessage('북마크를 가져오는 중 오류가 발생했습니다.');
+      }
+    }
+  };
 
   return (
     <Wrapper>
       <Layout>
         <AutoLayout>
           <div>
-            {/* Sound 버튼 */}
             <ControlBtn message="Sound" onClick={handleSoundClick} />
-
-            {/* Bookmark 버튼, Sound 버튼과 동일한 스타일로 적용 */}
-            <ControlBtn message="Bookmark" onClick={handleBookmarkClick} />
-
-            {/* Font Settings 버튼 */}
+            <ControlBtn message="Bookmark" onClick={handleBookmarkToggle} />
             <ControlBtn message="Font Settings" onClick={handleFontClick} />
-
-            {/* 독서 완료 및 종료 버튼 */}
             <ControlBtn message="독서 완료" onClick={handleFinishReading} />
             <ControlBtn message="독서 종료" onClick={handleFinishReading} />
           </div>
         </AutoLayout>
       </Layout>
 
-      {/* TTS 설정 창 */}
       <TTSWrapper show={showTTSSettings} onClose={handleTTSSettingsClose}>
         <TTSManager
           onTTSToggle={onTTSToggle}
@@ -95,15 +124,22 @@ const Header = ({
         />
       </TTSWrapper>
 
-      {/* Bookmark 설정을 위한 모달 또는 드롭다운을 설정할 수 있습니다. */}
       {showBookmarkSettings && (
         <div className="bookmark-settings">
           <button onClick={handleBookmarkAdd}>Add Current Page to Bookmarks</button>
-          {bookmarkMessage && <p>{bookmarkMessage}</p>} {/* 북마크 메시지 표시 */}
+          <br />
+          <button onClick={handleFetchBookmarks}>View Bookmarks</button>
+          {bookmarkMessage && <p>{bookmarkMessage}</p>}
+          <div className="bookmark-list">
+            {bookmarks.map((bookmark, index) => (
+              <button key={index} onClick={() => handleBookmarkClick(bookmark.book_mark)}>
+                {`Bookmark ${index + 1}`}
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
-      {/* Font 설정 창 */}
       {showFontSettings && (
         <div className="font-settings">
           <button onClick={() => onFontChange('Arial')}>Arial</button>
@@ -114,25 +150,6 @@ const Header = ({
       )}
     </Wrapper>
   );
-}
-
-interface Props {
-  onNavToggle: (value?: boolean) => void;
-  onOptionToggle: (value?: boolean) => void;
-  onLearningToggle: (value?: boolean) => void;
-  onTTSToggle?: (settings: { rate: number, gender: 'MALE' | 'FEMALE' }) => void;
-  onTTSStop?: () => void;
-  onTTSPause?: () => void;
-  onTTSResume?: () => void;
-  onBookmarkAdd?: () => void;
-  onFontChange?: (font: string) => void;
-  rate: number;
-  gender: 'MALE' | 'FEMALE';
-  onRateChange: (rate: number) => void;
-  onVoiceChange: (gender: 'MALE' | 'FEMALE') => void;
-  setAudioSource: (audioUrl: string) => void;
-  book?: { [key: string]: any }; // book 객체의 타입 추가 (적절한 타입으로 수정 가능)
-
-}
+};
 
 export default Header;
