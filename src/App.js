@@ -26,6 +26,7 @@ import Modal from './components/Modal';
 import ReaderWrapper from '../src/containers/Reader';
 import Reader from 'components/Reader';
 import Epubjs from 'components/Epubjs';
+import EyeGaze from 'pages/EyeGaze';
 
 // 로그인 상태를 관리하기 위한 Context 생성
 export const AuthContext = createContext();
@@ -87,7 +88,7 @@ function App() {
             <Route path="/modal" element={<Modal />} />
             <Route path="/reader" element={<Reader />} />
             <Route path="/epubjs" element={<Epubjs />} />
-
+            <Route path='/eyegaze' element={<EyeGaze />} />
           </Route>
 
           <Route path="/readerwrapper" element={<ReaderWrapper url={epubUrl} />} />
