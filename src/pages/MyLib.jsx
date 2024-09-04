@@ -82,6 +82,10 @@ const MyLib = () => {
     navigate(`/detail`, { state: { book } }); // 선택한 책의 전체 객체를 상태로 전달하여 이동
   };
 
+  const handleBookClickWithBookmark = (book) => {
+    navigate(`/reader`, { state: { book, from: 'mylib' } }); // 'from' 정보를 추가
+  };
+
   const openReviewModal = (book) => {
     setSelectedBook(book);
     setReviewModalOpen(true);
@@ -126,7 +130,7 @@ const MyLib = () => {
           <div className="mylib-books-grid">
             {recentBooks.length > 0 ? (
               recentBooks.map((book, index) => (
-                <div className="mylib-book-card" key={index} onClick={() => handleBookClick(book)} >
+                <div className="mylib-book-card" key={index} onClick={() => handleBookClickWithBookmark(book)} >
                   <img src={book.book_cover} alt={`${book.book_name} Cover`} className="mylib-book-cover" />
                   <div className="book-info">
                     <p className="book-title">{book.book_name}</p>

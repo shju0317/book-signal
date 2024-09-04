@@ -21,7 +21,7 @@ import "lib/styles/readerStyle.css";
 import LoadingView from "LoadingView";
 import EyeGaze from "pages/EyeGaze";
 
-const EpubReader = ({ url, book }) => {
+const EpubReader = ({ url, book, location }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const viewerRef = useRef(null);
@@ -93,7 +93,6 @@ const EpubReader = ({ url, book }) => {
   };
 
   useEffect(() => {
-
     const loadBookmarkAndNavigate = async () => {
       try {
         const mem_id = userInfo?.mem_id;
@@ -104,20 +103,24 @@ const EpubReader = ({ url, book }) => {
           return;
         }
 
-        // 북마크 가져오기
-        const response = await axios.get('http://localhost:3001/getBookPath/getUserBookmark', {
-          params: { book_idx, mem_id },
-        });
+        // 'mylib'에서 넘어온 경우에만 북마크 가져오기
+        if (location.state?.from === 'mylib') {
+          const response = await axios.get('http://localhost:3001/getBookPath/getUserBookmark', {
+            params: { book_idx, mem_id },
+          });
 
-        const bookmark = response.data.bookmark;
+          const bookmark = response.data.bookmark;
 
-        if (bookmark) {
-          console.log("북마크 위치로 이동:", bookmark);
-          renditionRef.current.display(bookmark); // 북마크 위치로 이동
-        } else {
-          console.log("북마크가 없습니다. 첫 페이지로 이동합니다.");
-          renditionRef.current.display(); // 북마크가 없으면 첫 페이지로 이동
+          if (bookmark) {
+            console.log("북마크 위치로 이동:", bookmark);
+            renditionRef.current.display(bookmark); // 북마크 위치로 이동
+            return; // 북마크로 이동 후 return
+          }
         }
+        // 북마크가 없거나 'mylib'에서 오지 않은 경우 첫 페이지로 이동
+        console.log("북마크가 없거나 mylib에서 오지 않았습니다. 첫 페이지로 이동합니다.");
+        renditionRef.current.display();
+
       } catch (error) {
         console.error("북마크를 로드하는 중 오류 발생:", error);
       }
@@ -139,7 +142,7 @@ const EpubReader = ({ url, book }) => {
 
       // 책이 로드된 후 북마크를 로드하고 이동
       rendition.display().then(() => {
-        loadBookmarkAndNavigate(); // 새로 만든 함수 호출
+        loadBookmarkAndNavigate(); // 북마크 로드 및 이동 함수 호출
       });
 
       const updatePageInfo = () => {
@@ -158,8 +161,8 @@ const EpubReader = ({ url, book }) => {
               })
             );
           }
-          logCurrentPageText(); // 페이지 정보 업데이트 후 텍스트 가져오기
-          setLoading(false); // 로딩 완료
+          logCurrentPageText();
+          setLoading(false);
         }
       };
 
@@ -176,7 +179,7 @@ const EpubReader = ({ url, book }) => {
         rendition.off("relocated", updatePageInfo);
       };
     }
-  }, [url, dispatch, userInfo]);
+  }, [url, dispatch, userInfo, location.state]);
 
   const updateStyles = useCallback(() => {
     setShouldSaveCfi(true);
@@ -651,7 +654,7 @@ const Reader = () => {
 
   return (
     <Provider store={store}>
-      <EpubReader url={epubUrl} book={book} />
+      <EpubReader url={epubUrl} book={book} location={location} />
     </Provider>
   );
 };
