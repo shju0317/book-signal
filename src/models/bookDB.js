@@ -260,3 +260,73 @@ exports.getBookmarks = (book_idx, mem_id) => {
     });
   });
 };
+
+// 특정 사용자와 책의 북마크를 가져오는 함수
+exports.getUserBookmarkForBook = (book_idx, mem_id) => {
+  return new Promise((resolve, reject) => {
+    const sql = `
+      SELECT book_mark
+      FROM book_reading
+      WHERE book_idx = ? 
+        AND mem_id = ?
+        AND book_text IS NULL
+        AND book_mark LIKE 'epubcfi%'
+      ORDER BY book_latest DESC
+      LIMIT 1
+    `;
+
+    conn.query(sql, [book_idx, mem_id], (err, results) => {
+      if (err) {
+        console.error('북마크를 가져오는 중 오류 발생:', err);
+        reject(new Error('북마크를 가져오는 중 오류가 발생했습니다.'));
+        return;
+      }
+
+      resolve(results.length > 0 ? results[0].book_mark : null);
+    });
+  });
+};
+
+// 독서 종료 시 북마크 저장 함수
+exports.saveEndReading = (book_idx, mem_id, cfi) => {
+  return new Promise((resolve, reject) => {
+    // Step 1: book_idx에 해당하는 book_name 가져오기
+    const getBookNameSql = `
+      SELECT book_name 
+      FROM book_reading 
+      WHERE book_idx = ?
+      LIMIT 1
+    `;
+
+    conn.query(getBookNameSql, [book_idx], (err, results) => {
+      if (err) {
+        console.error('book_name 조회 중 오류 발생:', err);
+        reject(new Error('book_name 조회에 실패했습니다.'));
+        return;
+      }
+
+      if (results.length === 0) {
+        reject(new Error('해당 book_idx에 대한 책을 찾을 수 없습니다.'));
+        return;
+      }
+
+      const book_name = results[0].book_name;
+
+      // Step 2: 가져온 book_name을 사용해 북마크 저장
+      const saveBookmarkSql = `
+        INSERT INTO book_reading (book_idx, mem_id, book_mark, book_name, book_latest)
+        VALUES (?, ?, ?, ?, NOW())
+      `;
+
+      conn.query(saveBookmarkSql, [book_idx, mem_id, cfi, book_name], (err, result) => {
+        if (err) {
+          console.error('독서 종료 중 북마크 저장 오류 발생:', err);
+          reject(new Error('독서 종료 중 북마크 저장에 실패했습니다.'));
+          return;
+        }
+
+        resolve({ message: '북마크가 저장되었습니다.', bookmarkId: result.insertId });
+      });
+    });
+  });
+};

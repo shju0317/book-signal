@@ -24,6 +24,7 @@ const MyLib = () => {
 
   const navigate = useNavigate();
 
+
   useEffect(() => {
     // 서버에서 세션 정보를 가져옴
     axios.get('http://localhost:3001/check-session', { withCredentials: true })
@@ -93,7 +94,7 @@ const MyLib = () => {
   };
 
   const handleSignalClick = (book, image, text) => {
-    if(activeTab === 'bookSignal'){
+    if (activeTab === 'bookSignal') {
       setSignalTitle(book);
       setSignalBackground(image);
       setSignalText(text);
@@ -125,7 +126,7 @@ const MyLib = () => {
           <div className="mylib-books-grid">
             {recentBooks.length > 0 ? (
               recentBooks.map((book, index) => (
-                <div className="mylib-book-card" key={index} >
+                <div className="mylib-book-card" key={index} onClick={() => handleBookClick(book)} >
                   <img src={book.book_cover} alt={`${book.book_name} Cover`} className="mylib-book-cover" />
                   <div className="book-info">
                     <p className="book-title">{book.book_name}</p>
@@ -159,7 +160,7 @@ const MyLib = () => {
 
 
 
-        // 북시그널
+      // 북시그널
       case 'bookSignal':
         return (
           <div className="signal-grid">
@@ -167,7 +168,7 @@ const MyLib = () => {
             <div
               className="signal-card"
               style={{ backgroundImage: `url('/images/cover(21).jpg')` }}
-              onClick={() => handleSignalClick('작가,제목','/images/cover(21).jpg','시간은 흐르고, 우리는 그 속에서 끊임없이 변화한다.')}
+              onClick={() => handleSignalClick('작가,제목', '/images/cover(21).jpg', '시간은 흐르고, 우리는 그 속에서 끊임없이 변화한다.')}
             >
               <div className="signal-text">
                 <p>시간은 흐르고,우리는 그 속에서 끊임없이 변화한다.</p>

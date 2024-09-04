@@ -21,6 +21,8 @@ const Header: React.FC<Props> = ({
   book,
   fetchBookmarks,
   goToBookmark, // 추가된 prop
+  onReadingComplete,
+  onReadingQuit,
 }) => {
   const [showTTSSettings, setShowTTSSettings] = useState(false);
   const [showBookmarkSettings, setShowBookmarkSettings] = useState(false);
@@ -48,6 +50,14 @@ const Header: React.FC<Props> = ({
 
   const handleFinishReading = () => {
     navigate('/detail', { state: { book } });
+  };
+
+  const handleReadingQuit = () => {
+    if (onReadingQuit) {
+      onReadingQuit();
+    } else {
+      navigate('/detail', { state: { book } });
+    }
   };
 
   const handleBookmarkAdd = async () => {
@@ -85,7 +95,7 @@ const Header: React.FC<Props> = ({
             <ControlBtn message="Bookmark" onClick={handleBookmarkToggle} />
             <ControlBtn message="Font Settings" onClick={handleFontClick} />
             <ControlBtn message="독서 완료" onClick={handleFinishReading} />
-            <ControlBtn message="독서 종료" onClick={handleFinishReading} />
+            <ControlBtn message="독서 종료" onClick={handleReadingQuit} />
           </div>
         </AutoLayout>
       </Layout>
@@ -150,6 +160,8 @@ interface Props {
   book?: { [key: string]: any };
   fetchBookmarks?: () => Promise<{ book_mark: string; book_text: string }[]>; // 이 부분 추가
   goToBookmark?: (cfi: string) => void; // 이 부분 추가
+  onReadingComplete?: () => void;
+  onReadingQuit?: () => void;
 }
 
 export default Header;
