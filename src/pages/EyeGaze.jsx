@@ -231,6 +231,7 @@ useEffect(() => {
 
   return (
     <>
+      <h1>Hello</h1>
       <canvas ref={canvasRef} className="absolute pointer-events-none"></canvas>
     </>
   );

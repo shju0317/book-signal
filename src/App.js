@@ -53,7 +53,6 @@ function App() {
             <Route path="/ranking/new" element={<RankingBookList />} />
             <Route path="/detail" element={<BookDetail />} />
             <Route path="/reader" element={<Reader />} />
-
           </Route>
           
           <Route path="/readerwrapper" element={<ReaderWrapper />} />
