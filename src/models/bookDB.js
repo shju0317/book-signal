@@ -174,11 +174,11 @@ exports.saveGazeTime = async (book_idx, mem_id, book_text, gaze_duration) => {
 };
 
 // 북마크 저장 함수
-exports.saveBookmark = async (book_name, book_idx, mem_id, cfi, page_text) => {
-  try {
+exports.saveBookmark = (book_name, book_idx, mem_id, cfi, page_text) => {
+  return new Promise((resolve, reject) => {
     const sql = `
-      INSERT INTO book_reading (book_name, book_idx, mem_id,book_mark, book_text)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO book_reading (book_name, book_idx, mem_id, book_mark, book_text, book_latest)
+      VALUES (?, ?, ?, ?, ?, NOW())
     `;
     const [result] = await conn.query(sql, [book_name, book_idx, mem_id, cfi, page_text]);
 
@@ -190,19 +190,29 @@ exports.saveBookmark = async (book_name, book_idx, mem_id, cfi, page_text) => {
 };
 
 // 사용자의 북마크를 가져오는 함수
-exports.getBookmarks = async (book_idx, mem_id) => {
-  try {
+exports.getBookmarks = (book_idx, mem_id) => {
+  console.log(mem_id);
+  console.log(book_idx);
+  
+  
+  return new Promise((resolve, reject) => {
     const sql = `
-      SELECT book_mark, book_text
+      SELECT book_mark
       FROM book_reading
-      WHERE book_idx = ? AND mem_id = ?
-      ORDER BY created_at DESC
+      WHERE book_idx = ? AND mem_id = ? AND book_text IS NOT NULL
+      ORDER BY book_latest ASC
     `;
     const [results] = await conn.query(sql, [book_idx, mem_id]);
 
-    return results;
-  } catch (err) {
-    console.error('북마크를 가져오는 중 오류 발생:', err);
-    throw err;
-  }
+    conn.query(sql, [book_idx, mem_id], (err, results) => {
+      if (err) {
+        console.error('북마크를 가져오는 중 오류 발생:', err);
+        reject(new Error('북마크를 가져오는 중 오류가 발생했습니다.'));
+        return;
+      }
+
+      console.log('Fetched bookmarks:', results); // 쿼리 결과를 확인하기 위한 로그
+      resolve(results.length > 0 ? results : []); // 결과가 비어 있는 경우 빈 배열 반환F
+    });
+  });
 };

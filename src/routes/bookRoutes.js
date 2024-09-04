@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getBookPath, saveBookmark } = require('../models/bookDB');
+const { getBookPath, saveBookmark, getBookmarks } = require('../models/bookDB');
 
 
 router.post('/', async (req, res) => {
@@ -26,6 +26,18 @@ router.post('/saveBookmark', async (req, res) => {
         res.status(201).json(result);
     } catch (error) {
         res.status(500).json({ error: error.message });
+    }
+});
+
+// 북마크 가져오기 API
+router.get('/getBookmarks', async (req, res) => {
+    const { book_idx, mem_id } = req.query;
+
+    try {
+        const bookmarks = await getBookmarks(book_idx, mem_id);
+        res.status(200).json(bookmarks); // 북마크가 없으면 빈 배열을 반환
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to retrieve bookmarks.' });
     }
 });
 
