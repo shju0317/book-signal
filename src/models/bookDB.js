@@ -240,10 +240,7 @@ exports.saveBookmark = (book_name, book_idx, mem_id, cfi, page_text) => {
 
 // 사용자의 북마크를 가져오는 함수
 exports.getBookmarks = (book_idx, mem_id) => {
-  console.log(mem_id);
-  console.log(book_idx);
-  
-  
+
   return new Promise((resolve, reject) => {
     const sql = `
       SELECT book_mark
@@ -259,7 +256,6 @@ exports.getBookmarks = (book_idx, mem_id) => {
         return;
       }
 
-      console.log('Fetched bookmarks:', results); // 쿼리 결과를 확인하기 위한 로그
       resolve(results.length > 0 ? results : []); // 결과가 비어 있는 경우 빈 배열 반환F
     });
   });
