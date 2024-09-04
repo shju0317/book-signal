@@ -6,26 +6,6 @@ import ControlBtn from 'components/header/ControlBtn';
 import TTSManager from 'components/tts/TTSManager';
 import TTSWrapper from 'components/tts/TTSWrapper';
 
-interface Props {
-  onNavToggle: (value?: boolean) => void;
-  onOptionToggle: (value?: boolean) => void;
-  onLearningToggle: (value?: boolean) => void;
-  onTTSToggle?: (settings: { rate: number; gender: 'MALE' | 'FEMALE' }) => void;
-  onTTSStop?: () => void;
-  onTTSPause?: () => void;
-  onTTSResume?: () => void;
-  onBookmarkAdd?: () => void;
-  onFontChange?: (font: string) => void;
-  rate: number;
-  gender: 'MALE' | 'FEMALE';
-  onRateChange: (rate: number) => void;
-  onVoiceChange: (gender: 'MALE' | 'FEMALE') => void;
-  setAudioSource: (audioUrl: string) => void;
-  book?: { [key: string]: any };
-  fetchBookmarks?: () => Promise<{ book_mark: string; book_text: string }[]>; // 이 부분 추가
-  goToBookmark?: (cfi: string) => void; // 이 부분 추가
-}
-
 const Header: React.FC<Props> = ({
   rate,
   gender,
@@ -35,8 +15,8 @@ const Header: React.FC<Props> = ({
   onTTSPause,
   onTTSStop,
   onTTSResume,
-  onBookmarkAdd = () => {},
-  onFontChange = () => {},
+  onBookmarkAdd = () => { },
+  onFontChange = () => { },
   setAudioSource,
   book,
   fetchBookmarks,
@@ -151,18 +131,34 @@ const BookmarkWrapper: React.FC<BookmarkWrapperProps> = ({
 
       {showFontSettings && (
         <div className="font-settings">
-          <button onClick={() => onFontChange("Arial")}>Arial</button>
-          <button onClick={() => onFontChange("Georgia")}>Georgia</button>
-          <button onClick={() => onFontChange("Times New Roman")}>
-            Times New Roman
-          </button>
-          <button onClick={() => onFontChange("Courier New")}>
-            Courier New
-          </button>
+          <button onClick={() => onFontChange('Arial')}>Arial</button>
+          <button onClick={() => onFontChange('Georgia')}>Georgia</button>
+          <button onClick={() => onFontChange('Times New Roman')}>Times New Roman</button>
+          <button onClick={() => onFontChange('Courier New')}>Courier New</button>
         </div>
       )}
     </Wrapper>
   );
 };
+
+interface Props {
+  onNavToggle: (value?: boolean) => void;
+  onOptionToggle: (value?: boolean) => void;
+  onLearningToggle: (value?: boolean) => void;
+  onTTSToggle?: (settings: { rate: number; gender: 'MALE' | 'FEMALE' }) => void;
+  onTTSStop?: () => void;
+  onTTSPause?: () => void;
+  onTTSResume?: () => void;
+  onBookmarkAdd?: () => void;
+  onFontChange?: (font: string) => void;
+  rate: number;
+  gender: 'MALE' | 'FEMALE';
+  onRateChange: (rate: number) => void;
+  onVoiceChange: (gender: 'MALE' | 'FEMALE') => void;
+  setAudioSource: (audioUrl: string) => void;
+  book?: { [key: string]: any };
+  fetchBookmarks?: () => Promise<{ book_mark: string; book_text: string }[]>; // 이 부분 추가
+  goToBookmark?: (cfi: string) => void; // 이 부분 추가
+}
 
 export default Header;
