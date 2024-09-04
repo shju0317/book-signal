@@ -101,14 +101,20 @@ app.post('/summarize', async (req, res) => {
   try {
     connection = await pool.getConnection();
 
-    // book_eyegaze 테이블에서 book_text 가져오기
-    const [textRows] = await connection.query('SELECT book_text FROM book_eyegaze WHERE mem_id = ? AND book_idx = ?', [memId, bookIdx]);
+    // book_eyegaze 테이블에서 gaze_duration이 가장 긴 상위 3개의 book_text 가져오기
+    const [gazeRows] = await connection.query(`
+      SELECT book_text
+      FROM book_eyegaze 
+      WHERE mem_id = ? AND book_idx = ? 
+      ORDER BY gaze_duration DESC 
+      LIMIT 3
+    `, [memId, bookIdx]);
 
-    if (textRows.length === 0) {
+    if (gazeRows.length === 0) {
       return res.status(404).json({ error: '데이터를 찾을 수 없습니다.' });
     }
 
-    const bookText = textRows.map(row => row.book_text).join(' ');
+    const selectedTexts = gazeRows.map(row => row.book_text).join(' ');
 
     // book_db 테이블에서 book_name 가져오기
     const [nameRows] = await connection.query('SELECT book_name FROM book_db WHERE book_idx = ?', [bookIdx]);
@@ -120,7 +126,7 @@ app.post('/summarize', async (req, res) => {
     const bookName = nameRows[0].book_name;
 
     // 텍스트 길이 제한을 초과하지 않도록 처리
-    const trimmedText = bookText.length > 2000 ? bookText.slice(0, 2000) : bookText;
+    const trimmedText = selectedTexts.length > 2000 ? selectedTexts.slice(0, 2000) : selectedTexts;
 
     // OpenAI API를 사용하여 요약 생성
     const response = await axios.post('https://api.openai.com/v1/chat/completions', {
@@ -137,13 +143,27 @@ app.post('/summarize', async (req, res) => {
     const summary = response.data.choices[0].message.content.trim();
     console.log('요약 생성 성공:', summary);
 
-    // DALL-E 이미지 생성 및 저장
+    // DALL·E 이미지 생성
+    const dalleResponse = await axios.post('https://api.openai.com/v1/images/generations', {
+      prompt: summary,
+      n: 1,
+      size: '1024x1024'
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+      }
+    });
+
+    const dalleImageUrl = dalleResponse.data.data[0].url;
     const dalleImagePath = path.join(__dirname, '../public/dalle', `${bookIdx}.png`);
-    await fs.promises.writeFile(dalleImagePath, "이미지 데이터"); // 예제: 이미지 데이터를 저장
+
+    const imageResponse = await axios.get(dalleImageUrl, { responseType: 'arraybuffer' });
+    fs.writeFileSync(dalleImagePath, imageResponse.data);
     console.log('이미지 생성 및 저장 성공:', dalleImagePath);
 
     // book_extract_data 테이블에 데이터 저장
-    await connection.query('INSERT INTO book_extract_data (mem_id, book_idx, book_name, book_extract, dalle_path) VALUES (?, ?, ?, ?, ?)', [memId, bookIdx, bookName, summary, `/images/dalle/${bookIdx}.png`]);
+    await connection.query('INSERT INTO book_extract_data (mem_id, book_idx, book_name, book_extract, dalle_path) VALUES (?, ?, ?, ?, ?)', [memId, bookIdx, bookName, summary, `/dalle/${bookIdx}.png`]);
 
     console.log('데이터베이스에 요약 및 이미지 경로 저장 성공');
     res.json({ summary });
@@ -155,6 +175,9 @@ app.post('/summarize', async (req, res) => {
   }
 });
 
+// 정적 파일 서빙
+app.use(express.static('public'));
+
 app.listen(3001, () => {
-  console.log('서버 실행: http://localhost:3001');
+    console.log('서버 실행: http://localhost:3001');
 });
