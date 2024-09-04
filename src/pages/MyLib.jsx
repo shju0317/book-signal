@@ -178,9 +178,10 @@ const MyLib = () => {
                 <div
                   key={index}
                   className="signal-card"
-                  style={{ backgroundImage: `url(${book.book_signal_img})` }}
-                  onClick={() => handleSignalClick(book.book_name, book.book_signal_img, book.book_signal, book.book_summ)}
+                  style={{ backgroundImage: `url(${book.dalle_path})` }}
+                  onClick={() => handleSignalClick(book.book_name, book.dalle_path, book.book_signal, book.book_extract)}
                 >
+                  <p className='w-[1000px]'>{book.book_extract}</p>
                   <div className="signal-text">
                     <p>{book.book_signal}</p>
                   </div>

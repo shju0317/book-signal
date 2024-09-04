@@ -294,7 +294,7 @@ exports.getSignalBooks = (mem_id) => {
   return new Promise((resolve, reject) => {
     const query = `
       SELECT *
-      FROM book_reading
+      FROM book_extract_data
       WHERE mem_id = ?;
     `;
 
