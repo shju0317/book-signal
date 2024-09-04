@@ -317,7 +317,12 @@ const EpubReader = ({ url, book }) => {
       }
   
       console.log('상세 페이지로 네비게이션 중...'); // 페이지 이동 로그
-      navigate('/detail', { state: { book } });
+      navigate('/detail', { 
+        state: { 
+          book,
+          showReviewModal: true // 모달을 띄우기 위한 플래그
+        } 
+      });
     } else {
       console.warn('사용자 정보 또는 책 정보가 없습니다.'); // 사용자 또는 책 정보가 없을 때 경고 로그
     }

@@ -114,8 +114,6 @@ app.post('/summarize', async (req, res) => {
       return res.status(404).json({ error: '데이터를 찾을 수 없습니다.' });
     }
 
-    const selectedTexts = gazeRows.map(row => row.book_text).join(' ');
-
     // book_db 테이블에서 book_name 가져오기
     const [nameRows] = await connection.query('SELECT book_name FROM book_db WHERE book_idx = ?', [bookIdx]);
 
@@ -125,48 +123,59 @@ app.post('/summarize', async (req, res) => {
 
     const bookName = nameRows[0].book_name;
 
-    // 텍스트 길이 제한을 초과하지 않도록 처리
-    const trimmedText = selectedTexts.length > 2000 ? selectedTexts.slice(0, 2000) : selectedTexts;
+    // 요약 및 이미지 저장을 위한 작업
+    const summaries = [];
+    const imagePaths = [];
 
-    // OpenAI API를 사용하여 요약 생성
-    const response = await axios.post('https://api.openai.com/v1/chat/completions', {
-      model: 'gpt-3.5-turbo',
-      messages: [{ role: "user", content: `다음 텍스트를 요약해줘: ${trimmedText}` }],
-      max_tokens: 100,
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
-      }
-    });
+    for (const row of gazeRows) {
+      const selectedText = row.book_text;
 
-    const summary = response.data.choices[0].message.content.trim();
-    console.log('요약 생성 성공:', summary);
+      // 텍스트 길이 제한을 초과하지 않도록 처리
+      const trimmedText = selectedText.length > 2000 ? selectedText.slice(0, 2000) : selectedText;
 
-    // DALL·E 이미지 생성
-    const dalleResponse = await axios.post('https://api.openai.com/v1/images/generations', {
-      prompt: summary,
-      n: 1,
-      size: '1024x1024'
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
-      }
-    });
+      // OpenAI API를 사용하여 요약 생성
+      const response = await axios.post('https://api.openai.com/v1/chat/completions', {
+        model: 'gpt-3.5-turbo',
+        messages: [{ role: "user", content: `다음 텍스트를 요약해줘: ${trimmedText}` }],
+        max_tokens: 100,
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+        }
+      });
 
-    const dalleImageUrl = dalleResponse.data.data[0].url;
-    const dalleImagePath = path.join(__dirname, '../public/dalle', `${bookIdx}.png`);
+      const summary = response.data.choices[0].message.content.trim();
+      summaries.push(summary);
+      console.log('요약 생성 성공:', summary);
 
-    const imageResponse = await axios.get(dalleImageUrl, { responseType: 'arraybuffer' });
-    fs.writeFileSync(dalleImagePath, imageResponse.data);
-    console.log('이미지 생성 및 저장 성공:', dalleImagePath);
+      // DALL·E 이미지 생성
+      const dalleResponse = await axios.post('https://api.openai.com/v1/images/generations', {
+        prompt: summary,
+        n: 1,
+        size: '1024x1024'
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+        }
+      });
 
-    // book_extract_data 테이블에 데이터 저장
-    await connection.query('INSERT INTO book_extract_data (mem_id, book_idx, book_name, book_extract, dalle_path) VALUES (?, ?, ?, ?, ?)', [memId, bookIdx, bookName, summary, `/dalle/${bookIdx}.png`]);
+      const dalleImageUrl = dalleResponse.data.data[0].url;
+      const dalleImagePath = path.join(__dirname, '../public/dalle', `${bookIdx}_${summaries.length}.png`);
+
+      const imageResponse = await axios.get(dalleImageUrl, { responseType: 'arraybuffer' });
+      fs.writeFileSync(dalleImagePath, imageResponse.data);
+      console.log('이미지 생성 및 저장 성공:', dalleImagePath);
+
+      imagePaths.push(`/dalle/${bookIdx}_${summaries.length}.png`);
+      
+      // book_extract_data 테이블에 데이터 저장
+      await connection.query('INSERT INTO book_extract_data (mem_id, book_idx, book_name, book_extract, dalle_path) VALUES (?, ?, ?, ?, ?)', [memId, bookIdx, bookName, summary, imagePaths[imagePaths.length - 1]]);
+    }
 
     console.log('데이터베이스에 요약 및 이미지 경로 저장 성공');
-    res.json({ summary });
+    res.json({ summaries });
   } catch (err) {
     console.error('Error generating summary:', err.response ? err.response.data : err.message);
     res.status(500).json({ error: '요약 생성에 실패했습니다.' });
