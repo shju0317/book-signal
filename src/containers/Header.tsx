@@ -30,30 +30,21 @@ const Header: React.FC<Props> = ({
 
   const navigate = useNavigate();
 
-const BookmarkWrapper: React.FC<BookmarkWrapperProps> = ({
-  show,
-  onClose,
-  onBookmarkSizeChange,
-  bookmarkSize,
-  children
-}) => {
-  const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const handleSoundClick = () => {
+    setShowTTSSettings(true);
+  };
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
-        onClose();
-      }
-    };
+  const handleTTSSettingsClose = () => {
+    setShowTTSSettings(false);
+  };
 
   const handleBookmarkToggle = () => {
     setShowBookmarkSettings(!showBookmarkSettings);
   };
 
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [show, onClose]);
+  const handleFontClick = () => {
+    setShowFontSettings(!showFontSettings);
+  };
 
   const handleFinishReading = () => {
     navigate('/detail', { state: { book } });
