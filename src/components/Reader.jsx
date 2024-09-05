@@ -410,8 +410,11 @@ const EpubReader = ({ url, book, location }) => {
       const { mem_id } = userInfo;
       const { book_idx } = book;
 
-      // 상세 페이지로 네비게이션
-      console.log("상세 페이지로 네비게이션 중...");
+      console.log("사용자 정보:", { mem_id }); // 사용자 ID 로그
+      console.log("책 정보:", { book_idx }); // 책 인덱스 로그
+
+      // 상세 페이지로 네비게이션 먼저 수행
+      console.log("상세 페이지로 네비게이션 중..."); // 페이지 이동 로그
       navigate("/detail", {
         state: {
           book,

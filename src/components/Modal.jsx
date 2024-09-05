@@ -14,6 +14,7 @@ const Modal = ({ isOpen, onClose, onDownload, backgroundImage, children }) => {
   const text = childrenArray[1]; // 첫 번째 p 태그
   const summ = childrenArray[2]; // 두 번째 p 태그 (하단으로 이동할 내용)
 
+  
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className='modal-polaroid'>
@@ -37,7 +38,7 @@ const Modal = ({ isOpen, onClose, onDownload, backgroundImage, children }) => {
           </div>
         </div>
         <div className='modal-summ'>
-          <p className='summary'>{summ}</p>
+          <p>{summ}</p>
         </div>
       </div>
     </div>

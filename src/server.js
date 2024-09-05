@@ -15,11 +15,12 @@ const reviewRoutes = require('./routes/reviewRoutes');
 const fs = require('fs'); // 파일 시스템 접근을 위한 모듈 추가
 const tts = require('./tts'); // TTS 기능 추가
 const textToSpeech = require('@google-cloud/text-to-speech');
-const client = new textToSpeech.TextToSpeechClient();
 const sameBookRoutes = require('./routes/sameBookRoutes');
-const session = require('express-session');
 const app = express();
 const pool = require('./config/database');
+
+const client = new textToSpeech.TextToSpeechClient();
+const session = require('express-session');
 const axios = require('axios')
 
 

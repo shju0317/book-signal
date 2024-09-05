@@ -13,10 +13,10 @@ const MyLib = () => {
   const [recentBooks, setRecentBooks] = useState([]); // 최근 읽은 도서 상태
   const [wishlistBooks, setWishlistBooks] = useState([]); // 찜한 도서 상태
   const [completedBooks, setCompletedBooks] = useState([]); // 완독 도서 상태
-  const [selectedBook, setSelectedBook] = useState(null); // 리뷰모달 관련 상태
-  const [isModalOpen, setIsModalOpen] = useState(false); // 리뷰모달 관련 상태
-  const [backgroundImage, setBackgroundImage] = useState(''); // 리뷰모달 배경 이미지 상태
-  const [reviewModalOpen, setReviewModalOpen] = useState(false); // 리뷰모달 상태
+  const [selectedBook, setSelectedBook] = useState(null); // 리뷰 모달 관련 상태
+  const [isModalOpen, setIsModalOpen] = useState(false); // 리뷰 모달 관련 상태
+  const [backgroundImage, setBackgroundImage] = useState(''); // 리뷰 모달 배경 이미지 상태
+  const [reviewModalOpen, setReviewModalOpen] = useState(false); // 리뷰 모달 상태
   const [signalBooks, setSignalBooks] = useState([]);
   const [signalTitle, setSignalTitle] = useState(null); // 시그널 모달 관련 상태
   const [signalText, setSignalText] = useState('');
@@ -83,8 +83,6 @@ const MyLib = () => {
         .catch(error => {
           console.error('북 시그널 도서를 가져오는데 실패했습니다.', error);
         });
-
-
     }
   }, [userInfo]);
 
@@ -111,11 +109,13 @@ const MyLib = () => {
     setSelectedBook(null);
   };
 
-  const handleSignalClick = (book, image, text) => {
+
+  const handleSignalClick = (book, image, text, summ) => {
     if (activeTab === 'bookSignal') {
       setSignalTitle(book);
       setSignalBackground(image);
       setSignalText(text);
+      setSignalSumm(summ);
       setSignalOpen(true);
     }
   }
@@ -190,7 +190,7 @@ const MyLib = () => {
                 >
                   <p className='signalName'>{book.book_name}</p>
                   <br />
-                  <p className='w-[1000px] signalSumm'>{book.book_repre}</p>
+                  <p className='w-[1000px] signalRepre'>{book.book_repre}</p>
                 </div>
               ))
             ) : (
@@ -273,6 +273,7 @@ const MyLib = () => {
           onReviewSubmit={closeReviewModal}
         />
       )}
+
 
       {/* bookSignal 모달 */}
       <Modal
