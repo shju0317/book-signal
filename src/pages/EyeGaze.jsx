@@ -15,11 +15,8 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime, bookText, book }) => {
   // console.log('user!!!', user);
   
 
-  const [userInfo, setUserInfo] = useState(null);
   const [calibrationData, setCalibrationData] = useState(null);
   
-  const navigate = useNavigate();
-
   const canvasRef = useRef(null);
   const seesoRef = useRef(null);
 
@@ -78,23 +75,6 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime, bookText, book }) => {
       setCalibrationData(savedCalibrationData);
     }
   }, []);
-
-  // useEffect(() => {
-  //   const savedCalibrationData = localStorage.getItem('calibrationData');
-  //   if (savedCalibrationData) {
-  //     try {
-  //       // Base64 문자열이 올바르게 인코딩되었는지 확인
-  //       atob(savedCalibrationData);
-  //       setCalibrationData(savedCalibrationData);
-  //       console.log('Calibration data loaded from localStorage');
-  //     } catch (e) {
-  //       console.error('Invalid calibration data in localStorage:', e);
-  //       // 필요 시 로컬스토리지에서 잘못된 데이터를 제거할 수 있습니다.
-  //       // localStorage.removeItem('calibrationData');
-  //     }
-  //   }
-  // }, []);
-  
 
 
   /******************** 시선 추적 시간 계산 ********************/  
@@ -155,9 +135,11 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime, bookText, book }) => {
                 console.log(`영역 안 머문 누적 시간: ${newTotal / 1000}초`);
                 return newTotal;
               });
-            } else {
-              console.error("잘못된 시간 계산 감지됨:", timeSpentInside);
-            }
+            } 
+            // else {
+            //   console.error("잘못된 시간 계산 감지됨:", timeSpentInside);
+            // }
+
               // 시선이 영역 밖으로 나갔으므로 바깥에 머문 시간 기록 시작
               gazeOutsideTimeRef.current = Date.now();
               isGazeInsideRef.current = false;
@@ -223,13 +205,18 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime, bookText, book }) => {
   }
 
   function onGaze(gazeInfo) {
+    if (!gazeInfo || typeof gazeInfo.screen_x === 'undefined' || typeof gazeInfo.screen_y === 'undefined') {
+      console.error('Invalid gazeInfo:', gazeInfo);
+      return;
+    }
+
     showGaze(gazeInfo);
 
-    if (seesoRef.current) {
-        showGaze(gazeInfo);
-    } else {
-        console.error('SeeSo SDK is not initialized properly.');
-    }
+    // if (seesoRef.current) {
+    //     showGaze(gazeInfo);
+    // } else {
+    //     console.error('SeeSo SDK is not initialized properly.');
+    // }
   }
 
   function onDebug(FPS, latency_min, latency_max, latency_avg) {
@@ -295,6 +282,8 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime, bookText, book }) => {
       });
     } else {
       console.log('gazeTime이 0이거나 없음');
+      gazeInsideTimeRef.current = 0;
+      setInsideTimeTotal(0);
     }
   };
 
