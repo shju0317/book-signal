@@ -277,3 +277,27 @@ exports.incrementBookViews = async (mem_id, book_idx) => {
     throw new Error('책 조회 로그 기록에 실패했습니다.');
   }
 };
+
+// 시그널 도서를 가져오는 함수
+exports.getSignalBooks = async (mem_id) => {
+  try {
+    const query = `
+      SELECT *
+      FROM book_extract_data AS b1
+      WHERE b1.mem_id = ?
+      AND b1.saved_at = (
+        SELECT MAX(b2.saved_at)
+        FROM book_extract_data AS b2
+        WHERE b2.book_name = b1.book_name
+        AND b2.mem_id = b1.mem_id
+      )
+      ORDER BY b1.saved_at DESC;
+    `;
+
+    const [results] = await db.query(query, [mem_id]);
+    return results;
+  } catch (err) {
+    console.error('북 시그널 도서를 가져오는 중 오류 발생:', err);
+    throw new Error('북 시그널 도서를 가져오는 중 오류가 발생했습니다.');
+  }
+};
