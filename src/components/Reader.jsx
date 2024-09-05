@@ -65,6 +65,7 @@ const EpubReader = ({ url, book, location }) => {
   const [currentBookText, setCurrentBookText] = useState('');
   const [userInfo, setUserInfo] = useState(null);
   const [bookmarkMessage, setBookmarkMessage] = useState('');  // 추가된 부분
+  const [cfi, setCfi] = useState('');
 
   useEffect(() => {
     axios.get('http://localhost:3001/check-session', { withCredentials: true })
@@ -203,8 +204,12 @@ const EpubReader = ({ url, book, location }) => {
           }
           logCurrentPageText();
           setLoading(false);
-
         }
+                // cfi 값을 업데이트
+                if (location && location.start) {
+                  setCfi(location.start.cfi);
+                  console.log('현재 CFI 값:', location.start.cfi);
+                }
       };
 
       rendition.on("rendered", updatePageInfo);
@@ -275,6 +280,11 @@ const EpubReader = ({ url, book, location }) => {
         //   seesoRef.current.stopTracking();
         //   seesoRef.current.startTracking(onGaze, onDebug);
         // }
+                  // 페이지 이동 후 cfi 값 업데이트
+                  if (location && location.start) {
+                    setCfi(location.start.cfi);
+                    console.log('페이지 이동 후 CFI 값:', location.start.cfi);
+                  }
         }
       };
 
@@ -320,7 +330,7 @@ const EpubReader = ({ url, book, location }) => {
             const combinedText = allVisibleTexts.join(" ");
             setCurrentBookText(combinedText);
 
-            console.log("All Visible Texts on Current Page:", allVisibleTexts);
+            // console.log("All Visible Texts on Current Page:", allVisibleTexts);
           });
 
           const textElements = iframeDoc.querySelectorAll(
@@ -340,6 +350,8 @@ const EpubReader = ({ url, book, location }) => {
     const currentLocation = renditionRef.current.currentLocation();
     if (currentLocation && currentLocation.start) {
       const cfi = currentLocation.start.cfi;
+      console.log('cfi!!!!!!!!!!!', cfi);
+      
       const pageText = pageTextArray.join(" ");
       const newBookmarks = [...bookmarks, { cfi, pageText }];
       setBookmarks(newBookmarks);
@@ -694,6 +706,7 @@ const EpubReader = ({ url, book, location }) => {
         book={book} // book 객체 전달
         bookText={currentBookText}
         currentPage={currentPage}
+        cfi={cfi}
         // onStopGazeTracking={(stopGazeTracking) => {
         //   stopGazeTrackingRef.current = stopGazeTracking;
         // }}

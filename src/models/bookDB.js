@@ -198,14 +198,14 @@ exports.removeWishlist = (mem_id, book_idx) => {
 };
 
 /******************** 시선 추적 시간 저장 ********************/
-exports.saveGazeTime = (book_idx, mem_id, book_text, gaze_duration) => {
+exports.saveGazeTime = (book_idx, mem_id, book_text, book_mark, gaze_duration) => {
   return new Promise((resolve, reject) => {
     const sql = `
-      INSERT INTO book_eyegaze (book_idx, mem_id, book_text, gaze_duration, gaze_recorded_at)
-      VALUES (?, ?, ?, ?, NOW())
+      INSERT INTO book_eyegaze (book_idx, mem_id, book_text, book_mark, gaze_duration, gaze_recorded_at)
+      VALUES (?, ?, ?, ?, ?, NOW())
     `;
 
-    conn.query(sql, [book_idx, mem_id, book_text, gaze_duration], (err, result) => {
+    conn.query(sql, [book_idx, mem_id, book_text, book_mark, gaze_duration], (err, result) => {
       if (err) {
         console.error('Error saving gaze time:', err);
         reject(err);

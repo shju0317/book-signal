@@ -8,11 +8,12 @@ const SEESO_API_KEY = process.env.REACT_APP_SEESO_API_KEY;
 // console.log(SEESO_API_KEY);
 
 
-const EyeGaze = ({ viewerRef, onSaveGazeTime, bookText, book, currentPage }) => {
+const EyeGaze = ({ viewerRef, onSaveGazeTime, bookText, book, currentPage, cfi }) => {
   const { user } = useContext(AuthContext);
   const memId = user?.mem_id || null;
   // console.log('user!!!', user);
   
+  console.log('CFI 값:', cfi);
 
   const [calibrationData, setCalibrationData] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false); // SDK 초기화 상태 관리
@@ -293,11 +294,19 @@ useEffect(() => {
 
     if (duration > 0) {
       console.log('저장할 gazeTime:', duration);
+    //   console.log('으아아아아',{
+    //     book_idx: bookIdx,
+    //     mem_id: memId,
+    //     book_text: bookText,
+    //     book_mark: cfi,
+    //     gaze_duration: duration
+    // });
   
       axios.post('http://localhost:3001/gaze', {
         book_idx: bookIdx,
         mem_id: memId,
         book_text: bookText,
+        book_mark: cfi,
         gaze_duration: duration
       })
       .then(response => {
