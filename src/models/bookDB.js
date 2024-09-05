@@ -330,3 +330,31 @@ exports.saveEndReading = (book_idx, mem_id, cfi) => {
     });
   });
 };
+
+// 북마크 삭제 함수
+exports.removeBookmark = (book_idx, mem_id, book_mark) => {
+  return new Promise((resolve, reject) => {
+    const sql = `DELETE FROM book_reading 
+    WHERE book_idx = ? 
+    AND mem_id = ? 
+    AND book_mark = ?
+    `;
+
+    conn.query(sql, [book_idx, mem_id, book_mark], (err, result) => {
+      console.log(book_idx, mem_id, book_mark);
+
+      if (err) {
+        console.error('북마크 삭제 중 오류 발생:', err);
+        reject(new Error('북마크 삭제에 실패했습니다.'));
+        return;
+      }
+
+      console.log('삭제된 행 수:', result.affectedRows);
+      if (result.affectedRows > 0) {
+        resolve({ message: '북마크가 삭제되었습니다.' });
+      } else {
+        reject(new Error('삭제할 북마크를 찾지 못했습니다.'));
+      }
+    });
+  });
+};
