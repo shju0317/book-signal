@@ -379,6 +379,7 @@ const EpubReader = ({ url, book, location }) => {
   };
 
   // 독서 완료 처리
+  // 페이지 이동 후 api호출
   const handleReadingComplete = async () => {
     console.log("독서 완료 처리 시작");
 
@@ -628,12 +629,12 @@ const EpubReader = ({ url, book, location }) => {
           onBookmarkAdd={addBookmark}
           onFontChange={handleFontChange}
           onReadingComplete={handleReadingComplete}
-          onBookmarkRemove={handleBookmarkRemove}
           goToBookmark={goToBookmark}  // 전달
           fetchBookmarks={fetchBookmarks}  // 전달
           onReadingQuit={handleReadingQuit}
           book={book}
           userInfo={userInfo} // userInfo를 추가
+          onBookmarkRemove={handleBookmarkRemove}
         />
 
         <div
