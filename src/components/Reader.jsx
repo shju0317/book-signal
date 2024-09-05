@@ -130,9 +130,6 @@ const EpubReader = ({ url, book, location }) => {
     }
   };
 
-
-
-
   useEffect(() => {
     const loadBookmarkAndNavigate = async () => {
       try {
@@ -330,7 +327,6 @@ const EpubReader = ({ url, book, location }) => {
             const combinedText = allVisibleTexts.join(" ");
             setCurrentBookText(combinedText);
 
-            // console.log("All Visible Texts on Current Page:", allVisibleTexts);
           });
 
           const textElements = iframeDoc.querySelectorAll(
@@ -406,13 +402,14 @@ const EpubReader = ({ url, book, location }) => {
   };
 
   // 독서 완료 처리
+  // 페이지 이동 후 api호출
   const handleReadingComplete = async () => {
     console.log("독서 완료 처리 시작");
-  
+
     if (userInfo && book) {
       const { mem_id } = userInfo;
       const { book_idx } = book;
-  
+
       // 상세 페이지로 네비게이션
       console.log("상세 페이지로 네비게이션 중...");
       navigate("/detail", {
@@ -421,13 +418,13 @@ const EpubReader = ({ url, book, location }) => {
           showReviewModal: true,
         },
       });
-  
+
       // 페이지 이동 후 비동기로 요약 생성 요청
       setTimeout(async () => {
         try {
           console.log("요약 생성 요청 중...");
           const summarizeResult = await handleSummarize(mem_id, book_idx);
-  
+
           if (summarizeResult.success) {
             console.log("요약 생성 및 저장 성공:", summarizeResult.summary);
           } else {
@@ -443,8 +440,6 @@ const EpubReader = ({ url, book, location }) => {
   };
 
   const handleReadingQuit = async () => {
-    console.log('독서 중단 처리'); // 함수 호출 시작 로그
-    console.log('상세 페이지로 네비게이션 중...', { book }); // 페이지 이동 로그
 
     if (userInfo && book) {
       // userInfo와 book의 구조에 따라 접근
@@ -469,8 +464,6 @@ const EpubReader = ({ url, book, location }) => {
     }
     navigate('/detail', { state: { book } });
   };
-
-
 
   const handleTTS = async () => {
     if (viewerRef.current && !isPlaying) {
@@ -725,7 +718,6 @@ const Reader = () => {
   }
 
   const epubUrl = `book_file/${book.book_path}.epub`;
-  console.log(epubUrl);
 
   return (
     <Provider store={store}>

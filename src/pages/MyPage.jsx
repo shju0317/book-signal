@@ -21,7 +21,6 @@ const MyPage = () => {
         const sessionResponse = await axios.get('http://localhost:3001/check-session', { withCredentials: true });
         if (sessionResponse.data.user) {
           const userInfoResponse = await axios.get(`http://localhost:3001/user-info/${sessionResponse.data.user.mem_id}`, { withCredentials: true });
-          console.log('사용자 정보:', userInfoResponse.data);
           setUserInfo(userInfoResponse.data);
 
           const reviewsResponse = await axios.get(`http://localhost:3001/review/${sessionResponse.data.user.mem_id}`, { withCredentials: true });

@@ -13,7 +13,7 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime, bookText, book, currentPage, cfi }
   const memId = user?.mem_id || null;
   // console.log('user!!!', user);
   
-  console.log('CFI 값:', cfi);
+  // console.log('CFI 값:', cfi);
 
   const [calibrationData, setCalibrationData] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false); // SDK 초기화 상태 관리
