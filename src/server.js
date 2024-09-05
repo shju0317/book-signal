@@ -149,9 +149,10 @@ app.post('/summarize', async (req, res) => {
         model: 'gpt-3.5-turbo',
         messages: [{
           role: "user",
+          // 요약
           // content: `책의 제목은 "${bookName}"입니다. 아래는 이 책의 한 부분입니다: "${selectedText}". 이 부분을 요약해 주세요. 요약은 주요 등장인물, 배경, 사건을 포함하고, 이 텍스트가 전달하는 주요 메시지나 테마를 간결하게 설명해 주세요.`
           // 대표 문장
-          // content: `"${bookName}"의 대표 문장을 알려줘`
+          content: `"${bookName}"의 대표 문장을 알려줘`
         }],
         max_tokens: 150,
       }, {
