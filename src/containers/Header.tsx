@@ -6,6 +6,7 @@ import ControlBtn from 'components/header/ControlBtn';
 import TTSManager from 'components/tts/TTSManager';
 import TTSWrapper from 'components/tts/TTSWrapper';
 import '../css/ReaderHeader.css';
+import { handleSummarize } from "../components/SummarizePage"
 
 const Header: React.FC<Props> = ({
   rate,
@@ -20,6 +21,7 @@ const Header: React.FC<Props> = ({
   onFontChange = () => { },
   setAudioSource,
   book,
+  userInfo,
   fetchBookmarks,
   goToBookmark,
   onReadingComplete,
@@ -61,6 +63,34 @@ const Header: React.FC<Props> = ({
 
   const handleFinishReading = () => {
     navigate('/detail', { state: { book } });
+  };
+
+  // 독서 완료 처리 함수
+  const handleReadingComplete = async () => {
+    console.log("독서 완료 처리 시작"); // 함수 호출 시작 로그
+
+    if (userInfo && book) {
+      const { mem_id } = userInfo;
+      const { book_idx } = book;
+
+      console.log("사용자 정보:", { mem_id }); // 사용자 ID 로그
+      console.log("책 정보:", { book_idx }); // 책 인덱스 로그
+
+      // 요약 생성 요청
+      console.log("요약 생성 요청 중..."); // 요약 요청 시작 로그
+      const summarizeResult = await handleSummarize(mem_id, book_idx);
+
+      if (summarizeResult.success) {
+        console.log("요약 생성 및 저장 성공:", summarizeResult.summary); // 성공 로그
+      } else {
+        console.error("요약 생성 실패:", summarizeResult.error); // 실패 로그
+      }
+
+      console.log("상세 페이지로 네비게이션 중..."); // 페이지 이동 로그
+      navigate("/detail", { state: { book } });
+    } else {
+      console.warn("사용자 정보 또는 책 정보가 없습니다."); // 사용자 또는 책 정보가 없을 때 경고 로그
+    }
   };
 
   const handleReadingQuit = () => {
@@ -121,7 +151,6 @@ const Header: React.FC<Props> = ({
       setBookmarkMessage('');
     }, 2000); // 2000ms (2초) 후에 메시지 사라짐
   };
-
 
   return (
     <Wrapper>
@@ -204,6 +233,7 @@ interface Props {
   onVoiceChange: (gender: 'MALE' | 'FEMALE') => void;
   setAudioSource: (audioUrl: string) => void;
   book?: { [key: string]: any };
+  userInfo?: { mem_id: string }; // userInfo 객체의 타입 추가 (적절한 타입으로 수정 가능)
   fetchBookmarks?: () => Promise<{ book_mark: string; book_text: string }[]>;
   goToBookmark?: (cfi: string) => void;
   onReadingComplete?: () => void;

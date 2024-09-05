@@ -420,8 +420,6 @@ const EpubReader = ({ url, book, location }) => {
   };
 
   const handleReadingQuit = async () => {
-    console.log('독서 중단 처리'); // 함수 호출 시작 로그
-    console.log('상세 페이지로 네비게이션 중...', { book }); // 페이지 이동 로그
 
     if (userInfo && book) {
       // userInfo와 book의 구조에 따라 접근
