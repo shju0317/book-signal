@@ -293,9 +293,16 @@ exports.getCompletedBooks = (mem_id) => {
 exports.getSignalBooks = (mem_id) => {
   return new Promise((resolve, reject) => {
     const query = `
-      SELECT *
-      FROM book_extract_data
-      WHERE mem_id = ?;
+    SELECT *
+    FROM book_extract_data AS b1
+    WHERE b1.mem_id = ?
+    AND b1.saved_at = (
+      SELECT MAX(b2.saved_at)
+      FROM book_extract_data AS b2
+      WHERE b2.book_name = b1.book_name
+      AND b2.mem_id = b1.mem_id
+    )
+    ORDER BY b1.saved_at DESC;
     `;
 
     db.query(query, [mem_id], (err, results) => {

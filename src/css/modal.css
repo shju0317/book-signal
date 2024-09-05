@@ -12,14 +12,14 @@
 }
 
 .modal-polaroid{
-  width: 600px;
+  width: 550px;
   height: 900px;
   background-color: white;
   position: relative; /* 자식 요소의 위치 조정을 위해 필요 */
   display: flex;
   flex-direction: column; /* 수직 정렬 */
   justify-content: center; /* 수평 중앙 정렬 */
-  align-items: flex-start;
+  align-items: center;
 }
 
 .modal-content {
@@ -44,6 +44,7 @@
 
 
 .modal-signal {
+  font-family: 'SF_HambakSnow';
   background-color: rgba(225, 225, 225, 0.75); /* 텍스트 배경을 반투명 흰색으로 설정 */
   width: 300px;
   height: auto;
@@ -58,10 +59,11 @@
 
 .modal-summ {
   position: absolute;
-  top: 600px; /* .modal-content 밑 50px */
-  width: 100%;
+  top: 620px; /* .modal-content 밑 50px */
+  width: 450px;
   padding: 20px;
   text-align: center;
+  font-size: 18px;
 }
 
 .modal-download,
@@ -76,15 +78,23 @@
 .modal-download {
   font-size: 23px;
   top : -40px;
-  right: -10px; /* 두 버튼 간의 간격 유지 */
+  right: 20px; /* 두 버튼 간의 간격 유지 */
 }
 
 .modal-close {
   font-size: 32px;
   top : -45px;
-  right: -55px;
+  right: -25px;
 }
 
 .summary{
   margin-top: 50px; /* 상단에 약간의 여백 추가 */
 }
+
+@font-face {
+  font-family: 'SF_HambakSnow';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2106@1.1/SF_HambakSnow.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+

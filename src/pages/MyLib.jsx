@@ -179,12 +179,11 @@ const MyLib = () => {
                   key={index}
                   className="signal-card"
                   style={{ backgroundImage: `url(${book.dalle_path})` }}
-                  onClick={() => handleSignalClick(book.book_name, book.dalle_path, book.book_signal, book.book_extract)}
+                  onClick={() => handleSignalClick(book.book_name, book.dalle_path, book.book_repre, book.book_extract)}
                 >
-                  <p className='w-[1000px]'>{book.book_extract}</p>
-                  <div className="signal-text">
-                    <p>{book.book_signal}</p>
-                  </div>
+                  <p className='signalName'>{book.book_name}</p>
+                  <br />
+                  <p className='w-[1000px] signalSumm'>{book.book_repre}</p>
                 </div>
               ))
             ) : (
@@ -269,9 +268,9 @@ const MyLib = () => {
         backgroundImage={signalBackground}
         onDownload={handleDownload}
       >
-        <h2>{signalTitle}</h2>
-        <h3>{signalText}</h3>
-        <h4>{signalSumm}</h4>
+        <p>{signalTitle}</p>
+        <p>{signalText}</p>
+        <p>{signalSumm}</p>
 
       </Modal>
     </div>
