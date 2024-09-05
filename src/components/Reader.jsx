@@ -205,7 +205,7 @@ const EpubReader = ({ url, book, location }) => {
                 // cfi 값을 업데이트
                 if (location && location.start) {
                   setCfi(location.start.cfi);
-                  console.log('현재 CFI 값:', location.start.cfi);
+                  // console.log('현재 CFI 값:', location.start.cfi);
                 }
       };
 
@@ -280,7 +280,7 @@ const EpubReader = ({ url, book, location }) => {
                   // 페이지 이동 후 cfi 값 업데이트
                   if (location && location.start) {
                     setCfi(location.start.cfi);
-                    console.log('페이지 이동 후 CFI 값:', location.start.cfi);
+                    // console.log('페이지 이동 후 CFI 값:', location.start.cfi);
                   }
         }
       };
