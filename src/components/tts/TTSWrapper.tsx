@@ -8,10 +8,9 @@ interface TTSWrapperProps {
   show: boolean;
   onClose: () => void;
   children: React.ReactNode;
-  title: string;  // 제목을 prop으로 받음
 }
 
-const TTSWrapper: React.FC<TTSWrapperProps> = ({ show, onClose, children, title }) => {
+const TTSWrapper: React.FC<TTSWrapperProps> = ({ show, onClose, children }) => {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -35,7 +34,7 @@ const TTSWrapper: React.FC<TTSWrapperProps> = ({ show, onClose, children, title 
   return (
     <Wrapper show={show} ref={wrapperRef}>
       <Header>
-        <Title>{title}</Title>
+        <Title>Sound</Title>
         <CloseButton onClick={onClose}>✕</CloseButton>
       </Header>
       <Content>

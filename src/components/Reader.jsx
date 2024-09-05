@@ -628,12 +628,12 @@ const EpubReader = ({ url, book, location }) => {
           onBookmarkAdd={addBookmark}
           onFontChange={handleFontChange}
           onReadingComplete={handleReadingComplete}
+          onBookmarkRemove={handleBookmarkRemove}
           goToBookmark={goToBookmark}  // 전달
           fetchBookmarks={fetchBookmarks}  // 전달
           onReadingQuit={handleReadingQuit}
           book={book}
           userInfo={userInfo} // userInfo를 추가
-          onBookmarkRemove={handleBookmarkRemove}
         />
 
         <div
