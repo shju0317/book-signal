@@ -183,7 +183,7 @@ const MyLib = () => {
                 >
                   <p className='signalName'>{book.book_name}</p>
                   <br />
-                  <p className='w-[1000px] signalSumm'>{book.book_repre}</p>
+                  <p className='w-[1000px] signalRepre'>{book.book_repre}</p>
                 </div>
               ))
             ) : (
