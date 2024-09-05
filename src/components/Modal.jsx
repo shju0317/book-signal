@@ -4,7 +4,6 @@ import { FaArrowDown } from "react-icons/fa6";
 import { RxCross2 } from "react-icons/rx";
 
 const Modal = ({ isOpen, onClose, onDownload, backgroundImage, children }) => {
-  console.log(backgroundImage);
   if (!isOpen) return null;
 
   // children을 배열로 취급합니다.
