@@ -29,6 +29,7 @@ const EpubReader = ({ url, book, location }) => {
   const bookRef = useRef(null);
   const renditionRef = useRef(null);
   const audioRef = useRef(new Audio());
+
   const [isPlaying, setIsPlaying] = useState(false);
   const [rate, setRate] = useState(1);
   const [gender, setGender] = useState("MALE");
@@ -216,6 +217,8 @@ const EpubReader = ({ url, book, location }) => {
         book.destroy();
         rendition.off("rendered", updatePageInfo);
         rendition.off("relocated", updatePageInfo);
+
+        // window.removeEventListener("resize", handleResize);
       };
     }
   }, [url, dispatch, userInfo, location.state]);
@@ -381,34 +384,38 @@ const EpubReader = ({ url, book, location }) => {
 
   // 독서 완료 처리
   const handleReadingComplete = async () => {
-    console.log('독서 완료 처리 시작'); // 함수 호출 시작 로그
-
+    console.log("독서 완료 처리 시작");
+  
     if (userInfo && book) {
-      const { mem_id } = userInfo.mem_id;
-      const { book_idx } = book.book_idx;
-
-      console.log('사용자 정보:', { mem_id }); // 사용자 ID 로그
-      console.log('책 정보:', { book_idx }); // 책 인덱스 로그
-
-      // 요약 생성 요청
-      console.log('요약 생성 요청 중...'); // 요약 요청 시작 로그
-      const summarizeResult = await handleSummarize(mem_id, book_idx);
-
-      if (summarizeResult.success) {
-        console.log("요약 생성 및 저장 성공:", summarizeResult.summary); // 성공 로그
-      } else {
-        console.error("요약 생성 실패:", summarizeResult.error); // 실패 로그
-      }
-
-      console.log('상세 페이지로 네비게이션 중...'); // 페이지 이동 로그
-      navigate('/detail', {
+      const { mem_id } = userInfo;
+      const { book_idx } = book;
+  
+      // 상세 페이지로 네비게이션
+      console.log("상세 페이지로 네비게이션 중...");
+      navigate("/detail", {
         state: {
           book,
-          showReviewModal: true // 모달을 띄우기 위한 플래그
-        }
+          showReviewModal: true,
+        },
       });
+  
+      // 페이지 이동 후 비동기로 요약 생성 요청
+      setTimeout(async () => {
+        try {
+          console.log("요약 생성 요청 중...");
+          const summarizeResult = await handleSummarize(mem_id, book_idx);
+  
+          if (summarizeResult.success) {
+            console.log("요약 생성 및 저장 성공:", summarizeResult.summary);
+          } else {
+            console.error("요약 생성 실패:", summarizeResult.error);
+          }
+        } catch (error) {
+          console.error("요약 및 이미지 생성 중 오류 발생:", error);
+        }
+      }, 1000); // 페이지가 완전히 로드된 후에 작업을 시작하도록 약간의 지연을 둠
     } else {
-      console.warn('사용자 정보 또는 책 정보가 없습니다.'); // 사용자 또는 책 정보가 없을 때 경고 로그
+      console.warn("사용자 정보 또는 책 정보가 없습니다.");
     }
   };
 
@@ -675,6 +682,9 @@ const EpubReader = ({ url, book, location }) => {
         }}
         book={book} // book 객체 전달
         bookText={currentBookText}
+        // onStopGazeTracking={(stopGazeTracking) => {
+        //   stopGazeTrackingRef.current = stopGazeTracking;
+        // }}
       />
     </div>
   );
