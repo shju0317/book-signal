@@ -203,6 +203,7 @@ const EpubReader = ({ url, book, location }) => {
           }
           logCurrentPageText();
           setLoading(false);
+
         }
       };
 
@@ -264,6 +265,16 @@ const EpubReader = ({ url, book, location }) => {
 
           dispatch(updateCurrentPage({ currentPage: page || 1, totalPages: total || 1 }));
           setLoading(false);
+
+        // 페이지 이동 후에 canvas 사이즈와 위치만 업데이트
+        // if (EyeGazeRef.current) {
+        //   EyeGazeRef.current.resizeCanvas(); // canvas 크기만 조정
+        // }
+
+        // if (seesoRef.current) {
+        //   seesoRef.current.stopTracking();
+        //   seesoRef.current.startTracking(onGaze, onDebug);
+        // }
         }
       };
 
@@ -682,6 +693,7 @@ const EpubReader = ({ url, book, location }) => {
         }}
         book={book} // book 객체 전달
         bookText={currentBookText}
+        currentPage={currentPage}
         // onStopGazeTracking={(stopGazeTracking) => {
         //   stopGazeTrackingRef.current = stopGazeTracking;
         // }}

@@ -8,7 +8,7 @@ const SEESO_API_KEY = process.env.REACT_APP_SEESO_API_KEY;
 // console.log(SEESO_API_KEY);
 
 
-const EyeGaze = ({ viewerRef, onSaveGazeTime, bookText, book }) => {
+const EyeGaze = ({ viewerRef, onSaveGazeTime, bookText, book, currentPage }) => {
   const { user } = useContext(AuthContext);
   const memId = user?.mem_id || null;
   // console.log('user!!!', user);
@@ -271,6 +271,14 @@ const EyeGaze = ({ viewerRef, onSaveGazeTime, bookText, book }) => {
       seesoRef.current.startTracking(onGaze, onDebug);
     }
   }, [isInitialized]);
+
+  /******************** 페이지 이동 시 시선 추적 중단 후 재시작 ********************/
+useEffect(() => {
+  if (seesoRef.current) {
+    seesoRef.current.stopTracking(); // 페이지 이동 전 시선 추적 중단
+    seesoRef.current.startTracking(onGaze, onDebug); // 페이지 이동 후 시선 추적 재시작
+  }
+}, [currentPage]);
 
 
   /******************** 시선 추적 시간 저장 ********************/
