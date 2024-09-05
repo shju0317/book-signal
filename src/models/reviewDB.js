@@ -4,9 +4,10 @@ const db = require('../config/database');
 exports.getUserReviewsWithBooks = async (mem_id) => {
   try {
     const query = `
-      SELECT *
-      FROM book_end
-      WHERE mem_id = ? AND book_score IS NOT NULL AND book_review IS NOT NULL
+SELECT book_end.*, book_db.book_cover
+FROM book_end 
+JOIN book_db ON book_end.book_idx = book_db.book_idx 
+WHERE book_end.mem_id = ?;
     `;
     const [results] = await db.query(query, [mem_id]);
     return results;
@@ -17,37 +18,46 @@ exports.getUserReviewsWithBooks = async (mem_id) => {
 
 // 리뷰 삭제 기능
 exports.deleteReview = async (reviewId, mem_id) => {
+  
   const checkReviewQuery = `SELECT book_score, book_review FROM book_end WHERE end_idx = ?`;
   const updateReviewQuery = `UPDATE book_end SET book_score = NULL, book_review = NULL WHERE end_idx = ?`;
   const updatePointsQuery = `UPDATE member SET mem_point = mem_point - 15 WHERE mem_id = ?`;
 
+  let connection;
+
   try {
+    // 연결 가져오기
+    connection = await db.getConnection();
+
+    // 트랜잭션 시작
+    await connection.beginTransaction();
+
     // 먼저 해당 리뷰의 book_score과 book_review가 null이 아닌지 확인
-    const [reviewResults] = await db.query(checkReviewQuery, [reviewId]);
+    const [reviewResults] = await connection.query(checkReviewQuery, [reviewId]);
     const review = reviewResults[0];
 
     if (!review.book_score && !review.book_review) {
       return { message: '리뷰가 이미 삭제되었습니다.' };
     }
 
-    // 트랜잭션 시작
-    await db.beginTransaction();
-
     // 리뷰 정보 업데이트
-    await db.query(updateReviewQuery, [reviewId]);
+    await connection.query(updateReviewQuery, [reviewId]);
 
     // 포인트 차감
-    await db.query(updatePointsQuery, [mem_id]);
+    await connection.query(updatePointsQuery, [mem_id]);
 
     // 트랜잭션 커밋
-    await db.commit();
+    await connection.commit();
 
     return { message: '리뷰 삭제 및 포인트 차감이 성공적으로 완료되었습니다.' };
   } catch (err) {
-    await db.rollback(); // 오류 발생 시 롤백
+    if (connection) await connection.rollback(); // 오류 발생 시 롤백
     throw err;
+  } finally {
+    if (connection) connection.release(); // 연결 해제
   }
 };
+
 
 // 리뷰 데이터 삽입
 exports.addReview = async (data) => {

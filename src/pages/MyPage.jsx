@@ -91,7 +91,7 @@ const MyPage = () => {
           <PiHandCoinsDuotone className='icon' />
           <p>포인트: <span className="points">{userInfo.mem_point}</span>점</p>
         </div>
-        <CalibrationButton/>
+        <CalibrationButton />
         <br />
         <button onClick={handleDeleteUser}>회원탈퇴</button>
       </div>
@@ -107,17 +107,19 @@ const MyPage = () => {
           </div>
         ) : (
           <div className="reviews-list">
-            {reviews.map((review) => (
-              <div key={review.end_idx} className="review-item">
-                <img src={`/images/${review.book_cover}`} alt={review.book_name} className="book-cover" />
-                <div className="review-content">
-                  <h4>{review.book_name}</h4>
-                  <p>★ {review.book_score}</p>
-                  <h5>리뷰: {review.book_review}</h5>
-                  <button onClick={() => handleDeleteReview(review.end_idx)}>삭제하기</button>
+            {reviews.map((review) => {
+              return (
+                <div key={review.end_idx} className="review-item">
+                  <img src={`/images/${review.book_cover}`} alt={review.book_name} className="book-cover" />
+                  <div className="review-content">
+                    <h4>{review.book_name}</h4>
+                    <p>★ {review.book_score}</p>
+                    <h5>리뷰: {review.book_review}</h5>
+                    <button onClick={() => handleDeleteReview(review.end_idx)}>삭제하기</button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
