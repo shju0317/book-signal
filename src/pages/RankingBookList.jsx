@@ -4,6 +4,7 @@ import SlideShow from '../components/SlideShow'
 import axios from 'axios'
 import SLIDES from "../data/slides"
 import { useLocation, useNavigate  } from 'react-router-dom';
+import LoadingView from 'LoadingView';
 
 const RankingBookList = () => {
   const [books, setBooks] = useState([]);
@@ -58,7 +59,9 @@ const RankingBookList = () => {
   };
 
   if (loading) {
-    return <div>로딩 중...</div>;
+    // return <div >로딩 중...</div>;
+    // return <LoadingIcon/>
+    return <LoadingView/>
   }
 
   const handleBookClick = (book) => {
