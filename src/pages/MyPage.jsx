@@ -8,6 +8,7 @@ import { PiHandCoinsDuotone } from "react-icons/pi";
 import axios from 'axios';
 import CalibrationButton from '../components/book/CalibrationButton';
 import { alertMessage } from "../../src/utils/alertMessage";
+import {RingLoader} from 'react-spinners';
 
 const MyPage = () => {
   const [userInfo, setUserInfo] = useState(null);
@@ -69,7 +70,7 @@ const MyPage = () => {
   };
 
   if (!userInfo) {
-    return <p>로딩 중...</p>;
+    return <RingLoader />;
   }
 
   return (

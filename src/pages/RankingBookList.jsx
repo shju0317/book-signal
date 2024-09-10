@@ -4,7 +4,7 @@ import SlideShow from '../components/SlideShow'
 import axios from 'axios'
 import SLIDES from "../data/slides"
 import { useLocation, useNavigate  } from 'react-router-dom';
-import LoadingView from 'LoadingView';
+import {RingLoader} from 'react-spinners';
 
 const RankingBookList = () => {
   const [books, setBooks] = useState([]);
@@ -61,7 +61,14 @@ const RankingBookList = () => {
   if (loading) {
     // return <div >로딩 중...</div>;
     // return <LoadingIcon/>
-    return <LoadingView/>
+    return <div className="flex justify-center">
+      <RingLoader
+        color="#f57e53"
+        loading={loading}
+        size={70}
+        aria-label="Loading Spinner"
+      />
+    </div>
   }
 
   const handleBookClick = (book) => {
